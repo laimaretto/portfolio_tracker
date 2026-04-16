@@ -20,22 +20,6 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
-## [v0.9.3] — 2026-04-15 (spike — not released)
-
-### Added
-- **Per-portfolio deposit period** — each portfolio in Step 3 now has an independent deposit period selector alongside its deposit amount. Available periods: every 1, 2, 3, 4, 6, or 12 months. Defaults to monthly (preserves existing behaviour).
-- **Generalized `projectFV(pv, pmt, rate, years, k)`** — projection formula extended from fixed monthly deposits to arbitrary $k$-month periods. Effective rate per period: $r_k = (1+r_m)^k - 1$; number of periods: $N = \lfloor 12n/k \rfloor$. Reduces exactly to the prior formula at $k=1$.
-- **Combined projection sums individual FVs** — with variable periods, a single rate + sum-of-PMTs formula is no longer correct. The combined projection is now computed as the sum of each portfolio's independently projected FV (using its own $r$, $PMT$, and $k$). `combinedR` is still displayed as a card metric.
-- **`computeFVAtYear(y, rateSelector)` and `computeTotalDeposited(y)` helpers** — clean abstractions for per-year FV and total deposits, shared by `updateProjection`, `drawProjChart`, `applyWithdrawalRate`, and `updateWithdrawal`.
-
-### Changed
-- **`drawProjChart` signature simplified** — no longer accepts raw financial parameters; uses `computeFVAtYear` internally.
-- **`drawSustainChart` signature simplified** — accumulation data now pre-computed and passed in as arrays; `altRm` passed explicitly.
-- **`renderProjSelectors` layout** — deposit inputs now shown as amount + period pairs; "Total / mo" summary removed (no longer meaningful when periods differ).
-- **Deposit period persisted** — `portfolioMonthlyPeriod` saved under `pt5_periods` in sessionStorage, cleared on "Clear all".
-
----
-
 ## [v0.9.2] — 2026-04-14
 
 ### Fixed
