@@ -108,19 +108,19 @@ Two additional metrics are shown on each card to give context for interpreting r
 
 **Max lifetime** — the age of the oldest deposit:
 
-$$\text{max\_lifetime} = \max_i\, t_i$$
+$$\text{max-lifetime} = \max_i\, t_i$$
 
 A 9% MWRR over 6 months and a 9% MWRR over 6 years are not equivalent in terms of statistical weight or confidence. Max lifetime answers: *how long has this portfolio actually been running?*
 
 **Weighted average time** — the dollar-weighted average age of all deposits:
 
-$$\text{wtd\_avg\_time} = \frac{\sum_i \text{amount}_i \times t_i}{\sum_i \text{amount}_i}$$
+$$\text{wtd-avg-time} = \frac{\sum_i \text{amount}_i \times t_i}{\sum_i \text{amount}_i}$$
 
 The gap between max lifetime and wtd avg time reveals whether capital is front-loaded (early large deposits) or back-loaded (recent large deposits). A portfolio that is 5 years old but has a weighted average time of 2 years means the bulk of the capital arrived recently — so the MWRR is effectively a 2-year story, not a 5-year one.
 
 `wtd_avg_time` also has a direct practical interpretation: it is the single effective time horizon that, combined with total deposits and r, approximately reconstructs the current portfolio value:
 
-$$\text{VAL} \approx \text{total\_deposited} \times (1+r)^{\text{wtd\_avg\_time}}$$
+$$\text{VAL} \approx \text{total-deposited} \times (1+r)^{\text{wtd-avg-time}}$$
 
 This is an approximation (the exact MWRR equation is $\text{VAL} = \sum_i d_i (1+r)^{t_i}$; Jensen's inequality means the two are not identical), but for typical deposit patterns and return levels the error is small. The formula gives `wtd_avg_time` a concrete meaning: it is the equivalent lump-sum holding period that produces the same portfolio value as the actual staggered deposit history.
 
