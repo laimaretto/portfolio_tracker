@@ -12,15 +12,13 @@ BSD 3-Clause — see [LICENSE](LICENSE)
 
 ## Why this tool exists
 
-<!-- Most investment dashboards show you time-weighted returns — a metric designed for fund managers to compare performance against benchmarks. That number is almost useless for an individual investor whose portfolio grows through irregular, real-world deposits. -->
-
-An individual investor whose portfolio grows through irregular, real-world deposits, needs an easy way to see the evolution of them.
+An individual investor whose portfolio grows through irregular, real-world deposits needs an easy way to see the evolution of their investments.
 
 This tool computes the **Money-Weighted Rate of Return (MWRR)**, which answers the question that actually matters:
 
 > *Given exactly when and how much I invested, what annualized return does my portfolio imply?*
 
-It then applies Fisher's real-return equation to strip out inflation, and runs a month-by-month simulation to tell you whether your projected retirement portfolio is sustainable at your target withdrawal rate.
+It then strips out inflation to give you a real return, and runs a simulation to tell you whether your projected retirement portfolio is sustainable at your target withdrawal rate.
 
 ---
 
@@ -38,17 +36,17 @@ Deposits are stored in `sessionStorage` — they exist only for the duration of 
 
 Each portfolio is shown as a card. Enter the current market value (VAL) directly in the card. Returns calculate automatically. Change the VAL or the inflation assumption and the rates update instantly.
 
-**Inflation assumption:** enter the annual inflation rate (%) to use for the Fisher real-return calculation.
+**Inflation assumption:** enter the annual inflation rate (%) to use for computing the real return.
 
 | Assumption | When to use |
 |---|---|
-| 3% | Standard long-run USD assumption; consistent with US Federal Reserve target and historical 20-year averages |
-| 4–4.5% | Moderately conservative; appropriate if you expect persistently above-target inflation |
-| > 4.5% | Stress-test / high-safety scenario; increases the conservativeness of the real-return estimate |
+| 3% | Standard long-run USD assumption |
+| 4–4.5% | Conservative; appropriate if you expect persistently above-target inflation |
+| > 4.5% | Stress-test scenario |
 
 A higher inflation assumption lowers the computed real return. When in doubt, run the tool twice (once at 3%, once at 4.5%) to bracket the outcome.
 
-Each card shows: nominal r, real r (Fisher), quality badge, deposit count, current VAL, total deposited, gain, max lifetime (age of oldest deposit), and weighted average time (dollar-weighted average age of deposits).
+Each card shows: nominal r, real r, quality badge, deposit count, current VAL, total deposited, gain, max lifetime (age of oldest deposit), and weighted average time (dollar-weighted average age of deposits).
 
 The combined card auto-populates once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
 
@@ -57,12 +55,12 @@ The combined card auto-populates once all portfolio VALs are entered and shows a
 Configure planned monthly deposits per portfolio and a time horizon. The app projects:
 
 - **Nominal VAL** — future value at the nominal MWRR
-- **Real VAL** — future value in today's purchasing power (at Fisher real return)
+- **Real VAL** — future value in today's purchasing power
 - **Alternate Real VAL** — same projection at a user-specified alternate real return, for scenario comparison
 
-A 15-year growth chart overlays all three curves.
+A growth chart overlays all three curves over the chosen horizon.
 
-Below the chart, a sustainability simulation asks: *after the horizon ends, how much do you withdraw monthly?* It computes whether the portfolio survives indefinitely (perpetuity condition) or depletes, and if so, at what age. Both the main scenario and the alternate scenario are plotted together.
+Below the chart, a sustainability simulation asks: *after the horizon ends, how much do you withdraw monthly?* It computes whether the portfolio survives indefinitely or depletes, and if so, at what age. Both the main scenario and the alternate scenario are shown together.
 
 ---
 
@@ -71,10 +69,6 @@ Below the chart, a sustainability simulation asks: *after the horizon ends, how 
 ### Money-Weighted Rate of Return (MWRR)
 
 The MWRR is the rate **r** that satisfies:
-
-<!-- ```
-VAL = Σ dᵢ · (1 + r)^tᵢ
-``` -->
 
 $\text{VAL}  = \sum_i d_i \times (1+r)^{t_i}$
 
@@ -85,20 +79,11 @@ Where:
 
 **tᵢ calculation:**
 
-<!-- ```
-tᵢ = round((today − deposit_date) / 86400) / 365.25
-``` -->
+$t_i = \text{round}[(\text{today} - \text{date}_i) / 86400] / 365.25$
 
-$t_i = \text{round}[(\text{today}-i_i)/86400]/365.25$
+where $\text{date}_i$ is the date of deposit $i$ and the difference is in days. Integer days divided by 365.25 — this matches the Excel formula `(TODAY() - deposit_date) / 365.25` exactly.
 
-Where:
-- $i_i$ is the date of the deposit $d_i$
-
-Integer days divided by 365.25. This matches the Excel formula `(TODAY() - deposit_date) / 365.25` exactly. Using fractional milliseconds or noon timestamps produces different results.
-
-**Solver:** Newton-Raphson iteration on the equation above, starting from an initial guess of 10%. Converges in under 20 iterations for typical portfolios.
-
-This is equivalent to the Internal Rate of Return (IRR) of the deposit cash flow with the current portfolio value as the terminal payoff. It is the industry-standard MWRR as defined by the CFA Institute Global Investment Performance Standards (GIPS).
+**Solver:** Newton-Raphson iteration on the equation above, starting from an initial guess of 8% — a reasonable starting point for a typical investment portfolio. Converges in under 20 iterations.
 
 ---
 
@@ -110,41 +95,39 @@ Two additional metrics are shown on each card to give context for interpreting r
 
 $$\text{max-lifetime} = \max_i\, t_i$$
 
-A 9% MWRR over 6 months and a 9% MWRR over 6 years are not equivalent in terms of statistical weight or confidence. Max lifetime answers: *how long has this portfolio actually been running?*
+A 9% return over 6 months and a 9% return over 6 years tell very different stories. Max lifetime answers: *how long has this portfolio actually been running?*
 
 **Weighted average time** — the dollar-weighted average age of all deposits:
 
 $$\text{wtd-avg-time} = \frac{\sum_i \text{amount}_i \times t_i}{\sum_i \text{amount}_i}$$
 
-The gap between max lifetime and wtd avg time reveals whether capital is front-loaded (early large deposits) or back-loaded (recent large deposits). A portfolio that is 5 years old but has a weighted average time of 2 years means the bulk of the capital arrived recently — so the MWRR is effectively a 2-year story, not a 5-year one.
+The gap between max lifetime and wtd avg time reveals whether capital is front-loaded (early large deposits) or back-loaded (recent large deposits). A portfolio that is 5 years old but has a weighted average time of 2 years means the bulk of the capital arrived recently — so the return figure is effectively a 2-year story, not a 5-year one.
 
-`wtd_avg_time` also has a direct practical interpretation: it is the single effective time horizon that, combined with total deposits and r, approximately reconstructs the current portfolio value:
+`wtd_avg_time` also has a practical interpretation: it is the equivalent holding period that approximately connects your deposit history to your current portfolio value:
 
 $$\text{VAL} \approx \text{total-deposited} \times (1+r)^{\text{wtd-avg-time}}$$
 
-This is an approximation (the exact MWRR equation is $\text{VAL} = \sum_i d_i (1+r)^{t_i}$; Jensen's inequality means the two are not identical), but for typical deposit patterns and return levels the error is small. The formula gives `wtd_avg_time` a concrete meaning: it is the equivalent lump-sum holding period that produces the same portfolio value as the actual staggered deposit history.
-
-Note: using the computed `r` (which was solved from the broker-reported VAL) makes the formula circular — convergence is guaranteed by construction and tells you nothing new. The formula becomes genuinely informative when used with an **independent** return assumption, such as a benchmark or target rate, to estimate what the portfolio *should* be worth given the deposit history and holding period.
+This is an approximation, but for typical deposit patterns the error is small. It gives `wtd_avg_time` a concrete meaning: the single time horizon that, combined with your total deposits and return, reconstructs roughly what your portfolio is worth today.
 
 ---
 
-### Real return (Fisher equation)
+### Real return
 
 $$r_\text{real} = \frac{1 + r_\text{nominal}}{1 + \pi} - 1$$
 
-where $\pi$ is the annual inflation rate. The simple approximation $r_\text{real} \approx r_\text{nominal} - \pi$ is not used. At inflation rates above 5% (relevant for ARS-denominated portfolios), the approximation error compounds significantly over multi-year projections.
+where $\pi$ is the annual inflation rate. The simple approximation $r_\text{real} \approx r_\text{nominal} - \pi$ is not used — at higher inflation rates the error compounds meaningfully over multi-year projections.
 
 ---
 
 ### Future value projection
 
-Standard compound growth with regular monthly contributions:
+Compound growth with regular monthly contributions, using the exact geometric monthly rate:
 
-$$FV = \text{VAL} \cdot \left(1 + \frac{r}{12}\right)^{12n} + PMT \cdot \frac{\left(1 + \frac{r}{12}\right)^{12n} - 1}{r/12}$$
+$$FV = \text{VAL} \cdot (1+r_m)^{12n} + PMT \cdot \frac{(1+r_m)^{12n} - 1}{r_m}$$
 
-where $\text{VAL}$ is the current portfolio value, $PMT$ is the monthly deposit, $n$ is the horizon in years, and $r$ is either the nominal or real rate depending on which projection is being computed.
+where $r_m = (1+r)^{1/12} - 1$ is the exact monthly rate, $PMT$ is the monthly deposit, and $n$ is the horizon in years.
 
-When multiple portfolios exist, each portfolio's projection uses its own `r` and its own share of the planned monthly contribution. The combined projection uses the blended MWRR computed from all deposits together.
+When multiple portfolios exist, each portfolio's projection uses its own `r`. The combined projection uses the MWRR solved from all deposits pooled together.
 
 #### Usage tips
 
@@ -163,61 +146,33 @@ This is useful for understanding how much of your projected retirement portfolio
 
 ### Combined MWRR across multiple portfolios
 
-When you have two or more portfolios, the combined `r` is **not** derived from the individual portfolio returns. It is solved independently by pooling every deposit from every portfolio into a single cash flow stream and solving the MWRR equation once more against the combined VAL:
+When you have two or more portfolios, the combined `r` is **not** derived from the individual portfolio returns. It is solved independently by pooling every deposit from every portfolio and solving the MWRR equation against the combined VAL:
 
 $$\text{VAL}_\text{combined} = \sum_i d_i \times (1 + r_\text{combined})^{t_i} \quad \text{(all portfolios)}$$
 
-The individual `r_1`, `r_2`, … results play no role in this calculation. They are discarded and the solver runs fresh on the full deposit history.
-
-This matters because there is no algebraically correct way to combine individual MWRRs into a portfolio-level MWRR after the fact — not by simple averaging, not by deposit-weighting, not by VAL-weighting. The only correct approach is to re-solve the equation from the raw cash flows. Any blending formula applied to pre-computed individual returns is an approximation whose error depends on how differently the portfolios were funded over time.
-
-The practical implication: if you maintain portfolio records in separate spreadsheets, you would need to consolidate all deposit rows into a single sheet and run a third goal-seek to get the true combined MWRR. This tool does that automatically since all deposits are stored in a single flat structure regardless of which portfolio they belong to.
+There is no correct way to combine individual returns into a portfolio-level return after the fact — not by averaging, not by weighting. The only correct approach is to re-solve from the raw deposit data. This tool does that automatically.
 
 ---
 
 ### Sustainability simulation
 
-After the accumulation horizon, the portfolio enters a withdrawal phase. All withdrawal-phase calculations use **real** values (today's purchasing power) throughout.
+After the accumulation horizon, the portfolio enters a withdrawal phase. All calculations here use **real** values (today's purchasing power) throughout.
 
 **Perpetuity condition:**
 
-$$W_\infty = \text{VAL}_\text{real} \times \frac{r_\text{real}}{12}$$
+$$W_\infty = \text{VAL}_\text{real} \times \left((1 + r_\text{real})^{1/12} - 1\right)$$
 
-If the planned monthly withdrawal $W \leq W_\infty$, the portfolio never depletes. This is the classic "4% rule" threshold generalized to any real return.
+This is the maximum monthly withdrawal that leaves the portfolio intact forever — you only spend the monthly return, never the principal. If your portfolio is worth $500K in real terms and your real return is 4%, the perpetuity withdrawal is $500K × ((1.04)^{1/12} − 1) ≈ $1,637/month. As long as you withdraw no more than that, the $500K stays intact indefinitely.
+
+If the planned monthly withdrawal $W \leq W_\infty$, the portfolio never depletes.
 
 **Depletion simulation (if withdrawal > perpetuity):**
 
-Month-by-month iteration:
-
-$$r_m = (1 + r_\text{real})^{1/12} - 1$$
-
-$$B_{t+1} = B_t \cdot (1 + r_m) - W$$
-
-The monthly rate uses the exact geometric conversion rather than the common approximation $r_\text{real}/12$. The approximation understates the monthly rate (e.g. 0.4167% vs 0.4074% at 5% real), which slightly overstates long-run growth. The geometric rate is exact: compounding it 12 times recovers the original annual rate precisely.
-
-The simulation runs until `balance ≤ 0` or 100 years, whichever comes first. The depletion month determines the age at which the portfolio reaches zero.
-
-**Why monthly simulation differs from a back-of-envelope annual estimate:**
-
-A quick annual check might subtract 12 months of withdrawals upfront and then apply one year of growth:
-
-$$\tilde{B}_1 = (\text{VAL} - 12W) \times (1 + r_\text{real})$$
-
-The simulation gives a slightly higher result for two reasons:
-
-1. **Monthly compounding earns more than annual compounding** — the geometric monthly rate $(1+r)^{1/12} - 1$, compounded 12 times, recovers exactly $r$. But applying it monthly to a balance that is also being drawn down monthly produces a different trajectory than one annual growth step on a depleted balance.
-2. **Withdrawal timing** — in the monthly model the balance earning returns is larger early in the year, before each withdrawal reduces it. Subtracting all 12 withdrawals upfront understates the average invested balance.
-
-Both effects are small at typical return and withdrawal levels (a few hundred dollars per year on a $200K portfolio) but compound over multi-decade horizons. The monthly model matches how a real brokerage account behaves.
+The simulation runs month by month: each month the portfolio earns one month of real return, then the withdrawal is subtracted. If the balance eventually reaches zero, the tool shows the age at depletion — your current age plus the accumulation horizon plus the years of withdrawals the portfolio sustained. If the balance never reaches zero, it shows "Never".
 
 **Withdrawal rate cards:**
 
-Three reference cards show the implied monthly withdrawal at 4%, 3.3%, and 2.5% of the real end-VAL. These correspond roughly to the academic "safe withdrawal rate" literature:
-- 4% — Trinity Study baseline (30-year horizon, mixed equity/bond portfolio)
-- 3.3% — More conservative estimate for longer horizons
-- 2.5% — Near-perpetuity; appropriate for early retirement
-
-All three are computed from the **real** end-VAL, keeping them consistent with the simulation.
+Three reference cards show the implied monthly withdrawal at 4%, 3.3%, and 2.5% of the real end-VAL — from more aggressive to more conservative. Clicking a card auto-fills the withdrawal input so you can immediately run the simulation at that rate.
 
 ---
 
@@ -265,7 +220,7 @@ Using native Excel date cells (not text strings) is the most reliable option —
 
 ## Return quality labels
 
-Each portfolio in Step 2 displays a badge rating based on its **real return** (Fisher-adjusted), not the nominal return. Nominal return is misleading as a quality signal because it includes inflation — a portfolio earning 8% nominal in a 10% inflation environment is actually losing purchasing power.
+Each portfolio in Step 2 displays a badge based on its **real return**, not the nominal return. Nominal return is misleading as a quality signal because it includes inflation — a portfolio earning 8% nominal in a 10% inflation environment is actually losing purchasing power.
 
 | Real r | Label | Color |
 |---|---|---|
@@ -275,4 +230,3 @@ Each portfolio in Step 2 displays a badge rating based on its **real return** (F
 | ≤ 0% | Poor | Red |
 
 A portfolio with a high nominal r but negative real r will correctly show as **Poor**.
-
