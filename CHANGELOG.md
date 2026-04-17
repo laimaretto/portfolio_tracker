@@ -4,6 +4,14 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.1.1] — 2026-04-17
+
+### Changed
+- **README rewritten for clarity** — plain language throughout, no academic references. Removed Jensen's inequality, Trinity Study, "algebraically correct", "goal-seek". Simplified combined MWRR and sustainability sections.
+- **README corrections** — initial guess fixed from 10% to 8% (matches code); FV formula updated to show exact geometric monthly rate $(1+r)^{1/12}-1$ instead of the approximation $r/12$ (matches code); "15-year chart" replaced with "growth chart" since the horizon is user-configurable.
+
+---
+
 ## [v1.1.0] — 2026-04-16
 
 ### Changed
