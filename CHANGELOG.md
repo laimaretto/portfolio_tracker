@@ -6,6 +6,9 @@ All notable changes to Portfolio Tracker are documented here.
 
 ## [v1.1.1] — 2026-04-17
 
+### Fixed
+- **Return rates in Step 3 shown with 2 decimal places** — nominal r and real rr sub-labels in the projection section now show `.toFixed(2)` (e.g. "6.05%") instead of `.toFixed(1)` ("6.1%"), consistent with Step 2 cards. The rounding mismatch caused manual perpetuity calculations to differ from the tool by up to ~$15/month.
+
 ### Changed
 - **README rewritten for clarity** — plain language throughout, no academic references. Removed Jensen's inequality, Trinity Study, "algebraically correct", "goal-seek". Simplified combined MWRR and sustainability sections.
 - **README corrections** — initial guess fixed from 10% to 8% (matches code); FV formula updated to show exact geometric monthly rate $(1+r)^{1/12}-1$ instead of the approximation $r/12$ (matches code); "15-year chart" replaced with "growth chart" since the horizon is user-configurable.

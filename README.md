@@ -162,7 +162,11 @@ After the accumulation horizon, the portfolio enters a withdrawal phase. All cal
 
 $$W_\infty = \text{VAL}_\text{real} \times \left((1 + r_\text{real})^{1/12} - 1\right)$$
 
-This is the maximum monthly withdrawal that leaves the portfolio intact forever — you only spend the monthly return, never the principal. If your portfolio is worth $500K in real terms and your real return is 4%, the perpetuity withdrawal is $500K × ((1.04)^{1/12} − 1) ≈ $1,637/month. As long as you withdraw no more than that, the $500K stays intact indefinitely.
+This is the maximum monthly withdrawal that leaves the portfolio intact forever — you only spend the monthly return, never the principal. If your portfolio is worth \$500K in real terms and your real return is 4%, the perpetuity withdrawal is:
+
+$$\$500K \times \left((1.04)^{1/12} - 1\right) \approx \$1{,}637\text{/month}$$
+
+As long as you withdraw no more than that, the \$500K stays intact indefinitely.
 
 If the planned monthly withdrawal $W \leq W_\infty$, the portfolio never depletes.
 
