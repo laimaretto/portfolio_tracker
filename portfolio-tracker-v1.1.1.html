@@ -1130,14 +1130,14 @@ function updateProjection(){
   document.getElementById('proj-nominal').textContent=fmtUSD(nom);
   document.getElementById('proj-real').textContent=fmtUSD(real);
   document.getElementById('proj-deposited').textContent=fmtUSD(monthly*12*years);
-  document.getElementById('proj-at-r').textContent=(lang==='es'?'con r = ':'at r = ')+(r*100).toFixed(1)+'%';
-  document.getElementById('s4-real-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(rr*100).toFixed(1)+'%';
+  document.getElementById('proj-at-r').textContent=(lang==='es'?'con r = ':'at r = ')+(r*100).toFixed(2)+'%';
+  document.getElementById('s4-real-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(rr*100).toFixed(2)+'%';
   // Alternate real return
   var altRR=getAltRR();
   if(altRR!==null){
     var altReal=projectFV(val,monthly,altRR,years);
     document.getElementById('proj-alt-real').textContent=fmtUSD(altReal);
-    document.getElementById('s4-alt-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(altRR*100).toFixed(1)+'%';
+    document.getElementById('s4-alt-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(altRR*100).toFixed(2)+'%';
     document.getElementById('proj-alt-row').style.display='';
     document.getElementById('leg-alt-wrap').style.display='';
   } else {
