@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.1.2] — 2026-04-17
+
+### Changed
+- **Variable names aligned with README nomenclature** — code variables now match the r_n / r_r / r_m naming used in the README math sections. `var r` (nominal MWRR) → `var rn`; `var realR` → `var rr`; `var r` inside `projectFV` (monthly rate) → `var rm`; Newton-Raphson step variable renamed from `rn` to `rnext` to free the name; `portfolioRs[p].r` property → `.rn`.
+
+---
+
 ## [v1.1.1] — 2026-04-17
 
 ### Fixed
