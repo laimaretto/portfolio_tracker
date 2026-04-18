@@ -68,14 +68,16 @@ Below the chart, a sustainability simulation asks: *after the horizon ends, how 
 
 ### Money-Weighted Rate of Return (MWRR)
 
-The MWRR is the rate **r** that satisfies:
+The starting point is $r_n$ — the **nominal annual return** — which is the rate that satisfies:
 
-$\text{VAL}  = \sum_i d_i \times (1+r)^{t_i}$
+$\text{VAL}  = \sum_i d_i \times (1+r_n)^{t_i}$
 
 Where:
 - $\text{VAL}$ is the current portfolio value
 - $d_i$ is deposit *i* (in USD)
-- $t_i$ is the number of years that deposit has been invested
+- $t_i$ is the number of **years** that deposit has been invested
+
+Because $t_i$ is in years, $r_n$ is an **annual** rate. It answers: *given my deposit history, how fast has my portfolio actually grown in nominal terms?*
 
 **tᵢ calculation:**
 
@@ -89,7 +91,7 @@ where $\text{date}_i$ is the date of deposit $i$ and the difference is in days. 
 
 ### Portfolio lifetime metrics
 
-Two additional metrics are shown on each card to give context for interpreting r.
+Two additional metrics are shown on each card to give context for interpreting $r_n$.
 
 **Max lifetime** — the age of the oldest deposit:
 
@@ -105,7 +107,7 @@ The gap between max lifetime and wtd avg time reveals whether capital is front-l
 
 `wtd_avg_time` also has a practical interpretation: it is the equivalent holding period that approximately connects your deposit history to your current portfolio value:
 
-$$\text{VAL} \approx \text{total-deposited} \times (1+r)^{\text{wtd-avg-time}}$$
+$$\text{VAL} \approx \text{total-deposited} \times (1+r_n)^{\text{wtd-avg-time}}$$
 
 This is an approximation, but for typical deposit patterns the error is small. It gives `wtd_avg_time` a concrete meaning: the single time horizon that, combined with your total deposits and return, reconstructs roughly what your portfolio is worth today.
 
@@ -113,28 +115,46 @@ This is an approximation, but for typical deposit patterns the error is small. I
 
 ### Real return
 
-$$r_\text{real} = \frac{1 + r_\text{nominal}}{1 + \pi} - 1$$
+From $r_n$, the **real annual return** $r_r$ is derived using the Fisher equation:
 
-where $\pi$ is the annual inflation rate. The simple approximation $r_\text{real} \approx r_\text{nominal} - \pi$ is not used — at higher inflation rates the error compounds meaningfully over multi-year projections.
+$$r_r = \frac{1 + r_n}{1 + \pi} - 1$$
+
+where $\pi$ is the annual inflation rate. Like $r_n$, $r_r$ is an **annual** rate — it answers: *how much purchasing power has my portfolio actually gained after discounting inflation?* The simple approximation $r_r \approx r_n - \pi$ is not used — at higher inflation rates the error compounds meaningfully over multi-year projections.
 
 ---
 
 ### Future value projection
 
-Compound growth with regular monthly contributions, using the exact geometric monthly rate:
+For projection, the annual rates $r_n$ and $r_r$ are converted to their **monthly** equivalent $r_m$:
+
+$$r_m = (1 + r_r)^{1/12} - 1$$
+
+$r_m$ is the only rate used during projection and withdrawal — $r_n$ and $r_r$ are annual and never applied directly to monthly calculations.
+
+The projection formula is:
 
 $$FV = \text{VAL} \cdot (1+r_m)^{12n} + PMT \cdot \frac{(1+r_m)^{12n} - 1}{r_m}$$
 
-where $r_m = (1+r)^{1/12} - 1$ is the exact monthly rate, $PMT$ is the monthly deposit, and $n$ is the horizon in years.
+where $PMT$ is the monthly deposit and $n$ is the horizon in years. The tool computes three projection lines, each deriving its own $r_m$ from the corresponding annual rate:
 
-When multiple portfolios exist, each portfolio's projection uses its own `r`. The combined projection uses the MWRR solved from all deposits pooled together.
+| Line | Annual rate | Monthly rate |
+|---|---|---|
+| Nominal VAL | $r_n$ — MWRR solved from deposits | $(1+r_n)^{1/12}-1$ |
+| Real VAL | $r_r$ — Fisher-adjusted for inflation | $r_m = (1+r_r)^{1/12}-1$ |
+| Alternate Real VAL | user-supplied $r_r$ | $(1+r_r)^{1/12}-1$ |
+
+When multiple portfolios exist, each portfolio's projection uses its own $r_n$ and $r_r$. The combined projection uses the MWRR solved from all deposits pooled together.
 
 #### Usage tips
 
-**Setting monthly deposits to $0** strips out the effect of future contributions entirely. The projection becomes:
+**Setting monthly deposits to $0** strips out the effect of future contributions entirely. The formula simplifies to:
 
-$$FV = \text{VAL} \times (1+r)^n$$
+$$FV = \text{VAL} \cdot (1+r_m)^{12n} = \text{VAL} \times (1+r_r)^n$$
 
+The two forms are mathematically identical:
+
+$$(1+r_m)^{12n} = ((1+r_r)^{1/12})^{12n} = (1+r_r)^n$$
+ 
 This isolates the compounding of your existing capital — what today's money becomes on its own, with no new saving. Running the tool twice, once at $0 and once at your planned monthly amount, gives you a natural decomposition:
 
 - **$0 line** — growth of capital you already have
@@ -146,9 +166,15 @@ This is useful for understanding how much of your projected retirement portfolio
 
 ### Combined MWRR across multiple portfolios
 
-When you have two or more portfolios, the combined `r` is **not** derived from the individual portfolio returns. It is solved independently by pooling every deposit from every portfolio and solving the MWRR equation against the combined VAL:
+When you have two or more portfolios, the combined return, $r_{nc}$, follows the same three steps as each individual portfolio:
 
-$$\text{VAL}_\text{combined} = \sum_i d_i \times (1 + r_\text{combined})^{t_i} \quad \text{(all portfolios)}$$
+1. **Solve $r_{nc}$** — pool every deposit from every portfolio and solve the MWRR equation against the combined VAL:
+
+$$\text{VAL}_{c} = \sum_i d_i \times (1 + r_{nc})^{t_i} \quad \text{(all portfolios)}$$
+
+2. **Derive $r_{rc}$** — apply Fisher;
+
+3. **Derive $r_{mc}$** — convert to monthly.
 
 There is no correct way to combine individual returns into a portfolio-level return after the fact — not by averaging, not by weighting. The only correct approach is to re-solve from the raw deposit data. This tool does that automatically.
 
@@ -156,11 +182,11 @@ There is no correct way to combine individual returns into a portfolio-level ret
 
 ### Sustainability simulation
 
-After the accumulation horizon, the portfolio enters a withdrawal phase. All calculations here use **real** values (today's purchasing power) throughout.
+After the accumulation horizon, the portfolio enters a withdrawal phase. All calculations here use **real** values (today's purchasing power) throughout. The same $r_m = (1+r_r)^{1/12}-1$ used in the real projection line is used here.
 
 **Perpetuity condition:**
 
-$$W_\infty = \text{VAL}_\text{real} \times \left((1 + r_\text{real})^{1/12} - 1\right)$$
+$$W_\infty = \text{VAL}_\text{real} \times r_m$$
 
 This is the maximum monthly withdrawal that leaves the portfolio intact forever — you only spend the monthly return, never the principal. If your portfolio is worth \$500K in real terms and your real return is 4%, the perpetuity withdrawal is:
 
