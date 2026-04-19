@@ -32,6 +32,10 @@ Upload an Excel file containing your deposit history. The mapper UI lets you mat
 
 Deposits are stored in `sessionStorage` — they exist only for the duration of the browser tab and are wiped automatically when the tab is closed. Data never leaves your machine.
 
+|![Loading Data](imgs/01_load_data.png)|
+|:--:|
+|Figure1: Loading of deposits and withdrawals|
+
 ### Step 2 — Returns
 
 Each portfolio is shown as a card. Enter the current market value (VAL) directly in the card. Returns calculate automatically. Change the VAL or the inflation assumption and the rates update instantly.
@@ -50,6 +54,10 @@ Each card shows: nominal r, real r, quality badge, deposit count, current VAL, t
 
 The combined card auto-populates once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
 
+|![Calculation of rates](imgs/02_mwrr.png)|
+|:--:|
+|Figure2: Nominal and Real rates|
+
 ### Step 3 — Projection & Withdrawal
 
 Configure planned monthly deposits per portfolio and a time horizon. The app projects:
@@ -62,6 +70,14 @@ A growth chart overlays all three curves over the chosen horizon.
 
 Below the chart, a sustainability simulation asks: *after the horizon ends, how much do you withdraw monthly?* It computes whether the portfolio survives indefinitely or depletes, and if so, at what age. Both the main scenario and the alternate scenario are shown together.
 
+|![Projection](imgs/03_a_proj.png)|
+|:--:|
+|Figure3: Porjection|
+
+|![Withdrawal](imgs/03_b_withdraw.png)|
+|:--:|
+|Figure4: Withdrawal|
+
 ---
 
 ## The math
@@ -70,7 +86,7 @@ Below the chart, a sustainability simulation asks: *after the horizon ends, how 
 
 The starting point is $r_n$ — the **nominal annual return** — which is the rate that satisfies:
 
-$\text{VAL}  = \sum_i d_i \times (1+r_n)^{t_i}$
+$$\text{VAL}  = \sum_i d_i \times (1+r_n)^{t_i}$$
 
 Where:
 - $\text{VAL}$ is the current portfolio value
@@ -81,9 +97,9 @@ Because $t_i$ is in years, $r_n$ is an **annual** rate. It answers: *given my de
 
 **tᵢ calculation:**
 
-$t_i = \text{round}[(\text{today} - \text{date}_i) / 86400] / 365.25$
+$$t_i = \text{round}[(\text{today} - \text{date}_i) / 86400] / 365.25$$
 
-where $\text{date}_i$ is the date of deposit $i$ and the difference is in days. Integer days divided by 365.25 — this matches the Excel formula `(TODAY() - deposit_date) / 365.25` exactly.
+Where $\text{date}_i$ is the date of deposit $i$ and the difference is in days. Integer days divided by 365.25 — this matches the Excel formula `(TODAY() - deposit_date) / 365.25` exactly.
 
 **Solver:** Newton-Raphson iteration on the equation above, starting from an initial guess of 8% — a reasonable starting point for a typical investment portfolio. Converges in under 20 iterations.
 
