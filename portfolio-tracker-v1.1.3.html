@@ -1,9 +1,15 @@
+<!--
+  Portfolio Tracker
+  Author: Lucas Aimaretto
+  License: BSD-3-Clause
+  Source: https://github.com/laimaretto/portfolio_tracker
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.1.0</title>
+<title>Portfolio Tracker v1.1.3</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -159,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.1.0</div>
+      <div class="logo-sub">v1.1.3</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -702,20 +708,20 @@ function updateCombinedValDisp(){ var el=document.getElementById('combined-val-d
 
 // ── SOLVER ─────────────────────────────────────────────────────────────────
 function solveR(deps, val){
-  var r=0.08;
+  var rn=0.08;
   for(var i=0;i<2000;i++){
     var f=0,df=0;
     for(var j=0;j<deps.length;j++){
       var ti=yearsAgo(deps[j].date),a=deps[j].amount;
-      f+=a*Math.pow(1+r,ti); df+=a*ti*Math.pow(1+r,ti-1);
+      f+=a*Math.pow(1+rn,ti); df+=a*ti*Math.pow(1+rn,ti-1);
     }
     f-=val;
     if(Math.abs(df)<1e-12) break;
-    var rn=r-f/df;
-    if(Math.abs(rn-r)<1e-10){r=rn;break;}
-    r=rn; if(r<-0.99)r=-0.5; if(r>10)r=2;
+    var rnext=rn-f/df;
+    if(Math.abs(rnext-rn)<1e-10){rn=rnext;break;}
+    rn=rnext; if(rn<-0.99)rn=-0.5; if(rn>10)rn=2;
   }
-  return r;
+  return rn;
 }
 
 // ── STEP NAVIGATION ────────────────────────────────────────────────────────
@@ -915,13 +921,13 @@ function autoCalcAll(){
     var deps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
     var val=portfolioVALs[p]||0;
     if(val>0&&deps.length>0){
-      var r=solveR(deps,val);
-      if(!isNaN(r)&&r>-0.99&&r<5) portfolioRs[p]={r:r};
+      var rn=solveR(deps,val);
+      if(!isNaN(rn)&&rn>-0.99&&rn<5) portfolioRs[p]={rn:rn};
     }
   });
   if(allVALsFilled()&&deposits.length>0){
-    var r=solveR(deposits,getCombinedVAL());
-    if(!isNaN(r)&&r>-0.99&&r<5) combinedR=r;
+    var rn=solveR(deposits,getCombinedVAL());
+    if(!isNaN(rn)&&rn>-0.99&&rn<5) combinedR=rn;
   }
   saveAll();
   updateAllCardResults();
@@ -940,7 +946,7 @@ function updateAllCardResults(){
     var totalDep=deps.reduce(function(s,d){return s+d.amount;},0);
     var c=pColor(p);
     if(rData&&val>0){
-      var rr=(1+rData.r)/(1+inf)-1;
+      var rr=(1+rData.rn)/(1+inf)-1;
       var gain=val-totalDep;
       var maxLife=Math.max.apply(null,deps.map(function(d){return yearsAgo(d.date);}));
       var wavg=deps.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep;
@@ -949,7 +955,7 @@ function updateAllCardResults(){
       resultDiv.innerHTML=
         '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">'
         +'<div><div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">'+(lang==='es'?'r nominal':'Nominal r')+'</div>'
-        +'<div style="font-size:36px;font-family:var(--mono);font-weight:300;letter-spacing:-0.04em;color:'+c+';line-height:1;">'+(rData.r*100).toFixed(2)+'<span style="font-size:18px;color:var(--text2);">%</span></div></div>'
+        +'<div style="font-size:36px;font-family:var(--mono);font-weight:300;letter-spacing:-0.04em;color:'+c+';line-height:1;">'+(rData.rn*100).toFixed(2)+'<span style="font-size:18px;color:var(--text2);">%</span></div></div>'
         +'<div><div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">'+(lang==='es'?'r real (Fisher)':'Real r (Fisher)')+'</div>'
         +'<div style="font-size:28px;font-family:var(--mono);font-weight:300;letter-spacing:-0.03em;color:var(--blue);line-height:1;">'+(rr*100).toFixed(2)+'<span style="font-size:16px;color:var(--text2);">%</span></div></div>'
         +'<div><span class="badge '+badgeClass+'">'+badgeText+'</span></div>'
@@ -971,9 +977,9 @@ function updateAllCardResults(){
   else{ var el=document.getElementById('combined-r-result'); if(el) el.style.display='none'; }
 }
 
-function renderCombinedRResult(r){
-  var inf=getInf(); var rr=(1+r)/(1+inf)-1;
-  document.getElementById('combined-r-val').textContent=(r*100).toFixed(2);
+function renderCombinedRResult(rn){
+  var inf=getInf(); var rr=(1+rn)/(1+inf)-1;
+  document.getElementById('combined-r-val').textContent=(rn*100).toFixed(2);
   document.getElementById('combined-rr-val').textContent=(rr*100).toFixed(2);
   var badgeClass=rr*100>5?'badge-green':rr*100>2?'badge-blue':rr*100>0?'badge-warn':'badge-danger';
   var badgeText=rr*100>5?(lang==='es'?'Excelente':'Excellent'):rr*100>2?(lang==='es'?'Bueno':'Good'):rr*100>0?(lang==='es'?'Regular':'Fair'):(lang==='es'?'Deficiente':'Poor');
@@ -1007,23 +1013,23 @@ function calcR(p){
   var val=portfolioVALs[p]||0;
   if(!val){ showToast(lang==='es'?'Ingres\u00e1 el VAL para '+p:'Enter VAL for '+p); return; }
   if(!deps.length){ showToast('No deposits for '+p); return; }
-  var r=solveR(deps,val);
-  if(isNaN(r)||r<-0.99||r>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
-  portfolioRs[p]={r:r};
+  var rn=solveR(deps,val);
+  if(isNaN(rn)||rn<-0.99||rn>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
+  portfolioRs[p]={rn:rn};
   clearRsStale(); saveAll(); renderRCards(); updateStepNav();
-  showToast(p+' r = '+(r*100).toFixed(2)+'%');
+  showToast(p+' rn = '+(rn*100).toFixed(2)+'%');
 }
 
 function calcCombined(){
   var val=getCombinedVAL();
   if(!val){ showToast(lang==='es'?'Ingres\u00e1 los VALs primero':'Enter VALs first'); return; }
   if(!deposits.length){ showToast(lang==='es'?'No hay dep\u00f3sitos':'No deposits'); return; }
-  var r=solveR(deposits,val);
-  if(isNaN(r)||r<-0.99||r>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
-  combinedR=r;
-  renderCombinedRResult(r);
+  var rn=solveR(deposits,val);
+  if(isNaN(rn)||rn<-0.99||rn>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
+  combinedR=rn;
+  renderCombinedRResult(rn);
   clearRsStale(); saveAll(); updateStepNav();
-  showToast(lang==='es'?'r combinado: '+(r*100).toFixed(2)+'%':'Combined r: '+(r*100).toFixed(2)+'%');
+  showToast(lang==='es'?'rn combinado: '+(rn*100).toFixed(2)+'%':'Combined rn: '+(rn*100).toFixed(2)+'%');
 }
 
 // ── STEP 4: PROJECTION ─────────────────────────────────────────────────────
@@ -1091,7 +1097,7 @@ function setProjPortfolio(p){
 
 function getRforProj(){
   if(projPortfolio==='combined') return combinedR;
-  return portfolioRs[projPortfolio]?portfolioRs[projPortfolio].r:null;
+  return portfolioRs[projPortfolio]?portfolioRs[projPortfolio].rn:null;
 }
 
 function getVALforProj(){
@@ -1108,8 +1114,8 @@ function getMonthlyForProj(){
 
 function projectFV(pv,monthly,rate,years){
   if(years===0) return pv;
-  var r=Math.pow(1+rate,1/12)-1,n=years*12;
-  return pv*Math.pow(1+r,n)+monthly*(Math.pow(1+r,n)-1)/r;
+  var rm=Math.pow(1+rate,1/12)-1,n=years*12;
+  return pv*Math.pow(1+rm,n)+monthly*(Math.pow(1+rm,n)-1)/rm;
 }
 
 function getAltRR(){
@@ -1118,26 +1124,26 @@ function getAltRR(){
 }
 
 function updateProjection(){
-  var r=getRforProj();
-  if(r===null||r===undefined) return;
+  var rn=getRforProj();
+  if(rn===null||rn===undefined) return;
   var val=getVALforProj();
   var inf=getInf();
-  var rr=(1+r)/(1+inf)-1;
+  var rr=(1+rn)/(1+inf)-1;
   var monthly=getMonthlyForProj();
   var years=parseInt(document.getElementById('proj-years').value)||15;
-  var nom=projectFV(val,monthly,r,years);
+  var nom=projectFV(val,monthly,rn,years);
   var real=projectFV(val,monthly,rr,years);
   document.getElementById('proj-nominal').textContent=fmtUSD(nom);
   document.getElementById('proj-real').textContent=fmtUSD(real);
   document.getElementById('proj-deposited').textContent=fmtUSD(monthly*12*years);
-  document.getElementById('proj-at-r').textContent=(lang==='es'?'con r = ':'at r = ')+(r*100).toFixed(1)+'%';
-  document.getElementById('s4-real-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(rr*100).toFixed(1)+'%';
+  document.getElementById('proj-at-r').textContent=(lang==='es'?'con rn = ':'at rn = ')+(rn*100).toFixed(2)+'%';
+  document.getElementById('s4-real-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(rr*100).toFixed(2)+'%';
   // Alternate real return
   var altRR=getAltRR();
   if(altRR!==null){
     var altReal=projectFV(val,monthly,altRR,years);
     document.getElementById('proj-alt-real').textContent=fmtUSD(altReal);
-    document.getElementById('s4-alt-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(altRR*100).toFixed(1)+'%';
+    document.getElementById('s4-alt-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(altRR*100).toFixed(2)+'%';
     document.getElementById('proj-alt-row').style.display='';
     document.getElementById('leg-alt-wrap').style.display='';
   } else {
@@ -1148,17 +1154,17 @@ function updateProjection(){
   document.getElementById('proj-w4').textContent=fmtMo(real*0.04/12);
   document.getElementById('proj-w33').textContent=fmtMo(real*0.033/12);
   document.getElementById('proj-w25').textContent=fmtMo(real*0.025/12);
-  drawProjChart(val,monthly,r,rr,years,altRR);
+  drawProjChart(val,monthly,rn,rr,years,altRR);
   updateWithdrawal();
 }
 
-function drawProjChart(pv,monthly,nomR,realR,years,altRR){
+function drawProjChart(pv,monthly,nomR,rr,years,altRR){
   var labels=[],nom=[],real=[],dep=[],alt=[];
   var hasAlt=(altRR!==null&&altRR!==undefined);
   for(var y=0;y<=years;y++){
     labels.push(y===0?(lang==='es'?'Hoy':'Now'):'Y'+y);
     nom.push(Math.round(projectFV(pv,monthly,nomR,y)));
-    real.push(Math.round(projectFV(pv,monthly,realR,y)));
+    real.push(Math.round(projectFV(pv,monthly,rr,y)));
     dep.push(Math.round(pv+monthly*12*y));
     if(hasAlt) alt.push(Math.round(projectFV(pv,monthly,altRR,y)));
   }
@@ -1337,32 +1343,32 @@ if(deposits.length>0 && (Object.keys(portfolioRs).length>0||combinedR!==null)){
 
 // ── WITHDRAWAL PHASE ───────────────────────────────────────────────────────
 function applyWithdrawalRate(pct){
-  var r = getRforProj();
+  var rn = getRforProj();
   var val = getVALforProj();
-  if(!r || !val) return;
+  if(!rn || !val) return;
   var inf = getInf();
-  var realR = (1+r)/(1+inf)-1;
+  var rr = (1+rn)/(1+inf)-1;
   var monthly = getMonthlyForProj();
   var years = parseInt(document.getElementById('proj-years').value)||15;
-  var endValReal = projectFV(val, monthly, realR, years);
+  var endValReal = projectFV(val, monthly, rr, years);
   var w = Math.round(endValReal * (pct/100) / 12);
   document.getElementById('proj-withdrawal').value = w;
   updateWithdrawal();
 }
 
 function updateWithdrawal(){
-  var r = getRforProj();
-  if(!r) return;
+  var rn = getRforProj();
+  if(!rn) return;
   var inf = getInf();
-  var realR = (1+r)/(1+inf) - 1;
+  var rr = (1+rn)/(1+inf) - 1;
   var val = getVALforProj();
   var monthly = getMonthlyForProj();
   var years = parseInt(document.getElementById('proj-years').value)||15;
-  var endValReal = projectFV(val, monthly, realR, years);
+  var endValReal = projectFV(val, monthly, rr, years);
   var wMonthly = parseFloat(document.getElementById('proj-withdrawal').value)||1300;
   var age = parseInt(document.getElementById('proj-age').value)||45;
   var retireAge = age + years;
-  var rm = Math.pow(1+realR,1/12)-1;
+  var rm = Math.pow(1+rr,1/12)-1;
   var MAX = 100 * 12;
 
   var perpetuity = endValReal * rm;
@@ -1440,12 +1446,12 @@ function updateWithdrawal(){
   document.getElementById('leg-alt-accum-wrap').style.display = altVisible;
   document.getElementById('leg-alt-wdraw-wrap').style.display = altVisible;
 
-  drawSustainChart(val, monthly, realR, endValReal, wMonthly, years, age, depletes ? months : 50*12, altRR, altEndVal, altWMonths);
+  drawSustainChart(val, monthly, rr, endValReal, wMonthly, years, age, depletes ? months : 50*12, altRR, altEndVal, altWMonths);
 }
 
-function drawSustainChart(startVal, depMonthly, r, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths){
+function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths){
   var hasAlt = (altR !== null && altR !== undefined && altEndVal !== null);
-  var rm = Math.pow(1+r,1/12)-1;
+  var rm = Math.pow(1+rr,1/12)-1;
 
   // Accumulation labels (shared for both scenarios)
   var accumLabels = [];
@@ -1466,7 +1472,7 @@ function drawSustainChart(startVal, depMonthly, r, endVal, wMonthly, horizonYrs,
   // Build main accumulation data
   var accumData = [];
   for(var y=0; y<=horizonYrs; y++){
-    accumData.push(Math.round(projectFV(startVal, depMonthly, r, y)));
+    accumData.push(Math.round(projectFV(startVal, depMonthly, rr, y)));
   }
 
   // Build main withdrawal data

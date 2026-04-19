@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.1.3] — 2026-04-19
+
+### Changed
+- **Author comment added** — HTML file now opens with a comment block identifying the author, license, and source repository.
+
+---
+
 ## [v1.1.2] — 2026-04-17
 
 ### Changed
