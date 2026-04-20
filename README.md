@@ -143,7 +143,7 @@ where $\pi$ is the annual inflation rate. Like $r_n$, $r_r$ is an **annual** rat
 
 For projection, the annual rates $r_n$ and $r_r$ are converted to their **monthly** equivalent $r_m$:
 
-$$r_m = (1 + r_r)^{1/12} - 1$$
+$$r_m = (1 + r_r)^{\frac{1}{12}} - 1$$
 
 $r_m$ is the only rate used during projection and withdrawal — $r_n$ and $r_r$ are annual and never applied directly to monthly calculations.
 
@@ -155,9 +155,9 @@ where $PMT$ is the monthly deposit and $n$ is the horizon in years. The tool com
 
 | Line | Annual rate | Monthly rate |
 |---|---|---|
-| Nominal VAL | $r_n$ — MWRR solved from deposits | $(1+r_n)^{1/12}-1$ |
-| Real VAL | $r_r$ — Fisher-adjusted for inflation | $r_m = (1+r_r)^{1/12}-1$ |
-| Alternate Real VAL | user-supplied $r_r$ | $(1+r_r)^{1/12}-1$ |
+| Nominal VAL | $r_n$ — MWRR solved from deposits | $(1+r_n)^{\frac{1}{12}}-1$ |
+| Real VAL | $r_r$ — Fisher-adjusted for inflation | $(1+r_r)^{\frac{1}{12}}-1$ |
+| Alternate Real VAL | user-supplied $ar_r$ | $(1+ar_r)^{\frac{1}{12}}-1$ |
 
 When multiple portfolios exist, each portfolio's projection uses its own $r_n$ and $r_r$. The combined projection uses the MWRR solved from all deposits pooled together.
 
@@ -169,7 +169,7 @@ $$FV = \text{VAL} \cdot (1+r_m)^{12n} = \text{VAL} \times (1+r_r)^n$$
 
 The two forms are mathematically identical:
 
-$$(1+r_m)^{12n} = ((1+r_r)^{1/12})^{12n} = (1+r_r)^n$$
+$$(1+r_m)^{12n} = ((1+r_r)^{\frac{1}{12}})^{12n} = (1+r_r)^n$$
  
 This isolates the compounding of your existing capital — what today's money becomes on its own, with no new saving. Running the tool twice, once at $0 and once at your planned monthly amount, gives you a natural decomposition:
 
@@ -206,7 +206,7 @@ $$W_\infty = \text{VAL}_\text{real} \times r_m$$
 
 This is the maximum monthly withdrawal that leaves the portfolio intact forever — you only spend the monthly return, never the principal. If your portfolio is worth \$500K in real terms and your real return is 4%, the perpetuity withdrawal is:
 
-$$\$500K \times \left((1.04)^{1/12} - 1\right) \approx \$1{,}637\text{/month}$$
+$$\$500K \times \left((1.04)^{\frac{1}{12}} - 1\right) \approx \$1{,}637\text{/month}$$
 
 As long as you withdraw no more than that, the \$500K stays intact indefinitely.
 
