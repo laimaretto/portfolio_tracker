@@ -198,7 +198,7 @@ There is no correct way to combine individual returns into a portfolio-level ret
 
 ### Sustainability simulation
 
-After the accumulation horizon, the portfolio enters a withdrawal phase. All calculations here use **real** values (today's purchasing power) throughout. The same $r_m = (1+r_r)^{1/12}-1$ used in the real projection line is used here.
+After the accumulation horizon, the portfolio enters a withdrawal phase. All calculations here use **real** values (today's purchasing power) throughout. The same $r_m = (1+r_r)^{\frac{1}{12}}-1$ used in the real projection line is used here.
 
 **Perpetuity condition:**
 
