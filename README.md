@@ -149,9 +149,9 @@ $r_m$ is the only rate used during projection and withdrawal — $r_n$ and $r_r$
 
 The projection formula is:
 
-$$FV = \text{VAL} \cdot (1+r_m)^{12n} + PMT \cdot \frac{(1+r_m)^{12n} - 1}{r_m}$$
+$$FV = \text{VAL} \cdot (1+r_m)^{12n} + \text{PMT} \cdot \frac{(1+r_m)^{12n} - 1}{r_m}$$
 
-where $PMT$ is the monthly deposit and $n$ is the horizon in years. The tool computes three projection lines, each deriving its own $r_m$ from the corresponding annual rate:
+where $\text{PMT}$ is the monthly deposit and $n$ is the horizon in years. The tool computes three projection lines, each deriving its own $r_m$ from the corresponding annual rate:
 
 | Line | Annual rate | Monthly rate |
 |---|---|---|
@@ -159,7 +159,13 @@ where $PMT$ is the monthly deposit and $n$ is the horizon in years. The tool com
 | Real VAL | $r_r$ — Fisher-adjusted for inflation | $(1+r_r)^{\frac{1}{12}}-1$ |
 | Alternate Real VAL | user-supplied $ar_r$ | $(1+ar_r)^{\frac{1}{12}}-1$ |
 
-When multiple portfolios exist, each portfolio's projection uses its own $r_n$ and $r_r$. The combined projection uses the MWRR solved from all deposits pooled together.
+When multiple portfolios exist, each portfolio's projection uses its own $r_n$ and $r_r$. The combined projection plugs three combined quantities into the same FV formula:
+
+1. $\text{VAL}_c = \sum_i \text{VAL}_i$
+2. $\text{PMT}_c = \sum_i \text{PMT}_i$
+3. $r_{rc}$ from the combined MWRR solver
+
+$\text{VAL}_c$ and $r_{rc}$ come directly from Step 2 (the solver pools all deposits against the sum of all VALs). $\text{PMT}_c$ is the sum of the per-portfolio monthly deposit fields in Step 3 — so those fields matter for the combined projection, not just the individual ones.
 
 #### Usage tips
 
@@ -206,7 +212,7 @@ $$W_\infty = \text{VAL}_\text{real} \times r_m$$
 
 This is the maximum monthly withdrawal that leaves the portfolio intact forever — you only spend the monthly return, never the principal. If your portfolio is worth \$500K in real terms and your real return is 4%, the perpetuity withdrawal is:
 
-$$\$500K \times \left((1.04)^{\frac{1}{12}} - 1\right) \approx \$1{,}637\text{/month}$$
+$$\$500K \times \left(1.04^{\frac{1}{12}} - 1\right) \approx \$1{,}637\text{/month}$$
 
 As long as you withdraw no more than that, the \$500K stays intact indefinitely.
 
