@@ -147,7 +147,11 @@ When you have two or more portfolios, the combined return, $r_{nc}$, follows the
 
 $$\sum_i d_i \times (1 + r_{nc})^{t_i} = \text{VAL}_{c} \quad \text{(all portfolios)}$$
 
-where $\text{VAL}_c = \sum_j \text{VAL}_j$ is the sum of all portfolio values entered in Step 2, and the $d_i$ sum runs over every deposit across all portfolios. $r_{nc}$ is the unknown; $\text{VAL}_c$ is the known input.
+where:
+
+$$\text{VAL}_c = \sum_j \text{VAL}_j$$
+
+is the sum of all portfolio values entered in Step 2, the $d_i$ sum runs over every deposit across all portfolios, $r_{nc}$ is the unknown, and $\text{VAL}_c$ is the known input.
 
 2. **Derive $r_{rc}$** — apply Fisher;
 
@@ -185,7 +189,11 @@ When multiple portfolios exist, each portfolio's projection uses its own $r_n$ a
 
 $\text{PMT}_c$ is the sum of the per-portfolio monthly deposit fields in Step 3 — so those fields matter for the combined projection, not just the individual ones.
 
-An alternative would be to compute $\text{FV}_c = \sum_i \text{FV}_i$ — sum the individual portfolio projections, each growing at its own $r_{ri}$ and $\text{PMT}_i$. When individual real returns differ significantly, the two approaches can diverge. However, when returns are similar across portfolios (the common case for a long-term investor), $\text{FV}_c \approx \sum_i \text{FV}_i$ and the difference is small. The pooled-rate approach is a deliberate design choice: it produces a smooth, stable combined projection that avoids amplifying noise from short-lived rate differences between portfolios.
+An alternative would be to sum the individual portfolio projections:
+
+$$\text{FV}_c = \sum_i \text{FV}_i$$
+
+where each $\text{FV}_i$ grows at its own $r_{r,i}$ and $\text{PMT}_i$. When individual real returns differ significantly, the two approaches can diverge. However, when returns are similar across portfolios (the common case for a long-term investor), the difference is small. The pooled-rate approach is a deliberate design choice: it produces a smooth, stable combined projection that avoids amplifying noise from short-lived rate differences between portfolios.
 
 #### Usage tips
 
