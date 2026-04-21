@@ -4,6 +4,14 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.1.4] — 2026-04-21
+
+### Fixed
+- **Stale combined R blocks Step 3 when any VAL is zeroed** — if the user had all VALs filled (combined R computed), then set any portfolio VAL to 0, `combinedR` was not cleared. Step 3 remained accessible and silently used the stale combined rate against a combined VAL that no longer included the zeroed portfolio — producing wrong projections. Fixed by clearing `combinedR` in `autoCalcAll` whenever `allVALsFilled()` is false.
+- **Step 3 blocked until all VALs are filled (multi-portfolio)** — for a single portfolio, Step 3 unlocks as soon as that portfolio's return is calculated. For multiple portfolios, Step 3 now requires all VALs to be filled and combined R to be computed. The proceed bar and toast message tell the user explicitly: "Enter VAL for all portfolios".
+
+---
+
 ## [v1.1.3] — 2026-04-19
 
 ### Changed
