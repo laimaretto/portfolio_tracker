@@ -97,9 +97,9 @@ Because $t_i$ is in years, $r_n$ is an **annual** rate. It answers: *given my de
 
 **tᵢ calculation:**
 
-$$t_i = \text{round}[(\text{today} - \text{date}_i) / 86400] / 365.25$$
+$$t_i = \frac{\text{round}(\text{today} - \text{date}_i)}{365.25}$$
 
-Where $\text{date}_i$ is the date of deposit $i$ and the difference is in days. Integer days divided by 365.25 — this matches the Excel formula `(TODAY() - deposit_date) / 365.25` exactly.
+Where the difference is in **integer days** — identical to the Excel formula `(TODAY() - deposit_date) / 365.25`. Using fractional days or a different divisor breaks parity with Excel.
 
 **Solver:** Newton-Raphson iteration on the equation above, starting from an initial guess of 8% — a reasonable starting point for a typical investment portfolio. Converges in under 20 iterations.
 
@@ -139,6 +139,24 @@ where $\pi$ is the annual inflation rate. Like $r_n$, $r_r$ is an **annual** rat
 
 ---
 
+### Combined MWRR across multiple portfolios
+
+When you have two or more portfolios, the combined return, $r_{nc}$, follows the same three steps as each individual portfolio:
+
+1. **Solve $r_{nc}$** — pool every deposit from every portfolio and find the rate that satisfies:
+
+$$\sum_i d_i \times (1 + r_{nc})^{t_i} = \text{VAL}_{c} \quad \text{(all portfolios)}$$
+
+where $\text{VAL}_c = \sum_j \text{VAL}_j$ is the sum of all portfolio values entered in Step 2, and the $d_i$ sum runs over every deposit across all portfolios. $r_{nc}$ is the unknown; $\text{VAL}_c$ is the known input.
+
+2. **Derive $r_{rc}$** — apply Fisher;
+
+3. **Derive $r_{mc}$** — convert to monthly.
+
+There is no correct way to combine individual returns into a portfolio-level return after the fact — not by averaging, not by weighting. The only correct approach is to re-solve from the raw deposit data. This tool does that automatically.
+
+---
+
 ### Future value projection
 
 For projection, the annual rates $r_n$ and $r_r$ are converted to their **monthly** equivalent $r_m$:
@@ -163,9 +181,11 @@ When multiple portfolios exist, each portfolio's projection uses its own $r_n$ a
 
 1. $\text{VAL}_c = \sum_i \text{VAL}_i$
 2. $\text{PMT}_c = \sum_i \text{PMT}_i$
-3. $r_{rc}$ from the combined MWRR solver
+3. $r_{rc}$ from the combined MWRR solver (computed in the section above)
 
-$\text{VAL}_c$ and $r_{rc}$ come directly from Step 2 (the solver pools all deposits against the sum of all VALs). $\text{PMT}_c$ is the sum of the per-portfolio monthly deposit fields in Step 3 — so those fields matter for the combined projection, not just the individual ones.
+$\text{PMT}_c$ is the sum of the per-portfolio monthly deposit fields in Step 3 — so those fields matter for the combined projection, not just the individual ones.
+
+An alternative would be to compute $\text{FV}_c = \sum_i \text{FV}_i$ — sum the individual portfolio projections, each growing at its own $r_{ri}$ and $\text{PMT}_i$. When individual real returns differ significantly, the two approaches can diverge. However, when returns are similar across portfolios (the common case for a long-term investor), $\text{FV}_c \approx \sum_i \text{FV}_i$ and the difference is small. The pooled-rate approach is a deliberate design choice: it produces a smooth, stable combined projection that avoids amplifying noise from short-lived rate differences between portfolios.
 
 #### Usage tips
 
@@ -183,22 +203,6 @@ This isolates the compounding of your existing capital — what today's money be
 - **Gap between the two lines** — value added by future deposits
 
 This is useful for understanding how much of your projected retirement portfolio is already "locked in" by past decisions vs. how much depends on continued saving.
-
----
-
-### Combined MWRR across multiple portfolios
-
-When you have two or more portfolios, the combined return, $r_{nc}$, follows the same three steps as each individual portfolio:
-
-1. **Solve $r_{nc}$** — pool every deposit from every portfolio and solve the MWRR equation against the combined VAL:
-
-$$\text{VAL}_{c} = \sum_i d_i \times (1 + r_{nc})^{t_i} \quad \text{(all portfolios)}$$
-
-2. **Derive $r_{rc}$** — apply Fisher;
-
-3. **Derive $r_{mc}$** — convert to monthly.
-
-There is no correct way to combine individual returns into a portfolio-level return after the fact — not by averaging, not by weighting. The only correct approach is to re-solve from the raw deposit data. This tool does that automatically.
 
 ---
 
