@@ -193,7 +193,7 @@ An alternative would be to sum the individual portfolio projections:
 
 $$\text{FV}_c = \sum_i \text{FV}_i$$
 
-where each $\text{FV}_i$ grows at its own $r_{r,i}$ and $\text{PMT}_i$. When individual real returns differ significantly, the two approaches can diverge. However, when returns are similar across portfolios (the common case for a long-term investor), the difference is small. The pooled-rate approach is a deliberate design choice: it produces a smooth, stable combined projection that avoids amplifying noise from short-lived rate differences between portfolios.
+where each portfolio projection uses its own real return and monthly deposit. When individual real returns differ significantly, the two approaches can diverge. However, when returns are similar across portfolios (the common case for a long-term investor), the difference is small. The pooled-rate approach is a deliberate design choice: it produces a smooth, stable combined projection that avoids amplifying noise from short-lived rate differences between portfolios.
 
 #### Usage tips
 
