@@ -4,6 +4,46 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.1.9] — 2026-04-25
+
+### Changed
+- **Rate column added to projection table** — a new "rn · rr" column sits between Portfolio and Monthly. Each row shows the nominal rate (top, in portfolio color) and the real rate (bottom, in quality color: green/blue/yellow/red matching the Step 2 badge). The combined row shows the pooled rn_c and rr_c. Cells show "--" until a VAL is entered.
+
+---
+
+## [v1.1.8] — 2026-04-25
+
+### Changed
+- **Current age moved to Section A** — sits alongside Horizon and Alternate real return as a 3-column form row; age conceptually belongs with the other projection parameters, not the withdrawal controls.
+- **Section B reduced to one input** — only Monthly withdrawal remains; age removed.
+- **Projection chart x-axis shows actual age** — labels are `age, age+1, …, age+n` instead of `Now, Y1, …, Yn`. Tooltip header updated to "Age N". Changing age in Section A immediately redraws the chart with the new axis.
+
+---
+
+## [v1.1.7] — 2026-04-25
+
+### Changed
+- **Compact table layout for Step 3 withdrawal** — the metric cards (Real VAL, Perpetuity, Age out of money, Years of withdrawal) and the 3 rate-hint cards (4%, 3.3%, 2.5%) are replaced with a two-row table. Row 1 shows the main scenario (real rr from the selected portfolio); row 2 appears only when an alternate real return is set. Clicking a perpetuity cell auto-fills the monthly withdrawal input.
+- **Withdrawal section simplified to 2 inputs** — the descriptive note text and section D head removed; only Monthly withdrawal and Current age remain as controls above the table.
+
+---
+
+## [v1.1.6] — 2026-04-25
+
+### Changed
+- **Compact table layout for Step 3 projection** — individual metric cards (Nominal VAL, Real VAL, New deposits, Alt. Real VAL) and the per-portfolio monthly deposit inputs replaced with a single table. Each portfolio is one row with columns: Portfolio · Monthly deposit (input) · New deposits · Nom VAL · Real VAL · Alt VAL (hidden unless alt return is set). The combined row appears at the bottom once all VALs are filled.
+- **Portfolio selector moved below projection table** — the "Chart & withdrawal:" pill selector now lives directly under the projection table instead of inside the settings card, making the data flow more natural: fill the table, then pick which portfolio drives the chart and withdrawal simulation.
+
+---
+
+## [v1.1.5] — 2026-04-25
+
+### Changed
+- **Compact table layout for Step 2** — portfolio cards replaced with a single table where each portfolio is one row. Columns: Portfolio · Current VAL (USD) · Nominal r · Real r (Fisher) · Quality · Deposits · Total deposited · Gain · Max lifetime · Wtd avg time. The combined row appears at the bottom of the same table once all VALs are filled, separated by a stronger border. Section C (separate combined card) removed.
+- **"Current VAL" removed as a display metric** — it was redundant with the inline input field; the input column in the table serves both roles.
+
+---
+
 ## [v1.1.4] — 2026-04-21
 
 ### Fixed
