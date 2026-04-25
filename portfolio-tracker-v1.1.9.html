@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.1.4</title>
+<title>Portfolio Tracker v1.1.9</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.1.4</div>
+      <div class="logo-sub">v1.1.9</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -272,36 +272,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
     </div>
 
-    <div class="sec-head" style="margin-top:6px;"><div class="sec-num">B</div><div class="sec-title" id="s3-ind-lbl">Individual portfolio returns</div></div>
+    <div class="sec-head" style="margin-top:6px;"><div class="sec-num">B</div><div class="sec-title" id="s3-ind-lbl">Returns</div></div>
     <div id="r-cards"></div>
-
-    <div class="sec-head" style="margin-top:6px;"><div class="sec-num">C</div><div class="sec-title" id="s3-comb-lbl">Combined return</div></div>
-    <div class="r-card" style="border-left:3px solid var(--accent);" id="combined-r-card">
-      <div class="r-card-header">
-        <span class="p-tag" style="border-color:var(--accent)33;color:var(--accent);background:var(--accent)14;font-size:12px;" id="s3-combined-tag">Combined</span>
-      </div>
-      <div id="combined-r-result" style="display:none;margin-top:14px;">
-        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
-          <div>
-            <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;" id="s3-comb-r-lbl">Combined nominal r</div>
-            <div style="font-size:36px;font-family:var(--mono);font-weight:300;letter-spacing:-0.04em;color:var(--accent);line-height:1;"><span id="combined-r-val">--</span><span style="font-size:18px;color:var(--text2);">%</span></div>
-          </div>
-          <div>
-            <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;" id="s3-comb-rr-lbl">Real r (after inflation)</div>
-            <div style="font-size:36px;font-family:var(--mono);font-weight:300;letter-spacing:-0.04em;color:var(--blue);line-height:1;"><span id="combined-rr-val">--</span><span style="font-size:18px;color:var(--text2);">%</span></div>
-          </div>
-          <div id="combined-r-badge-wrap"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;">
-          <div class="r-item"><div class="r-item-label" id="s3-comb-dep-lbl">Deposits</div><div class="r-item-val" id="combined-dep-count">--</div></div>
-          <div class="r-item"><div class="r-item-label" id="s3-comb-val-lbl">Current VAL</div><div class="r-item-val" id="combined-val-metric">--</div></div>
-          <div class="r-item"><div class="r-item-label" id="s3-comb-tot-lbl">Total deposited</div><div class="r-item-val" id="combined-dep-total">--</div></div>
-          <div class="r-item"><div class="r-item-label" id="s3-comb-gain-lbl">Gain</div><div class="r-item-val" id="combined-gain">--</div></div>
-          <div class="r-item"><div class="r-item-label" id="s3-comb-life-lbl">Max lifetime</div><div class="r-item-val" id="combined-max-life">--</div></div>
-          <div class="r-item"><div class="r-item-label" id="s3-comb-wavg-lbl">Wtd avg time</div><div class="r-item-val" id="combined-wavg-time">--</div></div>
-        </div>
-      </div>
-    </div>
 
     <div class="proceed-bar" id="s2-proceed">
       <span class="proceed-status" id="s2-status">Enter VAL for each portfolio to calculate returns</span>
@@ -312,11 +284,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <!-- ── STEP 3: PROJECTION ─────────────────────────────────────────────── -->
   <div class="step-panel" id="panel-3">
 
-    <div class="sec-head"><div class="sec-num">A</div><div class="sec-title" id="s4-sel-lbl">Select portfolio to project</div></div>
+    <div class="sec-head"><div class="sec-num">A</div><div class="sec-title" id="s4-proj-lbl">Projection</div></div>
     <div class="card">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="proj-selectors"></div>
-      <div id="proj-monthly-wrap" style="margin-bottom:10px;"></div>
-      <div class="form-row" style="margin-bottom:0;">
+      <div class="form-row" style="margin-bottom:0;grid-template-columns:1fr 1fr 1fr;">
         <div class="form-group">
           <label class="form-label" id="s4-yr-lbl">Horizon (years)</label>
           <input class="form-input" type="number" id="proj-years" placeholder="15" value="15" min="1" max="40" step="1" oninput="updateProjection()">
@@ -325,22 +295,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <label class="form-label" id="s4-alt-rr-lbl">Alternate real return (%)</label>
           <input class="form-input" type="number" id="proj-alt-rr" placeholder="0" min="0" max="30" step="0.1" oninput="updateProjection()">
         </div>
+        <div class="form-group">
+          <label class="form-label" id="s4-wage-lbl">Your current age</label>
+          <input class="form-input" type="number" id="proj-age" placeholder="45" value="45" min="20" max="100" step="1" oninput="updateProjection()">
+        </div>
       </div>
     </div>
 
-    <div class="sec-head" style="margin-top:6px;"><div class="sec-num">B</div><div class="sec-title" id="s4-out-lbl">Projected outcome</div></div>
-    <div class="metric-grid">
-      <div class="metric"><div class="metric-label" id="s4-nom-lbl">Nominal VAL</div><div class="metric-value green" id="proj-nominal">--</div><div class="metric-sub" id="proj-at-r">at r = ?</div></div>
-      <div class="metric"><div class="metric-label" id="s4-real-lbl">Real VAL</div><div class="metric-value blue" id="proj-real">--</div><div class="metric-sub" id="s4-real-sub">today's purchasing power</div></div>
-      <div class="metric"><div class="metric-label" id="s4-dep-lbl">New deposits</div><div class="metric-value" id="proj-deposited">--</div><div class="metric-sub" id="s4-dep-sub">over the horizon</div></div>
-    </div>
-    <div id="proj-alt-row" style="display:none;margin-bottom:14px;">
-      <div class="metric" style="border-color:#fb923c44;">
-        <div class="metric-label" id="s4-alt-lbl">Alt. Real VAL</div>
-        <div class="metric-value" style="color:#fb923c;" id="proj-alt-real">--</div>
-        <div class="metric-sub" id="s4-alt-sub">--</div>
-      </div>
-    </div>
+    <div id="proj-table-wrap" style="margin-top:10px;"></div>
 
     <div class="chart-wrap"><canvas id="proj-chart"></canvas></div>
     <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-family:var(--mono);color:var(--text3);">
@@ -351,49 +313,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
 
     <div class="divider"></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="withdrawal-rate-hints">
-      <div class="r-item" style="cursor:pointer;" onclick="applyWithdrawalRate(4)">
-        <div class="r-item-label" id="s4-w4-lbl">4% of real VAL /mo</div>
-        <div class="r-item-val" id="proj-w4">--</div>
-      </div>
-      <div class="r-item" style="cursor:pointer;" onclick="applyWithdrawalRate(3.3)">
-        <div class="r-item-label" id="s4-w33-lbl">3.3% of real VAL /mo</div>
-        <div class="r-item-val" id="proj-w33">--</div>
-      </div>
-      <div class="r-item" style="cursor:pointer;" onclick="applyWithdrawalRate(2.5)">
-        <div class="r-item-label" id="s4-w25-lbl">2.5% of real VAL /mo</div>
-        <div class="r-item-val" id="proj-w25">--</div>
-      </div>
-    </div>
 
-    <div class="sec-head" style="margin-top:20px;"><div class="sec-num">C</div><div class="sec-title" id="s4-wdraw-lbl">Withdrawal phase</div></div>
+    <div class="sec-head"><div class="sec-num">B</div><div class="sec-title" id="s4-wdraw-lbl">Withdrawal phase</div></div>
     <div class="card">
-      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:12px;" id="s4-wdraw-note">After the horizon ends, how much will you withdraw monthly? Click a rate card above to fill automatically.</div>
-      <div class="form-row" style="margin-bottom:0;">
-        <div class="form-group">
-          <label class="form-label" id="s4-wamt-lbl">Monthly withdrawal (USD)</label>
-          <input class="form-input" type="number" id="proj-withdrawal" placeholder="1300" value="1300" min="0" step="100" oninput="updateWithdrawal()">
-        </div>
-        <div class="form-group">
-          <label class="form-label" id="s4-wage-lbl">Your current age</label>
-          <input class="form-input" type="number" id="proj-age" placeholder="45" value="45" min="20" max="80" step="1" oninput="updateWithdrawal()">
-        </div>
+      <div class="form-group">
+        <label class="form-label" id="s4-wamt-lbl">Monthly withdrawal (USD)</label>
+        <input class="form-input" type="number" id="proj-withdrawal" placeholder="1300" value="1300" min="0" step="100" oninput="updateWithdrawal()">
       </div>
     </div>
 
-    <div class="sec-head" style="margin-top:6px;"><div class="sec-num">D</div><div class="sec-title" id="s4-sustain-lbl">Sustainability</div></div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
-      <div class="metric"><div class="metric-label" id="s4-endval-lbl">Real VAL at end of horizon</div><div class="metric-value green" id="sustain-endval">--</div><div class="metric-sub" id="s4-endval-sub">today's purchasing power</div></div>
-      <div class="metric"><div class="metric-label" id="s4-perp-lbl">Perpetuity withdrawal</div><div class="metric-value blue" id="sustain-perpetuity">--</div><div class="metric-sub" id="s4-perp-sub">never touches principal</div></div>
-      <div class="metric"><div class="metric-label" id="s4-age-lbl">Money runs out at age</div><div class="metric-value" id="sustain-age">--</div><div class="metric-sub" id="s4-age-sub">at your withdrawal rate</div></div>
-      <div class="metric"><div class="metric-label" id="s4-yrs-lbl">Years of withdrawal</div><div class="metric-value" id="sustain-years">--</div><div class="metric-sub" id="s4-yrs-sub">until portfolio reaches zero</div></div>
-    </div>
-    <div id="sustain-alt-metrics" style="display:none;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
-      <div class="metric" style="border-color:#fb923c44;"><div class="metric-label" id="s4-alt-age-lbl">Alt. age out of money</div><div class="metric-value" id="sustain-alt-age">--</div><div class="metric-sub" id="s4-alt-age-sub">at your withdrawal rate</div></div>
-      <div class="metric" style="border-color:#fb923c44;"><div class="metric-label" id="s4-alt-yrs-lbl">Alt. years of withdrawal</div><div class="metric-value" id="sustain-alt-years">--</div><div class="metric-sub" id="s4-alt-yrs-sub">until portfolio reaches zero</div></div>
-    </div>
+    <div id="sustain-table-wrap" style="margin-top:10px;"></div>
 
-    <div style="position:relative;width:100%;height:260px;"><canvas id="sustain-chart"></canvas></div>
+    <div style="position:relative;width:100%;height:260px;margin-top:14px;"><canvas id="sustain-chart"></canvas></div>
     <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-family:var(--mono);color:var(--text3);">
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#4ade80;display:inline-block;border-radius:1px;"></span><span id="leg-accum">Accumulation</span></span>
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#f87171;display:inline-block;border-radius:1px;"></span><span id="leg-wdraw">Withdrawal</span></span>
@@ -515,11 +446,8 @@ var TXT = {
     's3-comb-r-lbl':'Combined nominal r','s3-comb-rr-lbl':'Real r (after inflation)',
     's3-comb-dep-lbl':'Deposits','s3-comb-val-lbl':'Current VAL','s3-comb-tot-lbl':'Total deposited','s3-comb-gain-lbl':'Gain',
     's3-comb-life-lbl':'Max lifetime','s3-comb-wavg-lbl':'Wtd avg time',
-    's4-sel-lbl':'Select portfolio to project',
+    's4-proj-lbl':'Projection',
     's4-yr-lbl':'Horizon (years)',
-    's4-out-lbl':'Projected outcome',
-    's4-nom-lbl':'Nominal VAL','s4-real-lbl':'Real VAL','s4-dep-lbl':'New deposits',
-    's4-real-sub':"today's purchasing power",'s4-dep-sub':'over the horizon',
     'leg-nom':'Nominal','leg-real':'Real','leg-dep':'Deposits only',
     's4-w4-lbl':'4% of real VAL /mo','s4-w33-lbl':'3.3% of real VAL /mo','s4-w25-lbl':'2.5% of real VAL /mo',
     's4-wdraw-lbl':'Withdrawal phase',
@@ -568,11 +496,8 @@ var TXT = {
     's3-comb-r-lbl':'r nominal combinado','s3-comb-rr-lbl':'r real (despu\u00e9s de inflaci\u00f3n)',
     's3-comb-dep-lbl':'Dep\u00f3sitos','s3-comb-val-lbl':'VAL actual','s3-comb-tot-lbl':'Total depositado','s3-comb-gain-lbl':'Ganancia',
     's3-comb-life-lbl':'Vida m\u00e1x.','s3-comb-wavg-lbl':'T. ponderado',
-    's4-sel-lbl':'Seleccionar cartera a proyectar',
+    's4-proj-lbl':'Proyecci\u00f3n',
     's4-yr-lbl':'Horizonte (a\u00f1os)',
-    's4-out-lbl':'Resultado proyectado',
-    's4-nom-lbl':'VAL nominal','s4-real-lbl':'VAL real','s4-dep-lbl':'Nuevos dep\u00f3sitos',
-    's4-real-sub':'poder adquisitivo actual','s4-dep-sub':'durante el horizonte',
     'leg-nom':'Nominal','leg-real':'Real','leg-dep':'Solo dep\u00f3sitos',
     's4-w4-lbl':'4% VAL real /mes','s4-w33-lbl':'3.3% VAL real /mes','s4-w25-lbl':'2.5% VAL real /mes',
     's4-wdraw-lbl':'Fase de retiro',
@@ -615,7 +540,7 @@ function setLang(l){
   applyTrans();
   renderTable();
   renderRCards();
-  renderProjSelectors();
+  renderProjTable();
   updateProceedBars();
 }
 
@@ -734,7 +659,7 @@ function goStep(n){
   document.getElementById('panel-'+n).classList.add('active');
   updateStepNav();
   if(n===2) renderRCards();
-  if(n===3){ renderProjSelectors(); updateProjection(); }
+  if(n===3){ renderProjTable(); }
 }
 
 function getStepBtn(i){
@@ -900,22 +825,60 @@ function renderRCards(){
   var ps=getPortfolios();
   var wrap=document.getElementById('r-cards');
   if(!ps.length){ wrap.innerHTML=''; return; }
-  var html='';
+  var TH='font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-family:var(--mono);padding:5px 7px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;';
+  var TD='padding:5px 7px;font-family:var(--mono);font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;';
+  var html='<div style="overflow-x:auto;">'
+    +'<table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Cartera':'Portfolio')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'VAL (USD)':'VAL (USD)')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'r nom':'Nom r')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'r real':'Real r')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Calidad':'Quality')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Deps':'Deps')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Depositado':'Deposited')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Ganancia':'Gain')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Vida máx':'Max life')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'T. pond':'Wtd avg')+'</th>'
+    +'</tr></thead><tbody>';
   ps.forEach(function(p,idx){
     var c=pColor(p);
     var v=portfolioVALs[p]||'';
-    html+='<div class="r-card" style="border-left:3px solid '+c+';">'
-      +'<div class="r-card-header">'
-      +'<span class="p-tag" style="border-color:'+c+'33;color:'+c+';background:'+c+'14;font-size:12px;">'+p+'</span>'
-      +'</div>'
-      +'<div style="margin:10px 0 12px;">'
-      +'<label class="form-label" style="color:'+c+';">'+(lang==='es'?'VAL actual (USD)':'Current VAL (USD)')+'</label>'
-      +'<input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="100" style="border-color:'+c+'44;" '
+    html+='<tr>'
+      +'<td style="'+TD+'border-left:3px solid '+c+';">'
+      +'<span class="p-tag" style="border-color:'+c+'33;color:'+c+';background:'+c+'14;font-size:11px;">'+p+'</span>'
+      +'</td>'
+      +'<td style="'+TD+'">'
+      +'<input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="100" '
+      +'style="width:90px;padding:3px 6px;font-size:12px;border-color:'+c+'44;" '
       +'oninput="portfolioVALs[\''+p+'\']=parseFloat(this.value)||0;autoCalcAll();">'
-      +'</div>'
-      +'<div id="r-result-'+idx+'"></div>'
-      +'</div>';
+      +'</td>'
+      +'<td style="'+TD+'color:'+c+';" id="r-rn-'+idx+'">--</td>'
+      +'<td style="'+TD+'" id="r-rr-'+idx+'">--</td>'
+      +'<td style="'+TD+'" id="r-badge-'+idx+'"></td>'
+      +'<td style="'+TD+'color:var(--text2);" id="r-deps-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--text2);" id="r-deptot-'+idx+'">--</td>'
+      +'<td style="'+TD+'" id="r-gain-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--text2);" id="r-maxlife-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--text2);" id="r-wavg-'+idx+'">--</td>'
+      +'</tr>';
   });
+  var TC='padding:5px 7px;font-family:var(--mono);font-size:12px;border-top:2px solid rgba(255,255,255,0.1);vertical-align:middle;';
+  html+='<tr id="combined-r-result" style="display:none;">'
+    +'<td style="'+TC+'border-left:3px solid var(--accent);">'
+    +'<span class="p-tag" style="border-color:var(--accent)33;color:var(--accent);background:var(--accent)14;font-size:11px;" id="s3-combined-tag">'+(lang==='es'?'Combinado':'Combined')+'</span>'
+    +'</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-val-disp">--</td>'
+    +'<td style="'+TC+'color:var(--accent);" id="combined-r-val">--</td>'
+    +'<td style="'+TC+'" id="combined-rr-val">--</td>'
+    +'<td style="'+TC+'" id="combined-r-badge-wrap"></td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-dep-count">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-dep-total">--</td>'
+    +'<td style="'+TC+'" id="combined-gain">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-max-life">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-wavg-time">--</td>'
+    +'</tr>'
+    +'</tbody></table></div>';
   wrap.innerHTML=html;
   updateAllCardResults();
 }
@@ -945,39 +908,36 @@ function updateAllCardResults(){
   var ps=getPortfolios();
   var inf=getInf();
   ps.forEach(function(p,idx){
-    var resultDiv=document.getElementById('r-result-'+idx);
-    if(!resultDiv) return;
+    if(!document.getElementById('r-rn-'+idx)) return;
     var rData=portfolioRs[p];
     var deps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
     var val=portfolioVALs[p]||0;
     var totalDep=deps.reduce(function(s,d){return s+d.amount;},0);
-    var c=pColor(p);
+    var set=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+    var setH=function(id,v){var el=document.getElementById(id);if(el)el.innerHTML=v;};
     if(rData&&val>0){
       var rr=(1+rData.rn)/(1+inf)-1;
       var gain=val-totalDep;
       var maxLife=Math.max.apply(null,deps.map(function(d){return yearsAgo(d.date);}));
-      var wavg=deps.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep;
+      var wavg=totalDep!==0?deps.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep:0;
       var badgeClass=rr*100>5?'badge-green':rr*100>2?'badge-blue':rr*100>0?'badge-warn':'badge-danger';
       var badgeText=rr*100>5?(lang==='es'?'Excelente':'Excellent'):rr*100>2?(lang==='es'?'Bueno':'Good'):rr*100>0?(lang==='es'?'Regular':'Fair'):(lang==='es'?'Deficiente':'Poor');
-      resultDiv.innerHTML=
-        '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">'
-        +'<div><div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">'+(lang==='es'?'r nominal':'Nominal r')+'</div>'
-        +'<div style="font-size:36px;font-family:var(--mono);font-weight:300;letter-spacing:-0.04em;color:'+c+';line-height:1;">'+(rData.rn*100).toFixed(2)+'<span style="font-size:18px;color:var(--text2);">%</span></div></div>'
-        +'<div><div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">'+(lang==='es'?'r real (Fisher)':'Real r (Fisher)')+'</div>'
-        +'<div style="font-size:28px;font-family:var(--mono);font-weight:300;letter-spacing:-0.03em;color:var(--blue);line-height:1;">'+(rr*100).toFixed(2)+'<span style="font-size:16px;color:var(--text2);">%</span></div></div>'
-        +'<div><span class="badge '+badgeClass+'">'+badgeText+'</span></div>'
-        +'</div>'
-        +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;">'
-        +'<div class="r-item"><div class="r-item-label">'+(lang==='es'?'Dep\u00f3sitos':'Deposits')+'</div><div class="r-item-val">'+deps.length+'</div></div>'
-        +'<div class="r-item"><div class="r-item-label">'+(lang==='es'?'VAL actual':'Current VAL')+'</div><div class="r-item-val">'+fmtUSD(val)+'</div></div>'
-        +'<div class="r-item"><div class="r-item-label">'+(lang==='es'?'Total depositado':'Total deposited')+'</div><div class="r-item-val">'+fmtUSD(totalDep)+'</div></div>'
-        +'<div class="r-item"><div class="r-item-label">'+(lang==='es'?'Ganancia':'Gain')+'</div><div class="r-item-val" style="color:'+(gain>=0?'var(--accent)':'var(--danger)')+';">'+(gain>=0?'+':'')+fmtUSD(gain)+'</div></div>'
-        +'<div class="r-item"><div class="r-item-label">'+(lang==='es'?'Vida m\u00e1x.':'Max lifetime')+'</div><div class="r-item-val">'+fmtYrs(maxLife)+'</div></div>'
-        +'<div class="r-item"><div class="r-item-label">'+(lang==='es'?'T. ponderado':'Wtd avg time')+'</div><div class="r-item-val">'+fmtYrs(wavg)+'</div></div>'
-        +'</div>';
+      var rrColor=badgeClass==='badge-green'?'var(--accent)':badgeClass==='badge-warn'?'var(--warn)':badgeClass==='badge-danger'?'var(--danger)':'var(--blue)';
+      set('r-rn-'+idx,(rData.rn*100).toFixed(2)+'%');
+      set('r-rr-'+idx,(rr*100).toFixed(2)+'%');
+      var rrEl=document.getElementById('r-rr-'+idx); if(rrEl) rrEl.style.color=rrColor;
+      setH('r-badge-'+idx,'<span class="badge '+badgeClass+'">'+badgeText+'</span>');
+      set('r-deps-'+idx,deps.length);
+      set('r-deptot-'+idx,fmtUSD(totalDep));
+      var gainEl=document.getElementById('r-gain-'+idx);
+      if(gainEl){gainEl.textContent=(gain>=0?'+':'')+fmtUSD(gain);gainEl.style.color=gain>=0?'var(--accent)':'var(--danger)';}
+      set('r-maxlife-'+idx,fmtYrs(maxLife));
+      set('r-wavg-'+idx,fmtYrs(wavg));
     } else {
-      resultDiv.innerHTML='<div style="font-size:11px;color:var(--text3);font-family:var(--mono);padding:8px 0;">'
-        +(lang==='es'?'Ingres\u00e1 el VAL para calcular el retorno.':'Enter VAL above to calculate return.')+'</div>';
+      ['r-rn-','r-rr-','r-deps-','r-deptot-','r-gain-','r-maxlife-','r-wavg-'].forEach(function(pfx){
+        var el=document.getElementById(pfx+idx);if(el){el.textContent='--';el.style.color='';}
+      });
+      setH('r-badge-'+idx,'');
     }
   });
   if(combinedR!==null&&allVALsFilled()) renderCombinedRResult(combinedR);
@@ -985,33 +945,29 @@ function updateAllCardResults(){
 }
 
 function renderCombinedRResult(rn){
+  if(!document.getElementById('combined-r-result')) return;
   var inf=getInf(); var rr=(1+rn)/(1+inf)-1;
-  document.getElementById('combined-r-val').textContent=(rn*100).toFixed(2);
-  document.getElementById('combined-rr-val').textContent=(rr*100).toFixed(2);
-  var badgeClass=rr*100>5?'badge-green':rr*100>2?'badge-blue':rr*100>0?'badge-warn':'badge-danger';
-  var badgeText=rr*100>5?(lang==='es'?'Excelente':'Excellent'):rr*100>2?(lang==='es'?'Bueno':'Good'):rr*100>0?(lang==='es'?'Regular':'Fair'):(lang==='es'?'Deficiente':'Poor');
-  document.getElementById('combined-r-badge-wrap').innerHTML='<span class="badge '+badgeClass+'">'+badgeText+'</span>';
-  // Bottom metrics
   var totalVal=getCombinedVAL();
   var totalDep=deposits.reduce(function(s,d){return s+d.amount;},0);
   var gain=totalVal-totalDep;
-  document.getElementById('combined-dep-count').textContent=deposits.length;
-  document.getElementById('combined-val-metric').textContent=fmtUSD(totalVal);
-  document.getElementById('combined-dep-total').textContent=fmtUSD(totalDep);
-  document.getElementById('combined-gain').textContent=(gain>=0?'+':'')+fmtUSD(gain);
-  document.getElementById('combined-gain').style.color=gain>=0?'var(--accent)':'var(--danger)';
+  var badgeClass=rr*100>5?'badge-green':rr*100>2?'badge-blue':rr*100>0?'badge-warn':'badge-danger';
+  var badgeText=rr*100>5?(lang==='es'?'Excelente':'Excellent'):rr*100>2?(lang==='es'?'Bueno':'Good'):rr*100>0?(lang==='es'?'Regular':'Fair'):(lang==='es'?'Deficiente':'Poor');
+  var rrColor=badgeClass==='badge-green'?'var(--accent)':badgeClass==='badge-warn'?'var(--warn)':badgeClass==='badge-danger'?'var(--danger)':'var(--blue)';
   var maxLife=Math.max.apply(null,deposits.map(function(d){return yearsAgo(d.date);}));
-  var wavg=deposits.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep;
+  var wavg=totalDep!==0?deposits.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep:0;
+  document.getElementById('combined-r-val').textContent=(rn*100).toFixed(2)+'%';
+  var crrEl=document.getElementById('combined-rr-val');
+  if(crrEl){crrEl.textContent=(rr*100).toFixed(2)+'%';crrEl.style.color=rrColor;}
+  document.getElementById('combined-r-badge-wrap').innerHTML='<span class="badge '+badgeClass+'">'+badgeText+'</span>';
+  document.getElementById('combined-val-disp').textContent=fmtUSD(totalVal);
+  document.getElementById('combined-dep-count').textContent=deposits.length;
+  document.getElementById('combined-dep-total').textContent=fmtUSD(totalDep);
+  var gainEl=document.getElementById('combined-gain');
+  if(gainEl){gainEl.textContent=(gain>=0?'+':'')+fmtUSD(gain);gainEl.style.color=gain>=0?'var(--accent)':'var(--danger)';}
   document.getElementById('combined-max-life').textContent=fmtYrs(maxLife);
   document.getElementById('combined-wavg-time').textContent=fmtYrs(wavg);
-  // Labels translation
-  document.getElementById('s3-comb-dep-lbl').textContent=lang==='es'?'Dep\u00f3sitos':'Deposits';
-  document.getElementById('s3-comb-val-lbl').textContent=lang==='es'?'VAL actual':'Current VAL';
-  document.getElementById('s3-comb-tot-lbl').textContent=lang==='es'?'Total depositado':'Total deposited';
-  document.getElementById('s3-comb-gain-lbl').textContent=lang==='es'?'Ganancia':'Gain';
-  document.getElementById('s3-comb-life-lbl').textContent=lang==='es'?'Vida m\u00e1x.':'Max lifetime';
-  document.getElementById('s3-comb-wavg-lbl').textContent=lang==='es'?'T. ponderado':'Wtd avg time';
-  document.getElementById('s3-combined-tag').textContent=lang==='es'?'Combinado':'Combined';
+  var tag=document.getElementById('s3-combined-tag');
+  if(tag) tag.textContent=lang==='es'?'Combinado':'Combined';
   document.getElementById('combined-r-result').style.display='';
 }
 
@@ -1039,61 +995,83 @@ function calcCombined(){
   showToast(lang==='es'?'rn combinado: '+(rn*100).toFixed(2)+'%':'Combined rn: '+(rn*100).toFixed(2)+'%');
 }
 
-// ── STEP 4: PROJECTION ─────────────────────────────────────────────────────
+// ── STEP 3: PROJECTION ─────────────────────────────────────────────────────
+function renderProjTable(){
+  var ps=getPortfolios();
+  var wrap=document.getElementById('proj-table-wrap');
+  if(!wrap) return;
+  if(!ps.length){ wrap.innerHTML=''; return; }
+  var TH='font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-family:var(--mono);padding:5px 7px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;';
+  var TD='padding:5px 7px;font-family:var(--mono);font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;';
+  var html='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Cartera':'Portfolio')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'rn · rr':'rn · rr')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Dep/mes':'Monthly')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Dep. nuevos':'New dep')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'VAL nom':'Nom VAL')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'VAL real':'Real VAL')+'</th>'
+    +'<th style="'+TH+';display:none;" id="proj-th-alt">'+(lang==='es'?'VAL alt':'Alt VAL')+'</th>'
+    +'</tr></thead><tbody>';
+  ps.forEach(function(p,idx){
+    var c=pColor(p);
+    if(portfolioMonthly[p]===undefined) portfolioMonthly[p]=700;
+    var v=portfolioMonthly[p];
+    html+='<tr>'
+      +'<td style="'+TD+'border-left:3px solid '+c+';">'
+      +'<span class="p-tag" style="border-color:'+c+'33;color:'+c+';background:'+c+'14;font-size:11px;">'+p+'</span></td>'
+      +'<td style="'+TD+'" id="pt-rates-'+idx+'">--</td>'
+      +'<td style="'+TD+'"><input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="50"'
+      +' style="width:80px;padding:3px 6px;font-size:12px;border-color:'+c+'44;"'
+      +' oninput="portfolioMonthly[\''+p+'\']=parseFloat(this.value)||0;saveAll();updateProjection();"></td>'
+      +'<td style="'+TD+'color:var(--text2);" id="pt-new-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--accent);" id="pt-nom-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--blue);" id="pt-real-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:#fb923c;display:none;" class="proj-alt-cell" id="pt-alt-'+idx+'">--</td>'
+      +'</tr>';
+  });
+  var TC='padding:5px 7px;font-family:var(--mono);font-size:12px;border-top:2px solid rgba(255,255,255,0.1);vertical-align:middle;';
+  html+='<tr id="pt-row-comb" style="display:none;">'
+    +'<td style="'+TC+'border-left:3px solid var(--accent);">'
+    +'<span class="p-tag" style="border-color:var(--accent)33;color:var(--accent);background:var(--accent)14;font-size:11px;">'+(lang==='es'?'Combinado':'Combined')+'</span></td>'
+    +'<td style="'+TC+'" id="pt-rates-comb">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="pt-mo-comb">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="pt-new-comb">--</td>'
+    +'<td style="'+TC+'color:var(--accent);" id="pt-nom-comb">--</td>'
+    +'<td style="'+TC+'color:var(--blue);" id="pt-real-comb">--</td>'
+    +'<td style="'+TC+'color:#fb923c;display:none;" class="proj-alt-cell" id="pt-alt-comb">--</td>'
+    +'</tr>'
+    +'</tbody></table></div>';
+  html+='<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 2px;">'
+    +'<span style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.04em;" id="s4-view-lbl">'+(lang==='es'?'Gráfico y retiro:':'Chart &amp; withdrawal:')+'</span>'
+    +'<div id="proj-selectors" style="display:flex;gap:6px;flex-wrap:wrap;"></div>'
+    +'</div>';
+  wrap.innerHTML=html;
+  renderProjSelectors();
+  renderSustainTable();
+  updateProjection();
+}
+
 function renderProjSelectors(){
   var wrap=document.getElementById('proj-selectors');
+  if(!wrap) return;
   var ps=getPortfolios();
   var html='';
-  // Individual portfolios that have r
   ps.forEach(function(p){
     if(!portfolioRs[p]) return;
     var c=pColor(p);
     var isSel=projPortfolio===p;
     html+='<button class="p-pill" style="'+(isSel?'background:'+c+'22;border-color:'+c+';color:'+c+';':'')+'" onclick="setProjPortfolio(\''+p+'\')">'+p+'</button>';
   });
-  // Combined
   if(combinedR!==null){
     var isSel=projPortfolio==='combined';
     html+='<button class="p-pill'+(isSel?' sel-all':'')+'" onclick="setProjPortfolio(\'combined\')">'+(lang==='es'?'Combinado':'Combined')+'</button>';
   }
   wrap.innerHTML=html;
-  // Auto-select first available
   if(!projPortfolio||(!portfolioRs[projPortfolio]&&projPortfolio!=='combined')){
     if(combinedR!==null) projPortfolio='combined';
     else if(ps.filter(function(p){return portfolioRs[p];}).length) projPortfolio=ps.filter(function(p){return portfolioRs[p];})[0];
   }
-  // Render per-portfolio monthly deposit inputs
-  var mwrap=document.getElementById('proj-monthly-wrap');
-  if(!mwrap) return;
-  var moLabel=lang==='es'?'dep. mensual (USD)':'monthly deposit (USD)';
-  var totalLabel=lang==='es'?'Total / mes':'Total / mo';
-  var mhtml='<div class="form-row" style="flex-wrap:wrap;gap:8px;margin-bottom:0;">';
-  ps.forEach(function(p){
-    var c=pColor(p);
-    if(portfolioMonthly[p]===undefined) portfolioMonthly[p]=700;
-    var v=portfolioMonthly[p];
-    mhtml+='<div class="form-group" style="min-width:150px;">'
-      +'<label class="form-label" style="color:'+c+';">'+p+' &mdash; '+moLabel+'</label>'
-      +'<input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="50"'
-      +' style="border-color:'+c+'44;"'
-      +' oninput="portfolioMonthly[\''+p+'\']=parseFloat(this.value)||0;saveAll();updateMonthlyTotal();updateProjection();">'
-      +'</div>';
-  });
-  if(ps.length>1){
-    mhtml+='<div class="form-group" style="min-width:120px;">'
-      +'<label class="form-label" style="color:var(--text3);">'+totalLabel+'</label>'
-      +'<div class="form-input" id="proj-monthly-total" style="background:var(--bg2);opacity:0.7;cursor:default;line-height:38px;">--</div>'
-      +'</div>';
-  }
-  mhtml+='</div>';
-  mwrap.innerHTML=mhtml;
-  updateMonthlyTotal();
-}
-
-function updateMonthlyTotal(){
-  var tot=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
-  var totEl=document.getElementById('proj-monthly-total');
-  if(totEl) totEl.textContent='$'+Math.round(tot).toLocaleString()+'/mo';
 }
 
 function setProjPortfolio(p){
@@ -1130,46 +1108,94 @@ function getAltRR(){
   return (v>0)?v/100:null;
 }
 
+function rrQualityColor(rr){
+  if(rr>0.05) return 'var(--accent)';
+  if(rr>0.02) return 'var(--blue)';
+  if(rr>0)    return 'var(--warn)';
+  return 'var(--danger)';
+}
+
 function updateProjection(){
-  var rn=getRforProj();
-  if(rn===null||rn===undefined) return;
-  var val=getVALforProj();
+  var years=parseInt(document.getElementById('proj-years').value)||15;
   var inf=getInf();
+  var altRR=getAltRR();
+  var ps=getPortfolios();
+  var showAlt=altRR!==null;
+
+  // Update each portfolio row in the projection table
+  ps.forEach(function(p,idx){
+    if(!document.getElementById('pt-nom-'+idx)) return;
+    var rn=portfolioRs[p]?portfolioRs[p].rn:null;
+    var val=portfolioVALs[p]||0;
+    var monthly=portfolioMonthly[p]||0;
+    var ratesEl=document.getElementById('pt-rates-'+idx);
+    if(rn===null||!val){
+      document.getElementById('pt-new-'+idx).textContent='--';
+      document.getElementById('pt-nom-'+idx).textContent='--';
+      document.getElementById('pt-real-'+idx).textContent='--';
+      if(ratesEl) ratesEl.innerHTML='--';
+      var ae=document.getElementById('pt-alt-'+idx); if(ae) ae.textContent='--';
+      return;
+    }
+    var rr=(1+rn)/(1+inf)-1;
+    var c=pColor(p);
+    if(ratesEl) ratesEl.innerHTML=
+      '<span style="display:block;color:'+c+';font-size:11px;">'+(rn*100).toFixed(2)+'%</span>'
+      +'<span style="display:block;color:'+rrQualityColor(rr)+';font-size:10px;">'+(rr*100).toFixed(2)+'%</span>';
+    document.getElementById('pt-new-'+idx).textContent=fmtUSD(monthly*12*years);
+    document.getElementById('pt-nom-'+idx).textContent=fmtUSD(projectFV(val,monthly,rn,years));
+    document.getElementById('pt-real-'+idx).textContent=fmtUSD(projectFV(val,monthly,rr,years));
+    var ae=document.getElementById('pt-alt-'+idx);
+    if(ae) ae.textContent=showAlt?fmtUSD(projectFV(val,monthly,altRR,years)):'--';
+  });
+
+  // Combined row
+  var combRow=document.getElementById('pt-row-comb');
+  if(combRow){
+    if(combinedR!==null){
+      combRow.style.display='';
+      var combVAL=getCombinedVAL();
+      var combMo=ps.reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
+      var rr_c=(1+combinedR)/(1+inf)-1;
+      var combRatesEl=document.getElementById('pt-rates-comb');
+      if(combRatesEl) combRatesEl.innerHTML=
+        '<span style="display:block;color:var(--accent);font-size:11px;">'+(combinedR*100).toFixed(2)+'%</span>'
+        +'<span style="display:block;color:'+rrQualityColor(rr_c)+';font-size:10px;">'+(rr_c*100).toFixed(2)+'%</span>';
+      document.getElementById('pt-mo-comb').textContent='$'+Math.round(combMo).toLocaleString()+'/mo';
+      document.getElementById('pt-new-comb').textContent=fmtUSD(combMo*12*years);
+      document.getElementById('pt-nom-comb').textContent=fmtUSD(projectFV(combVAL,combMo,combinedR,years));
+      document.getElementById('pt-real-comb').textContent=fmtUSD(projectFV(combVAL,combMo,rr_c,years));
+      var ace=document.getElementById('pt-alt-comb');
+      if(ace) ace.textContent=showAlt?fmtUSD(projectFV(combVAL,combMo,altRR,years)):'--';
+    } else {
+      combRow.style.display='none';
+    }
+  }
+
+  // Alt column visibility
+  var thAlt=document.getElementById('proj-th-alt');
+  if(thAlt) thAlt.style.display=showAlt?'':'none';
+  document.querySelectorAll('.proj-alt-cell').forEach(function(el){ el.style.display=showAlt?'':'none'; });
+  var legAlt=document.getElementById('leg-alt-wrap');
+  if(legAlt) legAlt.style.display=showAlt?'':'none';
+
+  // Chart & withdrawal — driven by projPortfolio selector
+  var rn=getRforProj();
+  if(rn===null||rn===undefined){ updateWithdrawal(); return; }
+  var val=getVALforProj();
   var rr=(1+rn)/(1+inf)-1;
   var monthly=getMonthlyForProj();
-  var years=parseInt(document.getElementById('proj-years').value)||15;
-  var nom=projectFV(val,monthly,rn,years);
   var real=projectFV(val,monthly,rr,years);
-  document.getElementById('proj-nominal').textContent=fmtUSD(nom);
-  document.getElementById('proj-real').textContent=fmtUSD(real);
-  document.getElementById('proj-deposited').textContent=fmtUSD(monthly*12*years);
-  document.getElementById('proj-at-r').textContent=(lang==='es'?'con rn = ':'at rn = ')+(rn*100).toFixed(2)+'%';
-  document.getElementById('s4-real-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(rr*100).toFixed(2)+'%';
-  // Alternate real return
-  var altRR=getAltRR();
-  if(altRR!==null){
-    var altReal=projectFV(val,monthly,altRR,years);
-    document.getElementById('proj-alt-real').textContent=fmtUSD(altReal);
-    document.getElementById('s4-alt-sub').textContent=(lang==='es'?'con rr = ':'at rr = ')+(altRR*100).toFixed(2)+'%';
-    document.getElementById('proj-alt-row').style.display='';
-    document.getElementById('leg-alt-wrap').style.display='';
-  } else {
-    document.getElementById('proj-alt-row').style.display='none';
-    document.getElementById('leg-alt-wrap').style.display='none';
-  }
-  // Rate hints from REAL end-VAL — consistent with sustainability sim in Section D
-  document.getElementById('proj-w4').textContent=fmtMo(real*0.04/12);
-  document.getElementById('proj-w33').textContent=fmtMo(real*0.033/12);
-  document.getElementById('proj-w25').textContent=fmtMo(real*0.025/12);
-  drawProjChart(val,monthly,rn,rr,years,altRR);
+  var age=parseInt(document.getElementById('proj-age').value)||45;
+  drawProjChart(val,monthly,rn,rr,years,altRR,age);
   updateWithdrawal();
 }
 
-function drawProjChart(pv,monthly,nomR,rr,years,altRR){
+function drawProjChart(pv,monthly,nomR,rr,years,altRR,age){
   var labels=[],nom=[],real=[],dep=[],alt=[];
   var hasAlt=(altRR!==null&&altRR!==undefined);
   for(var y=0;y<=years;y++){
-    labels.push(y===0?(lang==='es'?'Hoy':'Now'):'Y'+y);
+    labels.push(String(age+y));
     nom.push(Math.round(projectFV(pv,monthly,nomR,y)));
     real.push(Math.round(projectFV(pv,monthly,rr,y)));
     dep.push(Math.round(pv+monthly*12*y));
@@ -1189,7 +1215,7 @@ function drawProjChart(pv,monthly,nomR,rr,years,altRR){
     options:{responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{callbacks:{
-        title:function(items){return 'Year '+items[0].label;},
+        title:function(items){return (lang==='es'?'Edad ':'Age ')+items[0].label;},
         label:function(c){return ' '+c.dataset.label+': '+fmtUSD(c.raw);}
       }}},
       scales:{
@@ -1349,111 +1375,129 @@ if(deposits.length>0 && (Object.keys(portfolioRs).length>0||combinedR!==null)){
 }
 
 // ── WITHDRAWAL PHASE ───────────────────────────────────────────────────────
-function applyWithdrawalRate(pct){
-  var rn = getRforProj();
-  var val = getVALforProj();
-  if(!rn || !val) return;
-  var inf = getInf();
-  var rr = (1+rn)/(1+inf)-1;
-  var monthly = getMonthlyForProj();
-  var years = parseInt(document.getElementById('proj-years').value)||15;
-  var endValReal = projectFV(val, monthly, rr, years);
-  var w = Math.round(endValReal * (pct/100) / 12);
-  document.getElementById('proj-withdrawal').value = w;
+function renderSustainTable(){
+  var wrap=document.getElementById('sustain-table-wrap');
+  if(!wrap) return;
+  var isES=lang==='es';
+  var TH='font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-family:var(--mono);padding:5px 7px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;';
+  var TD='padding:5px 7px;font-family:var(--mono);font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;';
+  var TC='padding:5px 7px;font-family:var(--mono);font-size:12px;border-top:2px solid rgba(255,255,255,0.1);vertical-align:middle;';
+  var hint=isES?'Clic para usar como retiro mensual':'Click to use as monthly withdrawal';
+  wrap.innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr>'
+    +'<th style="'+TH+'">'+(isES?'Escenario':'Scenario')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'VAL real al horizonte':'Real VAL at horizon')+'</th>'
+    +'<th style="'+TH+';cursor:pointer;" title="'+hint+'">'+(isES?'Perpetuidad \u25be':'Perpetuity \u25be')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Edad sin dinero':'Age out of money')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'A\u00f1os de retiro':'Yrs of withdrawal')+'</th>'
+    +'</tr></thead>'
+    +'<tbody>'
+    +'<tr id="sw-row-main">'
+    +'<td style="'+TD+'border-left:3px solid var(--blue);" id="sw-scen-main">--</td>'
+    +'<td style="'+TD+'color:var(--blue);" id="sw-val-main">--</td>'
+    +'<td style="'+TD+'color:var(--accent);cursor:pointer;" id="sw-perp-main" onclick="applyPerpetuitySustain(\'main\')" title="'+hint+'">--</td>'
+    +'<td style="'+TD+'" id="sw-age-main">--</td>'
+    +'<td style="'+TD+'" id="sw-yrs-main">--</td>'
+    +'</tr>'
+    +'<tr id="sw-row-alt" style="display:none;">'
+    +'<td style="'+TC+'border-left:3px solid #fb923c;" id="sw-scen-alt">--</td>'
+    +'<td style="'+TC+'color:#fb923c;" id="sw-val-alt">--</td>'
+    +'<td style="'+TC+'color:var(--accent);cursor:pointer;" id="sw-perp-alt" onclick="applyPerpetuitySustain(\'alt\')" title="'+hint+'">--</td>'
+    +'<td style="'+TC+'" id="sw-age-alt">--</td>'
+    +'<td style="'+TC+'" id="sw-yrs-alt">--</td>'
+    +'</tr>'
+    +'</tbody></table></div>';
+}
+
+function applyPerpetuitySustain(which){
+  var cell=document.getElementById('sw-perp-'+which);
+  if(!cell||!cell.dataset.perp) return;
+  document.getElementById('proj-withdrawal').value=cell.dataset.perp;
   updateWithdrawal();
 }
 
 function updateWithdrawal(){
-  var rn = getRforProj();
+  var rn=getRforProj();
   if(!rn) return;
-  var inf = getInf();
-  var rr = (1+rn)/(1+inf) - 1;
-  var val = getVALforProj();
-  var monthly = getMonthlyForProj();
-  var years = parseInt(document.getElementById('proj-years').value)||15;
-  var endValReal = projectFV(val, monthly, rr, years);
-  var wMonthly = parseFloat(document.getElementById('proj-withdrawal').value)||1300;
-  var age = parseInt(document.getElementById('proj-age').value)||45;
-  var retireAge = age + years;
-  var rm = Math.pow(1+rr,1/12)-1;
-  var MAX = 100 * 12;
+  var inf=getInf();
+  var rr=(1+rn)/(1+inf)-1;
+  var val=getVALforProj();
+  var monthly=getMonthlyForProj();
+  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var endValReal=projectFV(val,monthly,rr,years);
+  var wMonthly=parseFloat(document.getElementById('proj-withdrawal').value)||1300;
+  var age=parseInt(document.getElementById('proj-age').value)||45;
+  var retireAge=age+years;
+  var rm=Math.pow(1+rr,1/12)-1;
+  var MAX=100*12;
 
-  var perpetuity = endValReal * rm;
-  document.getElementById('sustain-endval').textContent = fmtUSD(endValReal);
-  document.getElementById('sustain-perpetuity').textContent = fmtMo(perpetuity);
+  // \u2500\u2500 Main row \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  var perpetuity=endValReal*rm;
+  var scenMain=document.getElementById('sw-scen-main');
+  var valMain=document.getElementById('sw-val-main');
+  var perpMain=document.getElementById('sw-perp-main');
+  var ageMain=document.getElementById('sw-age-main');
+  var yrsMain=document.getElementById('sw-yrs-main');
+  if(scenMain) scenMain.textContent='rr = '+(rr*100).toFixed(2)+'%';
+  if(valMain)  valMain.textContent=fmtUSD(endValReal);
+  if(perpMain){ perpMain.textContent=fmtMo(perpetuity); perpMain.dataset.perp=Math.round(perpetuity); }
 
-  var bal = endValReal;
-  var months = 0;
-  var depletes = true;
-  if(wMonthly <= perpetuity){
-    depletes = false;
-  } else {
-    while(bal > 0 && months < MAX){
-      bal = bal * (1 + rm) - wMonthly;
-      months++;
-    }
-    if(months >= MAX) depletes = false;
-  }
+  var bal=endValReal,months=0,depletes=true;
+  if(wMonthly<=perpetuity){ depletes=false; }
+  else{ while(bal>0&&months<MAX){ bal=bal*(1+rm)-wMonthly; months++; } if(months>=MAX) depletes=false; }
 
   if(!depletes){
-    document.getElementById('sustain-age').textContent = lang==='es'?'Nunca':'Never';
-    document.getElementById('sustain-age').className = 'metric-value green';
-    document.getElementById('sustain-years').textContent = lang==='es'?'Indefinido':'Indefinite';
-    document.getElementById('sustain-years').className = 'metric-value green';
+    if(ageMain){ ageMain.textContent=lang==='es'?'Nunca':'Never'; ageMain.style.color='var(--accent)'; }
+    if(yrsMain){ yrsMain.textContent=lang==='es'?'Indefinido':'Indefinite'; yrsMain.style.color='var(--accent)'; }
   } else {
-    var wYears = months / 12;
-    var depleteAge = retireAge + wYears;
-    var ageColor = depleteAge >= retireAge+30 ? ' green' : depleteAge >= retireAge+20 ? ' blue' : ' warn';
-    document.getElementById('sustain-age').textContent = Math.floor(depleteAge).toString();
-    document.getElementById('sustain-age').className = 'metric-value' + ageColor;
-    document.getElementById('sustain-years').textContent = wYears.toFixed(1) + (lang==='es'?' a\u00f1os':' years');
-    document.getElementById('sustain-years').className = 'metric-value' + ageColor;
+    var wYears=months/12, depleteAge=retireAge+wYears;
+    var ac=depleteAge>=retireAge+30?'var(--accent)':depleteAge>=retireAge+20?'var(--blue)':'var(--warn)';
+    if(ageMain){ ageMain.textContent=Math.floor(depleteAge).toString(); ageMain.style.color=ac; }
+    if(yrsMain){ yrsMain.textContent=wYears.toFixed(1)+(lang==='es'?' a\u00f1os':' years'); yrsMain.style.color=ac; }
   }
 
-  // Alternate scenario
-  var altRR = getAltRR();
-  var altEndVal = null, altWMonths = 0, altDepletes = false;
-  if(altRR !== null){
-    var altRm = Math.pow(1+altRR,1/12)-1;
-    altEndVal = projectFV(val, monthly, altRR, years);
-    var altPerp = altEndVal * altRm;
-    if(wMonthly <= altPerp){
-      altDepletes = false;
-      altWMonths = 50 * 12;
-    } else {
-      altDepletes = true;
-      var altBal = altEndVal; altWMonths = 0;
-      while(altBal > 0 && altWMonths < MAX){ altBal = altBal*(1+altRm)-wMonthly; altWMonths++; }
-      if(altWMonths >= MAX){ altDepletes = false; altWMonths = 50 * 12; }
+  // \u2500\u2500 Alt row \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  var altRR=getAltRR();
+  var altEndVal=null,altWMonths=0,altDepletes=false;
+  var altRow=document.getElementById('sw-row-alt');
+  if(altRR!==null){
+    if(altRow) altRow.style.display='';
+    var altRm=Math.pow(1+altRR,1/12)-1;
+    altEndVal=projectFV(val,monthly,altRR,years);
+    var altPerp=altEndVal*altRm;
+    var scenAlt=document.getElementById('sw-scen-alt');
+    var valAlt=document.getElementById('sw-val-alt');
+    var perpAlt=document.getElementById('sw-perp-alt');
+    var ageAlt=document.getElementById('sw-age-alt');
+    var yrsAlt=document.getElementById('sw-yrs-alt');
+    if(scenAlt) scenAlt.textContent='alt = '+(altRR*100).toFixed(2)+'%';
+    if(valAlt)  valAlt.textContent=fmtUSD(altEndVal);
+    if(perpAlt){ perpAlt.textContent=fmtMo(altPerp); perpAlt.dataset.perp=Math.round(altPerp); }
+    if(wMonthly<=altPerp){ altDepletes=false; altWMonths=50*12; }
+    else{
+      altDepletes=true; var altBal=altEndVal; altWMonths=0;
+      while(altBal>0&&altWMonths<MAX){ altBal=altBal*(1+altRm)-wMonthly; altWMonths++; }
+      if(altWMonths>=MAX){ altDepletes=false; altWMonths=50*12; }
     }
-  }
-  // Alt metrics (age + years)
-  var altMetricsEl = document.getElementById('sustain-alt-metrics');
-  if(altRR !== null){
-    if(altMetricsEl) altMetricsEl.style.display = 'grid';
     if(!altDepletes){
-      document.getElementById('sustain-alt-age').textContent = lang==='es'?'Nunca':'Never';
-      document.getElementById('sustain-alt-age').className = 'metric-value green';
-      document.getElementById('sustain-alt-years').textContent = lang==='es'?'Indefinido':'Indefinite';
-      document.getElementById('sustain-alt-years').className = 'metric-value green';
+      if(ageAlt){ ageAlt.textContent=lang==='es'?'Nunca':'Never'; ageAlt.style.color='var(--accent)'; }
+      if(yrsAlt){ yrsAlt.textContent=lang==='es'?'Indefinido':'Indefinite'; yrsAlt.style.color='var(--accent)'; }
     } else {
-      var altWYears = altWMonths / 12;
-      var altDepleteAge = retireAge + altWYears;
-      var altAgeColor = altDepleteAge >= retireAge+30 ? ' green' : altDepleteAge >= retireAge+20 ? ' blue' : ' warn';
-      document.getElementById('sustain-alt-age').textContent = Math.floor(altDepleteAge).toString();
-      document.getElementById('sustain-alt-age').className = 'metric-value' + altAgeColor;
-      document.getElementById('sustain-alt-years').textContent = altWYears.toFixed(1) + (lang==='es'?' a\u00f1os':' years');
-      document.getElementById('sustain-alt-years').className = 'metric-value' + altAgeColor;
+      var altWYears=altWMonths/12, altDepleteAge=retireAge+altWYears;
+      var altAc=altDepleteAge>=retireAge+30?'var(--accent)':altDepleteAge>=retireAge+20?'var(--blue)':'var(--warn)';
+      if(ageAlt){ ageAlt.textContent=Math.floor(altDepleteAge).toString(); ageAlt.style.color=altAc; }
+      if(yrsAlt){ yrsAlt.textContent=altWYears.toFixed(1)+(lang==='es'?' a\u00f1os':' years'); yrsAlt.style.color=altAc; }
     }
   } else {
-    if(altMetricsEl) altMetricsEl.style.display = 'none';
+    if(altRow) altRow.style.display='none';
   }
-  // Show/hide alt sustain legend entries
-  var altVisible = altRR !== null ? '' : 'none';
-  document.getElementById('leg-alt-accum-wrap').style.display = altVisible;
-  document.getElementById('leg-alt-wdraw-wrap').style.display = altVisible;
 
-  drawSustainChart(val, monthly, rr, endValReal, wMonthly, years, age, depletes ? months : 50*12, altRR, altEndVal, altWMonths);
+  // Show/hide alt sustain legend entries
+  var altVisible=altRR!==null?'':'none';
+  var e1=document.getElementById('leg-alt-accum-wrap'); if(e1) e1.style.display=altVisible;
+  var e2=document.getElementById('leg-alt-wdraw-wrap'); if(e2) e2.style.display=altVisible;
+
+  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:50*12,altRR,altEndVal,altWMonths);
 }
 
 function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths){
