@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.1.9</title>
+<title>Portfolio Tracker v1.2.0</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.1.9</div>
+      <div class="logo-sub">v1.2.0</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -326,7 +326,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <div style="position:relative;width:100%;height:260px;margin-top:14px;"><canvas id="sustain-chart"></canvas></div>
     <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-family:var(--mono);color:var(--text3);">
-      <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#4ade80;display:inline-block;border-radius:1px;"></span><span id="leg-accum">Accumulation</span></span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#60a5fa;display:inline-block;border-radius:1px;"></span><span id="leg-accum">Accumulation</span></span>
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#f87171;display:inline-block;border-radius:1px;"></span><span id="leg-wdraw">Withdrawal</span></span>
       <span id="leg-alt-accum-wrap" style="display:none;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#fb923c;display:inline-block;border-radius:1px;"></span><span id="leg-alt-accum">Alt. Accum.</span></span></span>
       <span id="leg-alt-wdraw-wrap" style="display:none;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#fdba74;display:inline-block;border-radius:1px;"></span><span id="leg-alt-wdraw">Alt. Withdrawal</span></span></span>
@@ -414,7 +414,7 @@ var currentStep = 1;
 var parsedRows = [];
 var fileHeaders = [];
 var mappingState = {};
-var PCOLORS = ['#4ade80','#60a5fa','#fbbf24','#f87171','#c084fc','#fb923c'];
+var PCOLORS = ['#2dd4bf','#c084fc','#f472b6','#a3e635','#67e8f9','#6366f1'];
 var REQUIRED_FIELDS = ['deposit_date','deposit_amount','currency','portfolio_name'];
 var OPTIONAL_FIELDS = ['usd_exchange_rate','note'];
 var ALL_FIELDS = REQUIRED_FIELDS.concat(OPTIONAL_FIELDS);
@@ -838,6 +838,8 @@ function renderRCards(){
     +'<th style="'+TH+'">'+(lang==='es'?'Deps':'Deps')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Depositado':'Deposited')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Ganancia':'Gain')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Ret. dep':'Gain/dep')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Peso':'Share')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Vida máx':'Max life')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'T. pond':'Wtd avg')+'</th>'
     +'</tr></thead><tbody>';
@@ -859,6 +861,8 @@ function renderRCards(){
       +'<td style="'+TD+'color:var(--text2);" id="r-deps-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--text2);" id="r-deptot-'+idx+'">--</td>'
       +'<td style="'+TD+'" id="r-gain-'+idx+'">--</td>'
+      +'<td style="'+TD+'" id="r-gainpct-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--text2);" id="r-share-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--text2);" id="r-maxlife-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--text2);" id="r-wavg-'+idx+'">--</td>'
       +'</tr>';
@@ -875,6 +879,8 @@ function renderRCards(){
     +'<td style="'+TC+'color:var(--text2);" id="combined-dep-count">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="combined-dep-total">--</td>'
     +'<td style="'+TC+'" id="combined-gain">--</td>'
+    +'<td style="'+TC+'" id="combined-gainpct">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-share">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="combined-max-life">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="combined-wavg-time">--</td>'
     +'</tr>'
@@ -931,10 +937,16 @@ function updateAllCardResults(){
       set('r-deptot-'+idx,fmtUSD(totalDep));
       var gainEl=document.getElementById('r-gain-'+idx);
       if(gainEl){gainEl.textContent=(gain>=0?'+':'')+fmtUSD(gain);gainEl.style.color=gain>=0?'var(--accent)':'var(--danger)';}
+      var gainPct=totalDep!==0?gain/totalDep*100:0;
+      var gainPctEl=document.getElementById('r-gainpct-'+idx);
+      if(gainPctEl){gainPctEl.textContent=(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%';gainPctEl.style.color=gainPct>=0?'var(--accent)':'var(--danger)';}
+      var combVAL=getCombinedVAL();
+      var shareEl=document.getElementById('r-share-'+idx);
+      if(shareEl) shareEl.textContent=combVAL>0?(val/combVAL*100).toFixed(1)+'%':'--';
       set('r-maxlife-'+idx,fmtYrs(maxLife));
       set('r-wavg-'+idx,fmtYrs(wavg));
     } else {
-      ['r-rn-','r-rr-','r-deps-','r-deptot-','r-gain-','r-maxlife-','r-wavg-'].forEach(function(pfx){
+      ['r-rn-','r-rr-','r-deps-','r-deptot-','r-gain-','r-gainpct-','r-share-','r-maxlife-','r-wavg-'].forEach(function(pfx){
         var el=document.getElementById(pfx+idx);if(el){el.textContent='--';el.style.color='';}
       });
       setH('r-badge-'+idx,'');
@@ -964,6 +976,11 @@ function renderCombinedRResult(rn){
   document.getElementById('combined-dep-total').textContent=fmtUSD(totalDep);
   var gainEl=document.getElementById('combined-gain');
   if(gainEl){gainEl.textContent=(gain>=0?'+':'')+fmtUSD(gain);gainEl.style.color=gain>=0?'var(--accent)':'var(--danger)';}
+  var gainPct=totalDep!==0?gain/totalDep*100:0;
+  var gainPctEl=document.getElementById('combined-gainpct');
+  if(gainPctEl){gainPctEl.textContent=(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%';gainPctEl.style.color=gainPct>=0?'var(--accent)':'var(--danger)';}
+  var shareEl=document.getElementById('combined-share');
+  if(shareEl){shareEl.textContent='100%';shareEl.style.color='var(--text2)';}
   document.getElementById('combined-max-life').textContent=fmtYrs(maxLife);
   document.getElementById('combined-wavg-time').textContent=fmtYrs(wavg);
   var tag=document.getElementById('s3-combined-tag');
@@ -1558,7 +1575,7 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
     {
       label: t('leg-accum'),
       data: accumData.concat(nullAccum),
-      borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.07)',
+      borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.07)',
       fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false
     },
     {

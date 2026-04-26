@@ -4,6 +4,15 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.2.0] — 2026-04-26
+
+### Changed
+- **Portfolio color palette redesigned** — previous colors conflicted with the VAL line and quality badge colors (green = Nom VAL / Excellent, blue = Real VAL / Good, yellow = Fair, red = Poor, orange = Alt VAL). New palette avoids all five reserved colors: Teal `#2dd4bf` · Purple `#c084fc` · Pink `#f472b6` · Lime `#a3e635` · Cyan `#67e8f9` · Indigo `#6366f1`. Combined portfolio retains `#4ade80` (green) intentionally.
+- **Sustain chart accumulation curve fixed to blue** — the accumulation (pre-withdrawal) segment in the sustainability chart was green (`#4ade80`); changed to blue (`#60a5fa`) to match the Real VAL / rr color used throughout the projection table and chart.
+- **Two new columns in Step 2 table** — "Gain/dep" shows `(VAL − DEP) / DEP` as a percentage (total return on deposited capital, color-coded green/red); "Share" shows `VAL_i / VAL_c` as a percentage (each portfolio's weight in the combined total). The combined row shows its own gain/dep and always 100% for share. Both columns show `--` until a VAL is entered.
+
+---
+
 ## [v1.1.9] — 2026-04-25
 
 ### Changed
