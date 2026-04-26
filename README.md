@@ -38,7 +38,7 @@ Deposits are stored in `sessionStorage` — they exist only for the duration of 
 
 ### Step 2 — Returns
 
-Each portfolio is shown as a card. Enter the current market value (VAL) directly in the card. Returns calculate automatically. Change the VAL or the inflation assumption and the rates update instantly.
+Each portfolio is a row in a table. Enter the current market value (VAL) directly in the table. Returns calculate automatically. Change the VAL or the inflation assumption and the rates update instantly.
 
 **Inflation assumption:** enter the annual inflation rate (%) to use for computing the real return.
 
@@ -50,9 +50,9 @@ Each portfolio is shown as a card. Enter the current market value (VAL) directly
 
 A higher inflation assumption lowers the computed real return. When in doubt, run the tool twice (once at 3%, once at 4.5%) to bracket the outcome.
 
-Each card shows: nominal r, real r, quality badge, deposit count, current VAL, total deposited, gain, max lifetime (age of oldest deposit), and weighted average time (dollar-weighted average age of deposits).
+Each row shows: nominal r, real r, quality badge, deposit count, total deposited, gain, gain/dep `(VAL − DEP) / DEP`, share of combined VAL `VAL_i / VAL_c`, max lifetime (age of oldest deposit), and weighted average time (dollar-weighted average age of deposits).
 
-The combined card auto-populates once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
+A combined row appears at the bottom once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
 
 |![Calculation of rates](imgs/02_mwrr.png)|
 |:--:|
@@ -60,13 +60,17 @@ The combined card auto-populates once all portfolio VALs are entered and shows a
 
 ### Step 3 — Projection & Withdrawal
 
-Configure planned monthly deposits per portfolio and a time horizon. The app projects:
+Configure a time horizon, an optional alternate real return for scenario comparison, and your current age. The app projects each portfolio using its own nominal and real MWRR, plus a combined row.
+
+A compact table shows each portfolio as a row with columns: nominal r · real r, monthly deposit (editable), new deposits over the horizon, Nominal VAL, Real VAL, and Alternate Real VAL (when an alternate rate is set). The combined row appears at the bottom.
+
+The app projects:
 
 - **Nominal VAL** — future value at the nominal MWRR
 - **Real VAL** — future value in today's purchasing power
 - **Alternate Real VAL** — same projection at a user-specified alternate real return, for scenario comparison
 
-A growth chart overlays all three curves over the chosen horizon.
+A growth chart overlays all three curves over the chosen horizon, with the x-axis labelled by actual age.
 
 Below the chart, a sustainability simulation asks: *after the horizon ends, how much do you withdraw monthly?* It computes whether the portfolio survives indefinitely or depletes, and if so, at what age. Both the main scenario and the alternate scenario are shown together.
 
@@ -234,9 +238,9 @@ If the planned monthly withdrawal $W \leq W_\infty$, the portfolio never deplete
 
 The simulation runs month by month: each month the portfolio earns one month of real return, then the withdrawal is subtracted. If the balance eventually reaches zero, the tool shows the age at depletion — your current age plus the accumulation horizon plus the years of withdrawals the portfolio sustained. If the balance never reaches zero, it shows "Never".
 
-**Withdrawal rate cards:**
+**Withdrawal table:**
 
-Three reference cards show the implied monthly withdrawal at 4%, 3.3%, and 2.5% of the real end-VAL — from more aggressive to more conservative. Clicking a card auto-fills the withdrawal input so you can immediately run the simulation at that rate.
+A compact table shows the main scenario and, when an alternate real return is set, a second row for the alternate scenario. Each row shows: Real VAL at end of horizon, perpetuity monthly (the maximum withdrawal that leaves the portfolio intact forever), age at depletion, and years of withdrawal sustained. Clicking the perpetuity cell auto-fills the monthly withdrawal input.
 
 ---
 
