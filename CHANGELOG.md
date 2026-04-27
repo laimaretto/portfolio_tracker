@@ -8,6 +8,10 @@ All notable changes to Portfolio Tracker are documented here.
 
 ### Changed
 - **VAL today column added to Step 3 projection table** — a new "VAL today" column sits between rn·rr and Monthly, showing the current VAL for each portfolio and the combined total. Makes the handoff from Step 2 explicit: the user sees the starting value, the rates, and the projected values all in one row.
+- **rn·rr column displays on one line** — rates now shown as `rn% / rr%` instead of stacked, keeping rows compact.
+- **"New dep" column renamed to "Total dep" and corrected** — now shows `DEP_i + monthly_i × 12 × horizon`, the total capital deployed by end of horizon (past deposits plus planned future deposits). Previously only showed the incremental future deposits.
+- **Projection chart deposits line corrected** — the dashed reference line now starts from historical `DEP_i` (total deposited to date) instead of today's `VAL`. This makes the line consistent with the "Total dep" column in the table, and makes the chart's gain gap meaningful: the distance between the VAL/Nom/Real lines and the deposits line is the true gain, past and future combined.
+- **Withdrawal depletion color scale extended to red** — age/years cells now use four colors: green (≥ 30 yrs), blue (≥ 20 yrs), yellow (≥ 10 yrs), red (< 10 yrs). Previously < 20 yrs always showed yellow, understating short depletion scenarios.
 
 ---
 
