@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.3.1] — 2026-04-26
+
+### Changed
+- **VAL today column added to Step 3 projection table** — a new "VAL today" column sits between rn·rr and Monthly, showing the current VAL for each portfolio and the combined total. Makes the handoff from Step 2 explicit: the user sees the starting value, the rates, and the projected values all in one row.
+
+---
+
 ## [v1.3.0] — 2026-04-26
 
 ### Added

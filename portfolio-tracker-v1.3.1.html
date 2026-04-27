@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.3.0</title>
+<title>Portfolio Tracker v1.3.1</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.3.0</div>
+      <div class="logo-sub">v1.3.1</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -1038,6 +1038,7 @@ function renderProjTable(){
     +'<thead><tr>'
     +'<th style="'+TH+'">'+(lang==='es'?'Cartera':'Portfolio')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'rn · rr':'rn · rr')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'VAL hoy':'VAL today')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Dep/mes':'Monthly')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Dep. nuevos':'New dep')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'VAL nom':'Nom VAL')+'</th>'
@@ -1052,6 +1053,7 @@ function renderProjTable(){
       +'<td style="'+TD+'border-left:3px solid '+c+';">'
       +'<span class="p-tag" style="border-color:'+c+'33;color:'+c+';background:'+c+'14;font-size:11px;">'+p+'</span></td>'
       +'<td style="'+TD+'" id="pt-rates-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--text2);" id="pt-val-'+idx+'">--</td>'
       +'<td style="'+TD+'"><input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="50"'
       +' style="width:80px;padding:3px 6px;font-size:12px;border-color:'+c+'44;"'
       +' oninput="portfolioMonthly[\''+p+'\']=parseFloat(this.value)||0;saveAll();updateProjection();"></td>'
@@ -1066,6 +1068,7 @@ function renderProjTable(){
     +'<td style="'+TC+'border-left:3px solid var(--accent);">'
     +'<span class="p-tag" style="border-color:var(--accent)33;color:var(--accent);background:var(--accent)14;font-size:11px;">'+(lang==='es'?'Combinado':'Combined')+'</span></td>'
     +'<td style="'+TC+'" id="pt-rates-comb">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="pt-val-comb">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="pt-mo-comb">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="pt-new-comb">--</td>'
     +'<td style="'+TC+'color:var(--accent);" id="pt-nom-comb">--</td>'
@@ -1161,6 +1164,7 @@ function updateProjection(){
     var monthly=portfolioMonthly[p]||0;
     var ratesEl=document.getElementById('pt-rates-'+idx);
     if(rn===null||!val){
+      var ve=document.getElementById('pt-val-'+idx); if(ve) ve.textContent='--';
       document.getElementById('pt-new-'+idx).textContent='--';
       document.getElementById('pt-nom-'+idx).textContent='--';
       document.getElementById('pt-real-'+idx).textContent='--';
@@ -1171,8 +1175,10 @@ function updateProjection(){
     var rr=(1+rn)/(1+inf)-1;
     var c=pColor(p);
     if(ratesEl) ratesEl.innerHTML=
-      '<span style="display:block;color:'+c+';font-size:11px;">'+(rn*100).toFixed(2)+'%</span>'
-      +'<span style="display:block;color:'+rrQualityColor(rr)+';font-size:10px;">'+(rr*100).toFixed(2)+'%</span>';
+      '<span style="color:'+c+';font-size:11px;">'+(rn*100).toFixed(2)+'%</span>'
+      +'<span style="color:var(--text3);font-size:11px;"> / </span>'
+      +'<span style="color:'+rrQualityColor(rr)+';font-size:11px;">'+(rr*100).toFixed(2)+'%</span>';
+    var ve=document.getElementById('pt-val-'+idx); if(ve) ve.textContent=fmtUSD(val);
     document.getElementById('pt-new-'+idx).textContent=fmtUSD(monthly*12*years);
     document.getElementById('pt-nom-'+idx).textContent=fmtUSD(projectFV(val,monthly,rn,years));
     document.getElementById('pt-real-'+idx).textContent=fmtUSD(projectFV(val,monthly,rr,years));
@@ -1190,8 +1196,10 @@ function updateProjection(){
       var rr_c=(1+combinedR)/(1+inf)-1;
       var combRatesEl=document.getElementById('pt-rates-comb');
       if(combRatesEl) combRatesEl.innerHTML=
-        '<span style="display:block;color:var(--accent);font-size:11px;">'+(combinedR*100).toFixed(2)+'%</span>'
-        +'<span style="display:block;color:'+rrQualityColor(rr_c)+';font-size:10px;">'+(rr_c*100).toFixed(2)+'%</span>';
+        '<span style="color:var(--accent);font-size:11px;">'+(combinedR*100).toFixed(2)+'%</span>'
+        +'<span style="color:var(--text3);font-size:11px;"> / </span>'
+        +'<span style="color:'+rrQualityColor(rr_c)+';font-size:11px;">'+(rr_c*100).toFixed(2)+'%</span>';
+      var vce=document.getElementById('pt-val-comb'); if(vce) vce.textContent=fmtUSD(combVAL);
       document.getElementById('pt-mo-comb').textContent='$'+Math.round(combMo).toLocaleString()+'/mo';
       document.getElementById('pt-new-comb').textContent=fmtUSD(combMo*12*years);
       document.getElementById('pt-nom-comb').textContent=fmtUSD(projectFV(combVAL,combMo,combinedR,years));
