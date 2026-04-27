@@ -54,6 +54,8 @@ Each row shows: nominal r, real r, quality badge, deposit count, total deposited
 
 A combined row appears at the bottom once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
 
+Once at least one VAL is entered, a **historical growth chart** appears below the table. For each portfolio with a solved return, it plots the implied portfolio value from the first deposit date to today by compounding each deposit at r_n from its deposit date — ending exactly at the entered VAL. A dashed reference line shows cumulative deposits over the same period. The combined line appears once all VALs are filled.
+
 |![Calculation of rates](imgs/02_mwrr.png)|
 |:--:|
 |Figure2: Nominal and Real rates|

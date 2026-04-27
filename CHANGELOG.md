@@ -4,6 +4,16 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.3.0] — 2026-04-26
+
+### Added
+- **Historical growth chart in Step 2** — a line chart appears below the returns table once at least one VAL is entered. For each portfolio with a solved r, it plots the implied portfolio value from the date of the first deposit to today (compounding each deposit at r_n from its deposit date). The combined line appears once all VALs are filled. A dashed reference line shows cumulative deposits over time. The chart uses the same color scheme as the rest of the app (portfolio colors, green for combined, grey dashed for deposits).
+
+### Fixed
+- **Deposits reference line filtered to active portfolios** — the dashed cumulative-deposits line in the historical chart previously summed deposits from all portfolios regardless of whether a VAL had been entered. It now only includes deposits from portfolios that have a VAL and a solved r, matching exactly the set of value lines drawn.
+
+---
+
 ## [v1.2.0] — 2026-04-26
 
 ### Changed

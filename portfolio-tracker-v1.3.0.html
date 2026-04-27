@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.2.0</title>
+<title>Portfolio Tracker v1.3.0</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.2.0</div>
+      <div class="logo-sub">v1.3.0</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -274,6 +274,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <div class="sec-head" style="margin-top:6px;"><div class="sec-num">B</div><div class="sec-title" id="s3-ind-lbl">Returns</div></div>
     <div id="r-cards"></div>
+
+    <div id="history-chart-wrap" style="display:none;margin-top:10px;">
+      <div class="card" style="padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+          <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-family:var(--mono);" id="leg-hist-title">Historical growth</span>
+          <div id="hist-legend" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;"></div>
+        </div>
+        <div style="position:relative;height:220px;"><canvas id="hist-chart"></canvas></div>
+      </div>
+    </div>
 
     <div class="proceed-bar" id="s2-proceed">
       <span class="proceed-status" id="s2-status">Enter VAL for each portfolio to calculate returns</span>
@@ -409,6 +419,7 @@ var rsAreStale = false;
 var projPortfolio = 'combined';
 var projChart = null;
 var sustainChart = null;
+var histChart = null;
 var lang = 'en';
 var currentStep = 1;
 var parsedRows = [];
@@ -791,6 +802,8 @@ function clearAll(){
     sessionStorage.removeItem('pt5_combined'); sessionStorage.removeItem('pt5_proj');
   }catch(e){}
   var res=document.getElementById('upload-result'); res.innerHTML=''; res.style.display='none';
+  if(histChart){histChart.destroy();histChart=null;}
+  var hw=document.getElementById('history-chart-wrap'); if(hw) hw.style.display='none';
   renderTable(); updateStepNav(); goStep(1);
 }
 
@@ -954,6 +967,7 @@ function updateAllCardResults(){
   });
   if(combinedR!==null&&allVALsFilled()) renderCombinedRResult(combinedR);
   else{ var el=document.getElementById('combined-r-result'); if(el) el.style.display='none'; }
+  drawHistoryChart();
 }
 
 function renderCombinedRResult(rn){
@@ -1241,6 +1255,106 @@ function drawProjChart(pv,monthly,nomR,rr,years,altRR,age){
       }
     }
   });
+}
+
+// ── HISTORY CHART (Step 2) ─────────────────────────────────────────────────
+function drawHistoryChart(){
+  var ps=getPortfolios();
+  var anyR=ps.some(function(p){return portfolioRs[p]&&portfolioVALs[p]>0;});
+  var wrap=document.getElementById('history-chart-wrap');
+  if(!anyR||!deposits.length){if(wrap)wrap.style.display='none';if(histChart){histChart.destroy();histChart=null;}return;}
+  if(wrap) wrap.style.display='';
+
+  var today=new Date();today.setHours(0,0,0,0);
+  var allDates=deposits.map(function(d){return new Date(d.date+'T00:00:00');});
+  var minDate=new Date(Math.min.apply(null,allDates));
+  minDate.setDate(1);
+
+  var labels=[],points=[];
+  var cur=new Date(minDate);
+  while(cur<today){
+    var y=cur.getFullYear(),m=cur.getMonth()+1;
+    labels.push(y+'-'+(m<10?'0':'')+m);
+    points.push(new Date(cur));
+    cur.setMonth(cur.getMonth()+1);
+  }
+  points.push(today);
+  labels.push(lang==='es'?'Hoy':'Today');
+
+  var datasets=[];
+
+  ps.forEach(function(p){
+    var rData=portfolioRs[p];
+    if(!rData||!portfolioVALs[p]) return;
+    var rn=rData.rn;
+    var pDeps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
+    var data=points.map(function(T){
+      var t_ms=T.getTime();
+      var hasDep=pDeps.some(function(d){return new Date(d.date+'T00:00:00')<=T;});
+      if(!hasDep) return null;
+      return Math.round(pDeps.reduce(function(sum,d){
+        var dd=new Date(d.date+'T00:00:00');
+        if(dd>T) return sum;
+        return sum+d.amount*Math.pow(1+rn,(t_ms-dd.getTime())/(1000*60*60*24*365.25));
+      },0));
+    });
+    datasets.push({label:p,data:data,borderColor:pColor(p),backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
+  });
+
+  if(combinedR!==null){
+    var rn_c=combinedR;
+    var data_c=points.map(function(T){
+      var t_ms=T.getTime();
+      var hasDep=deposits.some(function(d){return new Date(d.date+'T00:00:00')<=T;});
+      if(!hasDep) return null;
+      return Math.round(deposits.reduce(function(sum,d){
+        var dd=new Date(d.date+'T00:00:00');
+        if(dd>T) return sum;
+        return sum+d.amount*Math.pow(1+rn_c,(t_ms-dd.getTime())/(1000*60*60*24*365.25));
+      },0));
+    });
+    datasets.push({label:lang==='es'?'Combinado':'Combined',data:data_c,borderColor:'#4ade80',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
+  }
+
+  var activePorts=ps.filter(function(p){return portfolioRs[p]&&portfolioVALs[p]>0;});
+  var dep_data=points.map(function(T){
+    return Math.round(deposits.reduce(function(sum,d){
+      if(activePorts.indexOf(d.portfolio||'Main')===-1) return sum;
+      return new Date(d.date+'T00:00:00')<=T?sum+d.amount:sum;
+    },0))||null;
+  });
+  datasets.push({label:t('leg-dep'),data:dep_data,borderColor:'#5f6368',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],pointRadius:0,spanGaps:false});
+
+  var ctx=document.getElementById('hist-chart').getContext('2d');
+  if(histChart) histChart.destroy();
+  histChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:function(items){return items[0].label;},
+        label:function(c){return c.raw===null?'':' '+c.dataset.label+': '+fmtUSD(c.raw);}
+      }}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10,family:"'DM Mono'"},color:'#5f6368',maxTicksLimit:10}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10,family:"'DM Mono'"},color:'#5f6368',callback:function(v){return fmtUSD(v);}}}
+      }
+    }
+  });
+
+  var legendDiv=document.getElementById('hist-legend');
+  if(legendDiv){
+    var html='';
+    datasets.forEach(function(ds){
+      var lineStyle=ds.borderDash
+        ?'width:10px;height:0;border-bottom:2px dashed '+ds.borderColor+';display:inline-block;'
+        :'width:10px;height:2px;background:'+ds.borderColor+';display:inline-block;border-radius:1px;';
+      html+='<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);font-family:var(--mono);">'
+        +'<span style="'+lineStyle+'"></span>'+ds.label+'</span>';
+    });
+    legendDiv.innerHTML=html;
+  }
 }
 
 // ── FILE UPLOAD ────────────────────────────────────────────────────────────
