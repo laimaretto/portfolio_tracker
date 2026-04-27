@@ -40,21 +40,24 @@ Deposits are stored in `sessionStorage` — they exist only for the duration of 
 
 Each portfolio is a row in a table. Enter the current market value (VAL) directly in the table. Returns calculate automatically. Change the VAL or the inflation assumption and the rates update instantly.
 
-**Inflation assumption:** enter the annual inflation rate (%) to use for computing the real return.
+**Inflation assumption:** enter the annual inflation rate (%) you consider representative of both your investment history and your planning horizon. This single rate serves two roles: it converts your historical r_n into a real return (r_r) via the Fisher equation, and it is the same r_r used to project future purchasing power in Step 3. The two interpretations are consistent as long as you accept this rate as representative of past and future inflation alike.
+
+Since all deposits are converted to USD, the relevant benchmark is always **US CPI** regardless of your country of residence.
 
 | Assumption | When to use |
 |---|---|
-| 3% | Standard long-run USD assumption |
-| 4–4.5% | Conservative; appropriate if you expect persistently above-target inflation |
-| > 4.5% | Stress-test scenario |
+| 2.5% | Market-implied US CPI (10-year TIPS breakeven); appropriate if you weight recent forward-looking expectations |
+| 3% | Long-run US CPI average (post-WWII); standard base case |
+| 4–4.5% | Conservative stress-test; reflects the high-inflation decades of 1965–1990 |
+| > 4.5% | Extreme stress-test scenario |
 
 A higher inflation assumption lowers the computed real return. When in doubt, run the tool twice (once at 3%, once at 4.5%) to bracket the outcome.
 
-Each row shows: nominal r, real r, quality badge, deposit count, total deposited, gain, gain/dep `(VAL − DEP) / DEP`, share of combined VAL `VAL_i / VAL_c`, max lifetime (age of oldest deposit), and weighted average time (dollar-weighted average age of deposits).
+Each row shows: nominal r, real r, quality badge, deposit count, total deposited, gain, gain/dep, share of combined VAL, max lifetime (age of oldest deposit), and weighted average time (dollar-weighted average age of deposits).
 
 A combined row appears at the bottom once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
 
-Once at least one VAL is entered, a **historical growth chart** appears below the table. For each portfolio with a solved return, it plots the implied portfolio value from the first deposit date to today by compounding each deposit at r_n from its deposit date — ending exactly at the entered VAL. A dashed reference line shows cumulative deposits over the same period. The combined line appears once all VALs are filled.
+Once at least one VAL is entered, a **historical growth chart** appears below the table. For each portfolio with a solved return, it plots the implied portfolio value from the first deposit date to today by compounding each deposit at $r_n$ from its deposit date — ending exactly at the entered VAL. A dashed reference line shows cumulative deposits over the same period. The combined line appears once all VALs are filled.
 
 |![Calculation of rates](imgs/02_mwrr.png)|
 |:--:|
@@ -151,13 +154,9 @@ When you have two or more portfolios, the combined return, $r_{nc}$, follows the
 
 1. **Solve $r_{nc}$** — pool every deposit from every portfolio and find the rate that satisfies:
 
-$$\sum_i d_i \times (1 + r_{nc})^{t_i} = \text{VAL}_{c} \quad \text{(all portfolios)}$$
+$$\sum_i d_i \times (1 + r_{nc})^{t_i} = \sum_j \text{VAL}_j = \text{VAL}_{c}$$
 
-where:
-
-$$\text{VAL}_c = \sum_j \text{VAL}_j$$
-
-is the sum of all portfolio values entered in Step 2, the $d_i$ sum runs over every deposit across all portfolios, $r_{nc}$ is the unknown, and $\text{VAL}_c$ is the known input.
+$\text{VAL}_c$ is the sum of all portfolio values entered in Step 2, the $d_i$ sum runs over every deposit across all portfolios, $r_{nc}$ is the unknown, and $\text{VAL}_c$ is the known input.
 
 2. **Derive $r_{rc}$** — apply Fisher;
 
