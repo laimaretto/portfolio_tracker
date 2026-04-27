@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.3.2] — 2026-04-27
+
+### Fixed
+- **`projectFV` division-by-zero for r_n = 0%** — when nominal rate is exactly 0%, monthly rate `rm = 0` caused `PMT × 0 / 0 = NaN`. Added guard: when `rm = 0`, FV simplifies to `PV + PMT × n`. Nom VAL now correctly shows the flat nominal value for zero-return assets (e.g. cash held without growth).
+
+---
+
 ## [v1.3.1] — 2026-04-26
 
 ### Changed
