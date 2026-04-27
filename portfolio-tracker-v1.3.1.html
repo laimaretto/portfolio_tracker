@@ -1040,7 +1040,7 @@ function renderProjTable(){
     +'<th style="'+TH+'">'+(lang==='es'?'rn · rr':'rn · rr')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'VAL hoy':'VAL today')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Dep/mes':'Monthly')+'</th>'
-    +'<th style="'+TH+'">'+(lang==='es'?'Dep. nuevos':'New dep')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Dep. total':'Total dep')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'VAL nom':'Nom VAL')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'VAL real':'Real VAL')+'</th>'
     +'<th style="'+TH+';display:none;" id="proj-th-alt">'+(lang==='es'?'VAL alt':'Alt VAL')+'</th>'
@@ -1124,6 +1124,10 @@ function getVALforProj(){
   return portfolioVALs[projPortfolio]||0;
 }
 
+function getTotalDepForProj(){
+  if(projPortfolio==='combined') return deposits.reduce(function(s,d){return s+d.amount;},0);
+  return deposits.filter(function(d){return (d.portfolio||'Main')===projPortfolio;}).reduce(function(s,d){return s+d.amount;},0);
+}
 function getMonthlyForProj(){
   if(projPortfolio==='combined'){
     return getPortfolios().reduce(function(s,p){ return s+(portfolioMonthly[p]||0); },0);
@@ -1179,7 +1183,8 @@ function updateProjection(){
       +'<span style="color:var(--text3);font-size:11px;"> / </span>'
       +'<span style="color:'+rrQualityColor(rr)+';font-size:11px;">'+(rr*100).toFixed(2)+'%</span>';
     var ve=document.getElementById('pt-val-'+idx); if(ve) ve.textContent=fmtUSD(val);
-    document.getElementById('pt-new-'+idx).textContent=fmtUSD(monthly*12*years);
+    var totalDep=deposits.filter(function(d){return (d.portfolio||'Main')===p;}).reduce(function(s,d){return s+d.amount;},0);
+    document.getElementById('pt-new-'+idx).textContent=fmtUSD(totalDep+monthly*12*years);
     document.getElementById('pt-nom-'+idx).textContent=fmtUSD(projectFV(val,monthly,rn,years));
     document.getElementById('pt-real-'+idx).textContent=fmtUSD(projectFV(val,monthly,rr,years));
     var ae=document.getElementById('pt-alt-'+idx);
@@ -1201,7 +1206,8 @@ function updateProjection(){
         +'<span style="color:'+rrQualityColor(rr_c)+';font-size:11px;">'+(rr_c*100).toFixed(2)+'%</span>';
       var vce=document.getElementById('pt-val-comb'); if(vce) vce.textContent=fmtUSD(combVAL);
       document.getElementById('pt-mo-comb').textContent='$'+Math.round(combMo).toLocaleString()+'/mo';
-      document.getElementById('pt-new-comb').textContent=fmtUSD(combMo*12*years);
+      var totalDepAll=deposits.reduce(function(s,d){return s+d.amount;},0);
+      document.getElementById('pt-new-comb').textContent=fmtUSD(totalDepAll+combMo*12*years);
       document.getElementById('pt-nom-comb').textContent=fmtUSD(projectFV(combVAL,combMo,combinedR,years));
       document.getElementById('pt-real-comb').textContent=fmtUSD(projectFV(combVAL,combMo,rr_c,years));
       var ace=document.getElementById('pt-alt-comb');
@@ -1224,20 +1230,22 @@ function updateProjection(){
   var val=getVALforProj();
   var rr=(1+rn)/(1+inf)-1;
   var monthly=getMonthlyForProj();
+  var totalDep=getTotalDepForProj();
   var real=projectFV(val,monthly,rr,years);
   var age=parseInt(document.getElementById('proj-age').value)||45;
-  drawProjChart(val,monthly,rn,rr,years,altRR,age);
+  drawProjChart(val,monthly,rn,rr,years,altRR,age,totalDep);
   updateWithdrawal();
 }
 
-function drawProjChart(pv,monthly,nomR,rr,years,altRR,age){
+function drawProjChart(pv,monthly,nomR,rr,years,altRR,age,totalDep){
   var labels=[],nom=[],real=[],dep=[],alt=[];
   var hasAlt=(altRR!==null&&altRR!==undefined);
+  var depBase=totalDep!==undefined?totalDep:pv;
   for(var y=0;y<=years;y++){
     labels.push(String(age+y));
     nom.push(Math.round(projectFV(pv,monthly,nomR,y)));
     real.push(Math.round(projectFV(pv,monthly,rr,y)));
-    dep.push(Math.round(pv+monthly*12*y));
+    dep.push(Math.round(depBase+monthly*12*y));
     if(hasAlt) alt.push(Math.round(projectFV(pv,monthly,altRR,y)));
   }
   var datasets=[
@@ -1590,7 +1598,7 @@ function updateWithdrawal(){
     if(yrsMain){ yrsMain.textContent=lang==='es'?'Indefinido':'Indefinite'; yrsMain.style.color='var(--accent)'; }
   } else {
     var wYears=months/12, depleteAge=retireAge+wYears;
-    var ac=depleteAge>=retireAge+30?'var(--accent)':depleteAge>=retireAge+20?'var(--blue)':'var(--warn)';
+    var ac=depleteAge>=retireAge+30?'var(--accent)':depleteAge>=retireAge+20?'var(--blue)':depleteAge>=retireAge+10?'var(--warn)':'var(--danger)';
     if(ageMain){ ageMain.textContent=Math.floor(depleteAge).toString(); ageMain.style.color=ac; }
     if(yrsMain){ yrsMain.textContent=wYears.toFixed(1)+(lang==='es'?' a\u00f1os':' years'); yrsMain.style.color=ac; }
   }
@@ -1623,7 +1631,7 @@ function updateWithdrawal(){
       if(yrsAlt){ yrsAlt.textContent=lang==='es'?'Indefinido':'Indefinite'; yrsAlt.style.color='var(--accent)'; }
     } else {
       var altWYears=altWMonths/12, altDepleteAge=retireAge+altWYears;
-      var altAc=altDepleteAge>=retireAge+30?'var(--accent)':altDepleteAge>=retireAge+20?'var(--blue)':'var(--warn)';
+      var altAc=altDepleteAge>=retireAge+30?'var(--accent)':altDepleteAge>=retireAge+20?'var(--blue)':altDepleteAge>=retireAge+10?'var(--warn)':'var(--danger)';
       if(ageAlt){ ageAlt.textContent=Math.floor(altDepleteAge).toString(); ageAlt.style.color=altAc; }
       if(yrsAlt){ yrsAlt.textContent=altWYears.toFixed(1)+(lang==='es'?' a\u00f1os':' years'); yrsAlt.style.color=altAc; }
     }
