@@ -12,6 +12,7 @@ All notable changes to Portfolio Tracker are documented here.
 - **"New dep" column renamed to "Total dep" and corrected** — now shows `DEP_i + monthly_i × 12 × horizon`, the total capital deployed by end of horizon (past deposits plus planned future deposits). Previously only showed the incremental future deposits.
 - **Projection chart deposits line corrected** — the dashed reference line now starts from historical `DEP_i` (total deposited to date) instead of today's `VAL`. This makes the line consistent with the "Total dep" column in the table, and makes the chart's gain gap meaningful: the distance between the VAL/Nom/Real lines and the deposits line is the true gain, past and future combined.
 - **Withdrawal depletion color scale extended to red** — age/years cells now use four colors: green (≥ 30 yrs), blue (≥ 20 yrs), yellow (≥ 10 yrs), red (< 10 yrs). Previously < 20 yrs always showed yellow, understating short depletion scenarios.
+- **Portfolio selector added to historical growth chart (Step 2)** — pill buttons above the chart let the user choose which history to plot: each individual portfolio, Combined, or All. Deposits reference line adjusts to match the selected scope. Defaults to All; resets on Clear all.
 
 ---
 

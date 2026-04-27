@@ -277,6 +277,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <div id="history-chart-wrap" style="display:none;margin-top:10px;">
       <div class="card" style="padding:12px 14px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="hist-selectors"></div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
           <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-family:var(--mono);" id="leg-hist-title">Historical growth</span>
           <div id="hist-legend" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;"></div>
@@ -417,6 +418,7 @@ var portfolioMonthly = {};
 var combinedR = null;
 var rsAreStale = false;
 var projPortfolio = 'combined';
+var histPortfolio = 'all';
 var projChart = null;
 var sustainChart = null;
 var histChart = null;
@@ -803,6 +805,7 @@ function clearAll(){
   }catch(e){}
   var res=document.getElementById('upload-result'); res.innerHTML=''; res.style.display='none';
   if(histChart){histChart.destroy();histChart=null;}
+  histPortfolio='all';
   var hw=document.getElementById('history-chart-wrap'); if(hw) hw.style.display='none';
   renderTable(); updateStepNav(); goStep(1);
 }
@@ -1276,10 +1279,28 @@ function drawProjChart(pv,monthly,nomR,rr,years,altRR,age,totalDep){
 // ── HISTORY CHART (Step 2) ─────────────────────────────────────────────────
 function drawHistoryChart(){
   var ps=getPortfolios();
-  var anyR=ps.some(function(p){return portfolioRs[p]&&portfolioVALs[p]>0;});
+  var activePorts=ps.filter(function(p){return portfolioRs[p]&&portfolioVALs[p]>0;});
   var wrap=document.getElementById('history-chart-wrap');
-  if(!anyR||!deposits.length){if(wrap)wrap.style.display='none';if(histChart){histChart.destroy();histChart=null;}return;}
+  if(!activePorts.length||!deposits.length){if(wrap)wrap.style.display='none';if(histChart){histChart.destroy();histChart=null;}return;}
   if(wrap) wrap.style.display='';
+
+  // Validate histPortfolio — reset if selection no longer valid
+  if(histPortfolio!=='all'&&histPortfolio!=='combined'&&activePorts.indexOf(histPortfolio)===-1) histPortfolio='all';
+  if(histPortfolio==='combined'&&combinedR===null) histPortfolio='all';
+
+  // Render selectors
+  var selWrap=document.getElementById('hist-selectors');
+  if(selWrap){
+    var PILL='padding:3px 10px;border-radius:999px;font-size:11px;font-family:var(--mono);cursor:pointer;border:1px solid;transition:all 0.15s;';
+    var opts=[{key:'all',label:lang==='es'?'Todos':'All',color:'var(--text2)'}];
+    activePorts.forEach(function(p){ opts.push({key:p,label:p,color:pColor(p)}); });
+    if(combinedR!==null) opts.push({key:'combined',label:lang==='es'?'Combinado':'Combined',color:'var(--accent)'});
+    selWrap.innerHTML=opts.map(function(o){
+      var isSel=histPortfolio===o.key;
+      var style=PILL+'color:'+(isSel?'#0d0d0f':o.color)+';border-color:'+o.color+';background:'+(isSel?o.color:'transparent')+';';
+      return '<button style="'+style+'" onclick="histPortfolio=\''+o.key+'\';drawHistoryChart();">'+o.label+'</button>';
+    }).join('');
+  }
 
   var today=new Date();today.setHours(0,0,0,0);
   var allDates=deposits.map(function(d){return new Date(d.date+'T00:00:00');});
@@ -1299,10 +1320,10 @@ function drawHistoryChart(){
 
   var datasets=[];
 
-  ps.forEach(function(p){
-    var rData=portfolioRs[p];
-    if(!rData||!portfolioVALs[p]) return;
-    var rn=rData.rn;
+  // Portfolio value lines
+  var portsToPlot=histPortfolio==='all'?activePorts:histPortfolio==='combined'?[]:([histPortfolio]);
+  portsToPlot.forEach(function(p){
+    var rn=portfolioRs[p].rn;
     var pDeps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
     var data=points.map(function(T){
       var t_ms=T.getTime();
@@ -1317,7 +1338,8 @@ function drawHistoryChart(){
     datasets.push({label:p,data:data,borderColor:pColor(p),backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
   });
 
-  if(combinedR!==null){
+  // Combined line
+  if((histPortfolio==='all'||histPortfolio==='combined')&&combinedR!==null){
     var rn_c=combinedR;
     var data_c=points.map(function(T){
       var t_ms=T.getTime();
@@ -1332,10 +1354,11 @@ function drawHistoryChart(){
     datasets.push({label:lang==='es'?'Combinado':'Combined',data:data_c,borderColor:'#4ade80',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
   }
 
-  var activePorts=ps.filter(function(p){return portfolioRs[p]&&portfolioVALs[p]>0;});
+  // Deposits reference line — filtered to plotted portfolios
+  var depPorts=histPortfolio==='all'?activePorts:histPortfolio==='combined'?activePorts:[histPortfolio];
   var dep_data=points.map(function(T){
     return Math.round(deposits.reduce(function(sum,d){
-      if(activePorts.indexOf(d.portfolio||'Main')===-1) return sum;
+      if(depPorts.indexOf(d.portfolio||'Main')===-1) return sum;
       return new Date(d.date+'T00:00:00')<=T?sum+d.amount:sum;
     },0))||null;
   });
