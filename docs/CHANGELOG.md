@@ -4,6 +4,39 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.4.0] — 2026-04-28
+
+### Changed
+- **Documentation reorganised** — GUIDE.md, CHANGELOG.md, and MATH.md moved to `docs/` folder. README links updated. No functional changes.
+- **Design philosophy documented** — CLAUDE.md now states explicitly: the tool validates math, not financial reality. Garbage in → garbage out is acceptable. No protective guardrails beyond ambiguous parsing errors.
+- **Two sources of truth documented** — GUIDE.md and README.md now state explicitly that the Excel file (source of truth #1, user-controlled) and the broker-reported VAL (source of truth #2) are the only inputs the tool trusts.
+- **Edge use cases framed** — GUIDE.md investment types section now opens by stating that variable-rate investments are the primary use case; cash and fixed-rate investments are by-product possibilities of the design, not first-class features.
+
+---
+
+## [v1.3.4] — 2026-04-27
+
+### Added
+- **Status column in Step 2 table** — a new "Status" column shows "Ongoing" (green) when VAL > 0 and "Completed" (grey) when VAL = 0. Makes it immediately visible which portfolios are still active and which are closed. Combined row shows "--".
+
+### Changed
+- **Max life for completed investments** — when VAL = 0, Max life now shows the actual holding period (last deposit date − first deposit date) instead of the age of the oldest deposit relative to today. For a bond that matured 2 years ago, this shows the investment's duration rather than a number that keeps growing indefinitely. For ongoing investments (VAL > 0), behaviour is unchanged: Max life = today − first deposit date.
+
+---
+
+## [v1.3.3] — 2026-04-27
+
+### Added
+- **VAL = 0 support for completed investments** — entering 0 as VAL is now treated as a valid, deliberately-set value (distinct from an empty/unentered field). When VAL = 0, the MWRR solver finds the IRR of the complete cash flow series, which is mathematically correct for a completed bond or term deposit where all principal and interest have been returned. This result is stable over time and does not drift as the analysis date advances.
+- **`valIsSet(p)` helper** — distinguishes "not yet entered" (`undefined`) from "entered as zero" (a valid VAL). All guards that previously checked `portfolioVALs[p] > 0` now use `valIsSet(p)`, so completed investments with VAL = 0 participate correctly in auto-calculation, the historical chart, and the combined solver.
+- **Negative deposit rows (cash outflows)** — interest payments and principal returns on fixed-rate investments are entered as negative deposit rows. The MWRR solver (`solveR`) handles negative cash flows natively via Newton-Raphson. No code change was needed — the math already supported this; only documentation was missing.
+
+### Changed
+- **Uniform display formula for all investment types** — `Deposited = Σdᵢ` (raw signed sum), `Gain = VAL − Deposited`. No special-casing for VAL = 0 or completed bonds. When `totalDep ≤ 0` (net outflows exceed net inflows), `Gain/dep` and `Wtd avg` show `--` rather than a meaningless ratio. The same formula applies to individual portfolio rows, the combined row, and Step 3's Total dep column.
+- **Historical chart includes VAL = 0 portfolios** — `activePorts` filter now uses `valIsSet(p)` so a completed investment with VAL = 0 and a solved return contributes its compounded-deposit line to the chart. The deposits reference line is clamped to `Math.max(0, cumulative)` so it never goes negative when net outflows exceed inflows.
+
+---
+
 ## [v1.3.2] — 2026-04-27
 
 ### Fixed

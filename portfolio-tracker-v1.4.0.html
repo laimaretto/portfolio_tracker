@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.3.2</title>
+<title>Portfolio Tracker v1.4.0</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.3.2</div>
+      <div class="logo-sub">v1.4.0</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -641,7 +641,8 @@ function getPortfolios(){
 }
 function pColor(name){ var ps=getPortfolios(); return PCOLORS[ps.indexOf(name)%PCOLORS.length]||'#9aa0a8'; }
 function getInf(){ return parseFloat(document.getElementById('inp-inflation').value)/100||0.045; }
-function getCombinedVAL(){ return getPortfolios().reduce(function(s,p){return s+(portfolioVALs[p]||0);},0); }
+function getCombinedVAL(){ return getPortfolios().reduce(function(s,p){return s+(valIsSet(p)?portfolioVALs[p]:0);},0); }
+function valIsSet(p){ var v=portfolioVALs[p]; return v!==undefined&&!isNaN(v)&&v>=0; }
 function updateCombinedValDisp(){ var el=document.getElementById('combined-val-disp'); if(el){ var v=getCombinedVAL(); el.textContent=v>0?fmtUSD(v):'--'; } }
 
 // ── SOLVER ─────────────────────────────────────────────────────────────────
@@ -701,7 +702,7 @@ function updateStepNav(){
 function allVALsFilled(){
   var ps=getPortfolios();
   if(ps.length===0) return false;
-  return ps.every(function(p){return portfolioVALs[p]&&portfolioVALs[p]>0;});
+  return ps.every(function(p){return valIsSet(p);});
 }
 
 function updateProceedBars(){
@@ -822,7 +823,7 @@ function renderValInputs(){
     html+='<div class="form-group">'
       +'<label class="form-label" style="color:'+c+';">VAL &mdash; '+p+'</label>'
       +'<input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="100" style="border-color:'+c+'44;" '
-      +'oninput="portfolioVALs[\''+p+'\']=parseFloat(this.value)||0;markRsStale();saveAll();updateProceedBars();updateCombinedValDisp();">'
+      +'oninput="var _v=parseFloat(this.value);portfolioVALs[\''+p+'\']=isNaN(_v)?undefined:_v;markRsStale();saveAll();updateProceedBars();updateCombinedValDisp();">'
       +'</div>';
   });
   html+='</div>';
@@ -858,6 +859,7 @@ function renderRCards(){
     +'<th style="'+TH+'">'+(lang==='es'?'Peso':'Share')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'Vida máx':'Max life')+'</th>'
     +'<th style="'+TH+'">'+(lang==='es'?'T. pond':'Wtd avg')+'</th>'
+    +'<th style="'+TH+'">'+(lang==='es'?'Estado':'Status')+'</th>'
     +'</tr></thead><tbody>';
   ps.forEach(function(p,idx){
     var c=pColor(p);
@@ -869,7 +871,7 @@ function renderRCards(){
       +'<td style="'+TD+'">'
       +'<input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="100" '
       +'style="width:90px;padding:3px 6px;font-size:12px;border-color:'+c+'44;" '
-      +'oninput="portfolioVALs[\''+p+'\']=parseFloat(this.value)||0;autoCalcAll();">'
+      +'oninput="var _v=parseFloat(this.value);portfolioVALs[\''+p+'\']=isNaN(_v)?undefined:_v;autoCalcAll();">'
       +'</td>'
       +'<td style="'+TD+'color:'+c+';" id="r-rn-'+idx+'">--</td>'
       +'<td style="'+TD+'" id="r-rr-'+idx+'">--</td>'
@@ -881,6 +883,7 @@ function renderRCards(){
       +'<td style="'+TD+'color:var(--text2);" id="r-share-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--text2);" id="r-maxlife-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--text2);" id="r-wavg-'+idx+'">--</td>'
+      +'<td style="'+TD+'color:var(--text2);" id="r-status-'+idx+'">--</td>'
       +'</tr>';
   });
   var TC='padding:5px 7px;font-family:var(--mono);font-size:12px;border-top:2px solid rgba(255,255,255,0.1);vertical-align:middle;';
@@ -899,6 +902,7 @@ function renderRCards(){
     +'<td style="'+TC+'color:var(--text2);" id="combined-share">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="combined-max-life">--</td>'
     +'<td style="'+TC+'color:var(--text2);" id="combined-wavg-time">--</td>'
+    +'<td style="'+TC+'color:var(--text2);" id="combined-status">--</td>'
     +'</tr>'
     +'</tbody></table></div>';
   wrap.innerHTML=html;
@@ -909,8 +913,8 @@ function autoCalcAll(){
   var ps=getPortfolios();
   ps.forEach(function(p){
     var deps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
-    var val=portfolioVALs[p]||0;
-    if(val>0&&deps.length>0){
+    var val=portfolioVALs[p];
+    if(valIsSet(p)&&deps.length>0){
       var rn=solveR(deps,val);
       if(!isNaN(rn)&&rn>-0.99&&rn<5) portfolioRs[p]={rn:rn};
     }
@@ -933,15 +937,16 @@ function updateAllCardResults(){
     if(!document.getElementById('r-rn-'+idx)) return;
     var rData=portfolioRs[p];
     var deps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
-    var val=portfolioVALs[p]||0;
+    var val=portfolioVALs[p];
     var totalDep=deps.reduce(function(s,d){return s+d.amount;},0);
     var set=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
     var setH=function(id,v){var el=document.getElementById(id);if(el)el.innerHTML=v;};
-    if(rData&&val>0){
+    if(rData&&valIsSet(p)){
       var rr=(1+rData.rn)/(1+inf)-1;
       var gain=val-totalDep;
-      var maxLife=Math.max.apply(null,deps.map(function(d){return yearsAgo(d.date);}));
-      var wavg=totalDep!==0?deps.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep:0;
+      var tis=deps.map(function(d){return yearsAgo(d.date);});
+      var maxLife=val===0?Math.max.apply(null,tis)-Math.min.apply(null,tis):Math.max.apply(null,tis);
+      var wavg=totalDep>0?deps.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep:null;
       var badgeClass=rr*100>5?'badge-green':rr*100>2?'badge-blue':rr*100>0?'badge-warn':'badge-danger';
       var badgeText=rr*100>5?(lang==='es'?'Excelente':'Excellent'):rr*100>2?(lang==='es'?'Bueno':'Good'):rr*100>0?(lang==='es'?'Regular':'Fair'):(lang==='es'?'Deficiente':'Poor');
       var rrColor=badgeClass==='badge-green'?'var(--accent)':badgeClass==='badge-warn'?'var(--warn)':badgeClass==='badge-danger'?'var(--danger)':'var(--blue)';
@@ -953,16 +958,20 @@ function updateAllCardResults(){
       set('r-deptot-'+idx,fmtUSD(totalDep));
       var gainEl=document.getElementById('r-gain-'+idx);
       if(gainEl){gainEl.textContent=(gain>=0?'+':'')+fmtUSD(gain);gainEl.style.color=gain>=0?'var(--accent)':'var(--danger)';}
-      var gainPct=totalDep!==0?gain/totalDep*100:0;
       var gainPctEl=document.getElementById('r-gainpct-'+idx);
-      if(gainPctEl){gainPctEl.textContent=(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%';gainPctEl.style.color=gainPct>=0?'var(--accent)':'var(--danger)';}
+      if(gainPctEl){if(totalDep<=0){gainPctEl.textContent='--';gainPctEl.style.color='';}else{var gainPct=gain/totalDep*100;gainPctEl.textContent=(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%';gainPctEl.style.color=gainPct>=0?'var(--accent)':'var(--danger)';}}
       var combVAL=getCombinedVAL();
       var shareEl=document.getElementById('r-share-'+idx);
       if(shareEl) shareEl.textContent=combVAL>0?(val/combVAL*100).toFixed(1)+'%':'--';
       set('r-maxlife-'+idx,fmtYrs(maxLife));
-      set('r-wavg-'+idx,fmtYrs(wavg));
+      set('r-wavg-'+idx,wavg!==null?fmtYrs(wavg):'--');
+      var statusEl=document.getElementById('r-status-'+idx);
+      if(statusEl){
+        if(val===0){statusEl.textContent=lang==='es'?'Completado':'Completed';statusEl.style.color='var(--text3)';}
+        else{statusEl.textContent=lang==='es'?'En curso':'Ongoing';statusEl.style.color='var(--accent)';}
+      }
     } else {
-      ['r-rn-','r-rr-','r-deps-','r-deptot-','r-gain-','r-gainpct-','r-share-','r-maxlife-','r-wavg-'].forEach(function(pfx){
+      ['r-rn-','r-rr-','r-deps-','r-deptot-','r-gain-','r-gainpct-','r-share-','r-maxlife-','r-wavg-','r-status-'].forEach(function(pfx){
         var el=document.getElementById(pfx+idx);if(el){el.textContent='--';el.style.color='';}
       });
       setH('r-badge-'+idx,'');
@@ -983,7 +992,7 @@ function renderCombinedRResult(rn){
   var badgeText=rr*100>5?(lang==='es'?'Excelente':'Excellent'):rr*100>2?(lang==='es'?'Bueno':'Good'):rr*100>0?(lang==='es'?'Regular':'Fair'):(lang==='es'?'Deficiente':'Poor');
   var rrColor=badgeClass==='badge-green'?'var(--accent)':badgeClass==='badge-warn'?'var(--warn)':badgeClass==='badge-danger'?'var(--danger)':'var(--blue)';
   var maxLife=Math.max.apply(null,deposits.map(function(d){return yearsAgo(d.date);}));
-  var wavg=totalDep!==0?deposits.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep:0;
+  var wavg=totalVal!==0&&totalDep>0?deposits.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totalDep:null;
   document.getElementById('combined-r-val').textContent=(rn*100).toFixed(2)+'%';
   var crrEl=document.getElementById('combined-rr-val');
   if(crrEl){crrEl.textContent=(rr*100).toFixed(2)+'%';crrEl.style.color=rrColor;}
@@ -993,13 +1002,15 @@ function renderCombinedRResult(rn){
   document.getElementById('combined-dep-total').textContent=fmtUSD(totalDep);
   var gainEl=document.getElementById('combined-gain');
   if(gainEl){gainEl.textContent=(gain>=0?'+':'')+fmtUSD(gain);gainEl.style.color=gain>=0?'var(--accent)':'var(--danger)';}
-  var gainPct=totalDep!==0?gain/totalDep*100:0;
   var gainPctEl=document.getElementById('combined-gainpct');
-  if(gainPctEl){gainPctEl.textContent=(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%';gainPctEl.style.color=gainPct>=0?'var(--accent)':'var(--danger)';}
+  if(gainPctEl){if(totalDep<=0){gainPctEl.textContent='--';gainPctEl.style.color='';}else{var gainPct=gain/totalDep*100;gainPctEl.textContent=(gainPct>=0?'+':'')+gainPct.toFixed(1)+'%';gainPctEl.style.color=gainPct>=0?'var(--accent)':'var(--danger)';}}
+
   var shareEl=document.getElementById('combined-share');
   if(shareEl){shareEl.textContent='100%';shareEl.style.color='var(--text2)';}
   document.getElementById('combined-max-life').textContent=fmtYrs(maxLife);
-  document.getElementById('combined-wavg-time').textContent=fmtYrs(wavg);
+  document.getElementById('combined-wavg-time').textContent=wavg!==null?fmtYrs(wavg):'--';
+  var combStatusEl=document.getElementById('combined-status');
+  if(combStatusEl){combStatusEl.textContent='--';combStatusEl.style.color='';}
   var tag=document.getElementById('s3-combined-tag');
   if(tag) tag.textContent=lang==='es'?'Combinado':'Combined';
   document.getElementById('combined-r-result').style.display='';
@@ -1007,8 +1018,8 @@ function renderCombinedRResult(rn){
 
 function calcR(p){
   var deps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
-  var val=portfolioVALs[p]||0;
-  if(!val){ showToast(lang==='es'?'Ingres\u00e1 el VAL para '+p:'Enter VAL for '+p); return; }
+  var val=portfolioVALs[p];
+  if(!valIsSet(p)){ showToast(lang==='es'?'Ingres\u00e1 el VAL para '+p:'Enter VAL for '+p); return; }
   if(!deps.length){ showToast('No deposits for '+p); return; }
   var rn=solveR(deps,val);
   if(isNaN(rn)||rn<-0.99||rn>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
@@ -1019,7 +1030,7 @@ function calcR(p){
 
 function calcCombined(){
   var val=getCombinedVAL();
-  if(!val){ showToast(lang==='es'?'Ingres\u00e1 los VALs primero':'Enter VALs first'); return; }
+  if(!getPortfolios().some(function(q){return valIsSet(q);})){showToast(lang==='es'?'Ingres\u00e1 los VALs primero':'Enter VALs first');return;}
   if(!deposits.length){ showToast(lang==='es'?'No hay dep\u00f3sitos':'No deposits'); return; }
   var rn=solveR(deposits,val);
   if(isNaN(rn)||rn<-0.99||rn>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
@@ -1168,10 +1179,10 @@ function updateProjection(){
   ps.forEach(function(p,idx){
     if(!document.getElementById('pt-nom-'+idx)) return;
     var rn=portfolioRs[p]?portfolioRs[p].rn:null;
-    var val=portfolioVALs[p]||0;
+    var val=portfolioVALs[p];
     var monthly=portfolioMonthly[p]||0;
     var ratesEl=document.getElementById('pt-rates-'+idx);
-    if(rn===null||!val){
+    if(rn===null||!valIsSet(p)){
       var ve=document.getElementById('pt-val-'+idx); if(ve) ve.textContent='--';
       document.getElementById('pt-new-'+idx).textContent='--';
       document.getElementById('pt-nom-'+idx).textContent='--';
@@ -1280,7 +1291,7 @@ function drawProjChart(pv,monthly,nomR,rr,years,altRR,age,totalDep){
 // ── HISTORY CHART (Step 2) ─────────────────────────────────────────────────
 function drawHistoryChart(){
   var ps=getPortfolios();
-  var activePorts=ps.filter(function(p){return portfolioRs[p]&&portfolioVALs[p]>0;});
+  var activePorts=ps.filter(function(p){return portfolioRs[p]&&valIsSet(p);});
   var wrap=document.getElementById('history-chart-wrap');
   if(!activePorts.length||!deposits.length){if(wrap)wrap.style.display='none';if(histChart){histChart.destroy();histChart=null;}return;}
   if(wrap) wrap.style.display='';
@@ -1358,10 +1369,11 @@ function drawHistoryChart(){
   // Deposits reference line — filtered to plotted portfolios
   var depPorts=histPortfolio==='all'?activePorts:histPortfolio==='combined'?activePorts:[histPortfolio];
   var dep_data=points.map(function(T){
-    return Math.round(deposits.reduce(function(sum,d){
+    var s=Math.max(0,deposits.reduce(function(sum,d){
       if(depPorts.indexOf(d.portfolio||'Main')===-1) return sum;
       return new Date(d.date+'T00:00:00')<=T?sum+d.amount:sum;
-    },0))||null;
+    },0));
+    return Math.round(s)||null;
   });
   datasets.push({label:t('leg-dep'),data:dep_data,borderColor:'#5f6368',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],pointRadius:0,spanGaps:false});
 
