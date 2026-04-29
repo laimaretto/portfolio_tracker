@@ -21,6 +21,10 @@ Where the difference is in **integer days** — identical to the Excel formula `
 
 **Solver:** Newton-Raphson iteration on the equation above, starting from an initial guess of 8% — a reasonable starting point for a typical investment portfolio. Converges in under 20 iterations.
 
+Each Newton step is $r \leftarrow r - f(r)/f'(r)$. Two conditions can cause the step to blow up: (1) when $t_i$ is small (recent deposits), the derivative $f'(r) = \sum d_i \, t_i (1+r)^{t_i-1}$ approaches zero, making the step enormous; (2) when $r \to -1$, $(1+r)^{t_i} \to 0$, again collapsing the derivative. Below $r = -1$, the base $(1+r)$ is negative and fractional powers are not real-valued — the domain is invalid. To keep the iteration stable, the solver clamps each step to $r \in (-0.99,\ 10]$ before the next iteration. These clamps do not constrain the final result; they only keep the iteration path in a region where the function is well-behaved.
+
+The only principled bound on the result itself is the lower limit $r > -0.99$ (a return below $-99\%$ is outside the valid domain). There is no upper bound — any positive return, no matter how large, is a mathematically valid answer to the MWRR equation.
+
 ---
 
 ## Portfolio lifetime metrics
