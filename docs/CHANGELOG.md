@@ -4,6 +4,14 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.4.1] — 2026-04-29
+
+### Fixed
+- **Stale MWRR after intermediate keystroke** — `autoCalcAll` fires on every `oninput` event, so typing a multi-digit VAL (e.g. "1000") triggers the solver four times. The previous guard only wrote to `portfolioRs[p]` on success; on failure it left whatever value was stored from a prior keystroke. This caused the wrong rate to remain on screen when a later, correct result happened to fall outside the (now removed) upper cap. Fixed: added `else delete portfolioRs[p]` so any guard failure immediately clears the stale entry. Same fix applied to `combinedR`.
+- **Removed arbitrary 500% upper cap on MWRR** — results above 500% annualized were silently rejected. This has no mathematical or financial basis: any positive return is a valid answer to the MWRR equation. A new investor with a short window and a strong gain legitimately produces high annualized rates. The cap violated the GIGO design principle. Removed. Valid rejections are now limited to `NaN` (solver failed to converge) and `rn ≤ −0.99` (invalid mathematical domain — `(1+r)` must be positive for the power function to be real-valued).
+
+---
+
 ## [v1.4.0] — 2026-04-28
 
 ### Changed
