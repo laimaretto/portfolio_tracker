@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.4.0</title>
+<title>Portfolio Tracker v1.4.1</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.4.0</div>
+      <div class="logo-sub">v1.4.1</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -916,12 +916,14 @@ function autoCalcAll(){
     var val=portfolioVALs[p];
     if(valIsSet(p)&&deps.length>0){
       var rn=solveR(deps,val);
-      if(!isNaN(rn)&&rn>-0.99&&rn<5) portfolioRs[p]={rn:rn};
+      if(!isNaN(rn)&&rn>-0.99) portfolioRs[p]={rn:rn};
+      else delete portfolioRs[p];
     }
   });
   if(allVALsFilled()&&deposits.length>0){
     var rn=solveR(deposits,getCombinedVAL());
-    if(!isNaN(rn)&&rn>-0.99&&rn<5) combinedR=rn;
+    if(!isNaN(rn)&&rn>-0.99) combinedR=rn;
+    else combinedR=null;
   } else {
     combinedR=null;
   }
@@ -1022,7 +1024,7 @@ function calcR(p){
   if(!valIsSet(p)){ showToast(lang==='es'?'Ingres\u00e1 el VAL para '+p:'Enter VAL for '+p); return; }
   if(!deps.length){ showToast('No deposits for '+p); return; }
   var rn=solveR(deps,val);
-  if(isNaN(rn)||rn<-0.99||rn>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
+  if(isNaN(rn)||rn<-0.99){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
   portfolioRs[p]={rn:rn};
   clearRsStale(); saveAll(); renderRCards(); updateStepNav();
   showToast(p+' rn = '+(rn*100).toFixed(2)+'%');
@@ -1033,7 +1035,7 @@ function calcCombined(){
   if(!getPortfolios().some(function(q){return valIsSet(q);})){showToast(lang==='es'?'Ingres\u00e1 los VALs primero':'Enter VALs first');return;}
   if(!deposits.length){ showToast(lang==='es'?'No hay dep\u00f3sitos':'No deposits'); return; }
   var rn=solveR(deposits,val);
-  if(isNaN(rn)||rn<-0.99||rn>5){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
+  if(isNaN(rn)||rn<-0.99){ showToast(lang==='es'?'No se pudo resolver r':'Could not solve r'); return; }
   combinedR=rn;
   renderCombinedRResult(rn);
   clearRsStale(); saveAll(); updateStepNav();
