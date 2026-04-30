@@ -28,7 +28,7 @@ It then strips out inflation to give you a real return, and runs a simulation to
 
 ## Workflow
 
-The app is a 3-step wizard. Each step unlocks the next.
+The app is a 4-step wizard. Each step unlocks the next.
 
 ### Step 1 — Data
 
@@ -89,11 +89,32 @@ Below the chart, a sustainability simulation asks: *after the horizon ends, how 
 
 |![Projection](imgs/03_a_proj.png)|
 |:--:|
-|Figure3: Porjection|
+|Figure3: Projection|
 
 |![Withdrawal](imgs/03_b_withdraw.png)|
 |:--:|
 |Figure4: Withdrawal|
+
+### Step 4 — Summary & Report
+
+Once a monthly withdrawal is set in Step 3, the Summary step unlocks. It produces a self-contained, printable report with no interactive inputs.
+
+Three read-only tables snapshot the current state:
+- **Returns** — same columns as Step 2: nominal r, real r, quality, deposits, gain, max life, weighted avg, status.
+- **Projection** — same columns as Step 3: rates, VAL today, monthly, total deposits, Nominal VAL, Real VAL, Alternate Real VAL.
+- **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios.
+
+Below the tables, a **full timeline chart** connects all three phases on a single age axis:
+
+- **History** (first deposit → today) — combined portfolio value compounded at the nominal MWRR, plus a cumulative deposits reference line.
+- **Projection** (today → retirement) — real VAL and alternate real VAL starting from today's combined VAL, with the deposits line continuing through planned monthly additions. Nominal curve is omitted: the real line is what matters for retirement planning.
+- **Withdrawal** (retirement → depletion) — real VAL and alternate real VAL drawn under the monthly withdrawal simulation. Vertical dashed lines mark the "Today" and "Retire" boundaries on the chart.
+
+A **Print / PDF** button triggers the browser's print dialog. A print stylesheet hides all navigation and interactive panels, leaving only the Step 4 content for clean output.
+
+|![Withdrawal](imgs/04_summary.png)|
+|:--:|
+|Figure5: Summary|
 
 ---
 

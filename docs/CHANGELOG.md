@@ -4,6 +4,22 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.0] — 2026-04-30
+
+### Added
+- **Step 4 — Summary** — a new fourth step that produces a printable report. Unlocks when all portfolio VALs are filled (combined r solved) and a monthly withdrawal is set in Step 3.
+  - **Section A — Returns table**: read-only snapshot of the Step 2 returns table (all columns, all portfolios + combined row).
+  - **Section B — Projection table**: read-only snapshot of the Step 3 projection table (rn · rr, VAL today, monthly, total dep, Nom VAL, Real VAL, Alt VAL).
+  - **Section C — Withdrawal table**: read-only sustainability summary (real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main + alt scenarios).
+  - **Section D — Full timeline chart**: a single continuous chart spanning three connected phases, x-axis in age units:
+    - *History* (first deposit → today): combined portfolio value compounded at r_n_combined; continuous deposit line.
+    - *Projection* (today → retirement): real VAL and alt real VAL (if set) starting from combined VAL; deposit line continues with planned monthly additions. No nominal curve.
+    - *Withdrawal* (retirement → depletion): real VAL and alt real VAL drawn under withdrawal simulation. Deposit line stops.
+    - Vertical dashed lines mark "Today" and "Retire" phase boundaries directly on the chart.
+  - **Print / PDF button**: calls `window.print()`. `@media print` CSS hides all navigation and interactive panels, leaving only the Step 4 content for clean printing or PDF export.
+
+---
+
 ## [v1.4.1] — 2026-04-29
 
 ### Fixed

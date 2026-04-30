@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.4.1</title>
+<title>Portfolio Tracker v1.5.0</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -156,6 +156,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
 @media(max-width:600px){.container{padding:14px}.metric-grid{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr}.header{padding:12px 16px}.step-label{display:none}}
+.tl-chart-wrap{position:relative;width:100%;height:360px;margin-top:14px}
+@media print{
+  .header,.step-nav,#panel-1,#panel-2,#panel-3,.toast,.overlay,.btn-print{display:none!important}
+  #panel-4{display:block!important}
+  body{background:#fff;color:#000;padding:0}
+  .card{background:#fff;border:1px solid #ccc;border-radius:4px}
+  .tl-chart-wrap{height:280px}
+}
 </style>
 </head>
 <body>
@@ -165,7 +173,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.4.1</div>
+      <div class="logo-sub">v1.5.0</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -195,6 +203,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <button class="step-btn" id="sbt-3" onclick="goStep(3)">
     <div class="step-num" id="snum-3">3</div>
     <div class="step-label" id="slbl-3">Projection</div>
+  </button>
+  <div class="step-connector"></div>
+  <button class="step-btn" id="sbt-4" onclick="goStep(4)">
+    <div class="step-num" id="snum-4">4</div>
+    <div class="step-label" id="slbl-4">Summary</div>
   </button>
 </nav>
 
@@ -343,6 +356,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <span id="leg-alt-wdraw-wrap" style="display:none;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#fdba74;display:inline-block;border-radius:1px;"></span><span id="leg-alt-wdraw">Alt. Withdrawal</span></span></span>
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#5f6368;display:inline-block;border-radius:1px;"></span><span id="leg-zero">Zero line</span></span>
     </div>
+    <div class="proceed-bar" id="s3-proceed" style="margin-top:20px;">
+      <span class="proceed-status" id="s3-status">Enter a monthly withdrawal to generate the summary</span>
+      <button class="btn btn-primary" onclick="goStep(4)" id="s3-next-btn" style="display:none;">Continue to Summary &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: SUMMARY ───────────────────────────────────────────────────── -->
+  <div class="step-panel" id="panel-4">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+      <button class="btn btn-ghost btn-print" onclick="window.print()" id="s5-print-btn">&#9113; Print / PDF</button>
+    </div>
+    <div class="sec-head"><div class="sec-num">A</div><div class="sec-title" id="s5-ret-lbl">Returns</div></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div id="s5-ret-wrap"></div></div>
+    <div class="sec-head" style="margin-top:14px;"><div class="sec-num">B</div><div class="sec-title" id="s5-proj-lbl">Projection</div></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div id="s5-proj-wrap"></div></div>
+    <div class="sec-head" style="margin-top:14px;"><div class="sec-num">C</div><div class="sec-title" id="s5-with-lbl">Withdrawal</div></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div id="s5-with-wrap"></div></div>
+    <div class="sec-head" style="margin-top:14px;"><div class="sec-num">D</div><div class="sec-title" id="s5-tl-lbl">Full Timeline</div></div>
+    <div class="card" style="padding:14px 16px;">
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;" id="s5-tl-note">History (left of Today) &middot; Projection (Today &rarr; Retire) &middot; Withdrawal (right of Retire)</div>
+      <div id="s5-legend" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;font-family:var(--mono);color:var(--text3);"></div>
+      <div class="tl-chart-wrap"><canvas id="timeline-chart"></canvas></div>
+    </div>
   </div>
 
 </div><!-- /container -->
@@ -422,6 +458,7 @@ var histPortfolio = 'all';
 var projChart = null;
 var sustainChart = null;
 var histChart = null;
+var timelineChart = null;
 var lang = 'en';
 var currentStep = 1;
 var parsedRows = [];
@@ -444,7 +481,7 @@ var ALIASES = {
 var TXT = {
   en:{
     'hd-title':'Portfolio Tracker',
-    'slbl-1':'Data','slbl-2':'Returns','slbl-3':'Projection',
+    'slbl-1':'Data','slbl-2':'Returns','slbl-3':'Projection','slbl-4':'Summary',
     's1-import-lbl':'Import from file','s1-upload-title':'Drop Excel file here, or click to browse',
     's1-clear-btn':'Clear all',
     's1-history-lbl':'Deposit history',
@@ -489,12 +526,18 @@ var TXT = {
     'mp-prev-lbl':'Preview (first 3 rows)','mp-ok':'Import deposits','mp-cancel':'Cancel',
     's1-next-btn':'Continue to Returns \u2192',
     's2-next-btn':'Continue to Projection \u2192',
+    's3-next-btn':'Continue to Summary \u2192',
+    's3-status':'Enter a monthly withdrawal to generate the summary',
+    's5-ret-lbl':'Returns','s5-proj-lbl':'Projection','s5-with-lbl':'Withdrawal',
+    's5-tl-lbl':'Full Timeline',
+    's5-tl-note':'History (left of Today) \u00b7 Projection (Today \u2192 Retire) \u00b7 Withdrawal (right of Retire)',
+    's5-print-btn':'\u2711 Print / PDF',
     'disclaimer-label':'DISCLAIMER \u00a0',
     'disclaimer-body':'This tool is provided for informational and educational purposes only. It is not financial advice. Past returns do not guarantee future results. The projections produced are mathematical illustrations based on inputs you provide \u2014 they are not predictions. Do not make investment decisions based solely on this tool. The author bears no responsibility for financial outcomes resulting from its use.'
   },
   es:{
     'hd-title':'Portfolio Tracker',
-    'slbl-1':'Datos','slbl-2':'Retornos','slbl-3':'Proyecci\u00f3n',
+    'slbl-1':'Datos','slbl-2':'Retornos','slbl-3':'Proyecci\u00f3n','slbl-4':'Resumen',
     's1-import-lbl':'Importar desde archivo','s1-upload-title':'Arrastr\u00e1 un archivo Excel, o hac\u00e9 clic para buscar',
     's1-clear-btn':'Borrar todo',
     's1-history-lbl':'Historial de dep\u00f3sitos',
@@ -539,6 +582,12 @@ var TXT = {
     'mp-prev-lbl':'Vista previa (primeras 3 filas)','mp-ok':'Importar dep\u00f3sitos','mp-cancel':'Cancelar',
     's1-next-btn':'Continuar a Retornos \u2192',
     's2-next-btn':'Continuar a Proyecci\u00f3n \u2192',
+    's3-next-btn':'Continuar a Resumen \u2192',
+    's3-status':'Ingres\u00e1 un retiro mensual para generar el resumen',
+    's5-ret-lbl':'Retornos','s5-proj-lbl':'Proyecci\u00f3n','s5-with-lbl':'Retiro',
+    's5-tl-lbl':'L\u00ednea de tiempo',
+    's5-tl-note':'Historia (izq. de Hoy) \u00b7 Proyecci\u00f3n (Hoy \u2192 Jubilaci\u00f3n) \u00b7 Retiro (der. de Jubilaci\u00f3n)',
+    's5-print-btn':'\u2711 Imprimir / PDF',
     'disclaimer-label':'AVISO LEGAL \u00a0',
     'disclaimer-body':'Esta herramienta se proporciona \u00fanicamente con fines informativos y educativos. No constituye asesoramiento financiero. Los retornos pasados no garantizan resultados futuros. Las proyecciones son ilustraciones matem\u00e1ticas basadas en los datos ingresados \u2014 no son predicciones. No tome decisiones de inversi\u00f3n bas\u00e1ndose \u00fanicamente en esta herramienta. El autor no asume ninguna responsabilidad por los resultados financieros derivados de su uso.'
   }
@@ -668,28 +717,33 @@ function goStep(n){
   if(n===2 && deposits.length===0){ showToast(lang==='es'?'Primero agreg\u00e1 dep\u00f3sitos':'Add deposits first'); return; }
   var _multi=getPortfolios().length>1;
   if(n===3 && (_multi?(!(allVALsFilled()&&combinedR!==null)):(Object.keys(portfolioRs).length===0))){ showToast(lang==='es'?(_multi?'Ingres\u00e1 el VAL para todas las carteras':'Calcul\u00e1 al menos un retorno'):(_multi?'Enter VAL for all portfolios':'Calculate at least one return')); return; }
+  if(n===4 && !(combinedR!==null && parseFloat(document.getElementById('proj-withdrawal').value||0)>0)){ showToast(lang==='es'?'Complet\u00e1 el retiro mensual en el Paso 3':'Complete monthly withdrawal in Step 3'); return; }
   currentStep=n;
   document.querySelectorAll('.step-panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById('panel-'+n).classList.add('active');
   updateStepNav();
   if(n===2) renderRCards();
   if(n===3){ renderProjTable(); }
+  if(n===4){ goStep4(); }
 }
 
 function getStepBtn(i){
   if(i===1) return document.getElementById('sbt-1');
   if(i===2) return document.getElementById('sbt-2');
   if(i===3) return document.getElementById('sbt-3');
+  if(i===4) return document.getElementById('sbt-4');
 }
 
 function updateStepNav(){
-  for(var i=1;i<=3;i++){
+  var rCalc=Object.keys(portfolioRs).length>0||combinedR!==null;
+  var wSet=parseFloat(document.getElementById('proj-withdrawal').value||0)>0;
+  var s4ready=combinedR!==null&&wSet;
+  for(var i=1;i<=4;i++){
     var el=document.getElementById('sbt-'+i);
     if(!el) continue;
     el.classList.remove('active','done','unlocked');
-    var rCalc=Object.keys(portfolioRs).length>0||combinedR!==null;
-    var unlocked=(i===1)||(i===2&&deposits.length>0)||(i===3&&rCalc);
-    var done=(i===1&&deposits.length>0)||(i===2&&rCalc);
+    var unlocked=(i===1)||(i===2&&deposits.length>0)||(i===3&&rCalc)||(i===4&&s4ready);
+    var done=(i===1&&deposits.length>0)||(i===2&&rCalc)||(i===3&&s4ready);
     if(unlocked) el.classList.add('unlocked');
     if(done) el.classList.add('done');
     if(i===currentStep) el.classList.add('active');
@@ -724,6 +778,14 @@ function updateProceedBars(){
   if(s2s) s2s.textContent=s2msg;
   if(s2s) s2s.className='proceed-status'+(s2ready?' ready':'');
   if(s2n) s2n.style.display=s2ready?'':'none';
+  // Step 3 (Projection + Withdrawal)
+  var wSet2=parseFloat(document.getElementById('proj-withdrawal').value||0)>0;
+  var s3ready=combinedR!==null&&wSet2;
+  var s3s=document.getElementById('s3-status');
+  var s3n=document.getElementById('s3-next-btn');
+  if(s3s) s3s.textContent=s3ready?(lang==='es'?'Listo para el resumen ✓':'Ready for summary ✓'):(lang==='es'?'Ingresá un retiro mensual para continuar':'Enter a monthly withdrawal to continue');
+  if(s3s) s3s.className='proceed-status'+(s3ready?' ready':'');
+  if(s3n) s3n.style.display=s3ready?'':'none';
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────────────────────
@@ -1683,6 +1745,7 @@ function updateWithdrawal(){
   var e2=document.getElementById('leg-alt-wdraw-wrap'); if(e2) e2.style.display=altVisible;
 
   drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:50*12,altRR,altEndVal,altWMonths);
+  updateStepNav();
 }
 
 function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths){
@@ -1795,6 +1858,395 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
       }
     }
   });
+}
+
+// ── STEP 4: SUMMARY ────────────────────────────────────────────────────────
+function goStep4(){
+  renderStep4ReturnTable();
+  renderStep4ProjTable();
+  renderStep4WithdrawTable();
+  drawTimelineChart();
+}
+
+function renderStep4ReturnTable(){
+  var wrap=document.getElementById('s5-ret-wrap');
+  if(!wrap) return;
+  var ps=getPortfolios();
+  var inf=getInf();
+  var cVAL=getCombinedVAL();
+  var isES=lang==='es';
+  var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
+  var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
+  var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
+  var h='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
+    +'<th style="'+TH+'">'+(isES?'Cartera':'Portfolio')+'</th>'
+    +'<th style="'+TH+'">VAL</th>'
+    +'<th style="'+TH+'">'+(isES?'r nom':'Nom r')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'r real':'Real r')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Calidad':'Quality')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Deps':'Deps')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Depositado':'Deposited')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Ganancia':'Gain')+'</th>'
+    +'<th style="'+TH+'">Gain/dep</th>'
+    +'<th style="'+TH+'">Share</th>'
+    +'<th style="'+TH+'">'+(isES?'Vida máx':'Max life')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Prom pond':'Wtd avg')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Estado':'Status')+'</th>'
+    +'</tr></thead><tbody>';
+  ps.forEach(function(p){
+    var r=portfolioRs[p]; if(!r||!valIsSet(p)) return;
+    var rn=r.rn, val=portfolioVALs[p], rr=(1+rn)/(1+inf)-1;
+    var deps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
+    var totDep=deps.reduce(function(s,d){return s+d.amount;},0);
+    var gain=val-totDep;
+    var share=cVAL>0?val/cVAL:0;
+    var tis=deps.map(function(d){return yearsAgo(d.date);});
+    var maxL=val===0?Math.max.apply(null,tis)-Math.min.apply(null,tis):Math.max.apply(null,tis);
+    var wtdA=totDep>0?deps.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totDep:null;
+    var qc=rr>0.05?'var(--accent)':rr>0.02?'var(--blue)':rr>0?'var(--warn)':'var(--danger)';
+    var ql=rr>0.05?(isES?'Excelente':'Excellent'):rr>0.02?(isES?'Bueno':'Good'):rr>0?(isES?'Aceptable':'Fair'):(isES?'Bajo':'Poor');
+    var statusTxt=val>0?(isES?'En curso':'Ongoing'):(isES?'Completado':'Completed');
+    var statusCol=val>0?'var(--accent)':'var(--text3)';
+    h+='<tr>'
+      +'<td style="'+TD+'">'+p+'</td>'
+      +'<td style="'+TD+'">'+fmtUSD(val)+'</td>'
+      +'<td style="'+TD+'color:var(--text);">'+(rn*100).toFixed(2)+'%</td>'
+      +'<td style="'+TD+'color:'+(rr>=0?'var(--accent)':'var(--danger)')+';">'+(rr*100).toFixed(2)+'%</td>'
+      +'<td style="'+TD+'color:'+qc+';">'+ql+'</td>'
+      +'<td style="'+TD+'">'+deps.length+'</td>'
+      +'<td style="'+TD+'">'+fmtUSD(totDep)+'</td>'
+      +'<td style="'+TD+'">'+fmtUSD(gain)+'</td>'
+      +'<td style="'+TD+'">'+(totDep>0?(gain/totDep*100).toFixed(1)+'%':'--')+'</td>'
+      +'<td style="'+TD+'">'+(share*100).toFixed(1)+'%</td>'
+      +'<td style="'+TD+'">'+fmtYrs(maxL)+'</td>'
+      +'<td style="'+TD+'">'+(wtdA!==null&&totDep>0?fmtYrs(wtdA):'--')+'</td>'
+      +'<td style="'+TD+'color:'+statusCol+';">'+statusTxt+'</td>'
+      +'</tr>';
+  });
+  if(combinedR!==null){
+    var rn_c=combinedR, rr_c=(1+rn_c)/(1+inf)-1;
+    var totDepC=deposits.reduce(function(s,d){return s+d.amount;},0);
+    var gainC=cVAL-totDepC;
+    var allTis=deposits.map(function(d){return yearsAgo(d.date);});
+    var maxLC=Math.max.apply(null,allTis);
+    var wtdAC=totDepC>0?deposits.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totDepC:null;
+    h+='<tr>'
+      +'<td style="'+TF+'">'+(isES?'Combinado':'Combined')+'</td>'
+      +'<td style="'+TF+'">'+fmtUSD(cVAL)+'</td>'
+      +'<td style="'+TF+'color:var(--text);">'+(rn_c*100).toFixed(2)+'%</td>'
+      +'<td style="'+TF+'color:'+(rr_c>=0?'var(--accent)':'var(--danger)')+';">'+(rr_c*100).toFixed(2)+'%</td>'
+      +'<td style="'+TF+'">--</td>'
+      +'<td style="'+TF+'">'+deposits.length+'</td>'
+      +'<td style="'+TF+'">'+fmtUSD(totDepC)+'</td>'
+      +'<td style="'+TF+'">'+fmtUSD(gainC)+'</td>'
+      +'<td style="'+TF+'">'+(totDepC>0?(gainC/totDepC*100).toFixed(1)+'%':'--')+'</td>'
+      +'<td style="'+TF+'">100%</td>'
+      +'<td style="'+TF+'">'+fmtYrs(maxLC)+'</td>'
+      +'<td style="'+TF+'">'+(wtdAC!==null&&totDepC>0?fmtYrs(wtdAC):'--')+'</td>'
+      +'<td style="'+TF+'">--</td>'
+      +'</tr>';
+  }
+  h+='</tbody></table></div>';
+  wrap.innerHTML=h;
+}
+
+function renderStep4ProjTable(){
+  var wrap=document.getElementById('s5-proj-wrap');
+  if(!wrap) return;
+  var ps=getPortfolios();
+  var inf=getInf();
+  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var altRR=getAltRR();
+  var isES=lang==='es';
+  var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
+  var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
+  var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
+  var h='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
+    +'<th style="'+TH+'">'+(isES?'Cartera':'Portfolio')+'</th>'
+    +'<th style="'+TH+'">rn · rr</th>'
+    +'<th style="'+TH+'">'+(isES?'VAL hoy':'VAL today')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Dep/mes':'Monthly')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Dep. total':'Total dep')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'VAL nom':'Nom VAL')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'VAL real':'Real VAL')+'</th>'
+    +(altRR!==null?'<th style="'+TH+'">'+(isES?'VAL alt':'Alt VAL')+'</th>':'')
+    +'</tr></thead><tbody>';
+  var totHistDep=deposits.reduce(function(s,d){return s+d.amount;},0);
+  ps.forEach(function(p){
+    var r=portfolioRs[p]; if(!r||!valIsSet(p)) return;
+    var rn=r.rn, val=portfolioVALs[p], rr=(1+rn)/(1+inf)-1;
+    var mo=portfolioMonthly[p]||0;
+    var pDeps=deposits.filter(function(d){return (d.portfolio||'Main')===p;});
+    var pHistDep=pDeps.reduce(function(s,d){return s+d.amount;},0);
+    var totDep=pHistDep+mo*12*years;
+    var nomVAL=projectFV(val,mo,rn,years);
+    var realVAL=projectFV(val,mo,rr,years);
+    h+='<tr>'
+      +'<td style="'+TD+'">'+p+'</td>'
+      +'<td style="'+TD+'color:var(--text3);">'+(rn*100).toFixed(2)+'% · <span style="color:'+(rr>=0?'var(--accent)':'var(--danger)')+';">'+(rr*100).toFixed(2)+'%</span></td>'
+      +'<td style="'+TD+'">'+fmtUSD(val)+'</td>'
+      +'<td style="'+TD+'">'+fmtMo(mo)+'</td>'
+      +'<td style="'+TD+'color:var(--text2);">'+fmtUSD(totDep)+'</td>'
+      +'<td style="'+TD+'color:var(--accent);">'+fmtUSD(nomVAL)+'</td>'
+      +'<td style="'+TD+'color:var(--blue);">'+fmtUSD(realVAL)+'</td>'
+      +(altRR!==null?'<td style="'+TD+'color:#fb923c;">'+fmtUSD(projectFV(val,mo,altRR,years))+'</td>':'')
+      +'</tr>';
+  });
+  if(combinedR!==null){
+    var rn_c=combinedR, cVAL=getCombinedVAL(), rr_c=(1+rn_c)/(1+inf)-1;
+    var moC=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
+    var totDepC=totHistDep+moC*12*years;
+    var nomVALC=projectFV(cVAL,moC,rn_c,years);
+    var realVALC=projectFV(cVAL,moC,rr_c,years);
+    h+='<tr>'
+      +'<td style="'+TF+'">'+(isES?'Combinado':'Combined')+'</td>'
+      +'<td style="'+TF+'color:var(--text3);">'+(rn_c*100).toFixed(2)+'% · <span style="color:'+(rr_c>=0?'var(--accent)':'var(--danger)')+';">'+(rr_c*100).toFixed(2)+'%</span></td>'
+      +'<td style="'+TF+'">'+fmtUSD(cVAL)+'</td>'
+      +'<td style="'+TF+'">'+fmtMo(moC)+'</td>'
+      +'<td style="'+TF+'color:var(--text2);">'+fmtUSD(totDepC)+'</td>'
+      +'<td style="'+TF+'color:var(--accent);">'+fmtUSD(nomVALC)+'</td>'
+      +'<td style="'+TF+'color:var(--blue);">'+fmtUSD(realVALC)+'</td>'
+      +(altRR!==null?'<td style="'+TF+'color:#fb923c;">'+fmtUSD(projectFV(cVAL,moC,altRR,years))+'</td>':'')
+      +'</tr>';
+  }
+  h+='</tbody></table></div>';
+  wrap.innerHTML=h;
+}
+
+function renderStep4WithdrawTable(){
+  var wrap=document.getElementById('s5-with-wrap');
+  if(!wrap) return;
+  if(combinedR===null) return;
+  var inf=getInf();
+  var rn_c=combinedR, rr_c=(1+rn_c)/(1+inf)-1;
+  var cVAL=getCombinedVAL();
+  var moC=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
+  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var age=parseInt(document.getElementById('proj-age').value)||45;
+  var wMo=parseFloat(document.getElementById('proj-withdrawal').value)||0;
+  var altRR=getAltRR();
+  var isES=lang==='es';
+  var rm_c=Math.pow(1+rr_c,1/12)-1;
+  var endValReal=projectFV(cVAL,moC,rr_c,years);
+  var perpetuity=endValReal*rm_c;
+  var retireAge=age+years;
+  var MAX=100*12;
+  function simMonths(startV,rr,wm){
+    var rm=Math.pow(1+rr,1/12)-1, perp=startV*rm;
+    if(wm<=perp) return {depletes:false,months:MAX};
+    var bal=startV,m=0;
+    while(bal>0&&m<MAX){bal=bal*(1+rm)-wm;m++;}
+    return {depletes:m<MAX,months:m};
+  }
+  var mainSim=simMonths(endValReal,rr_c,wMo);
+  var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
+  var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
+  var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
+  var h='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
+    +'<th style="'+TH+'">'+( isES?'Escenario':'Scenario')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'VAL real al horizonte':'Real VAL at horizon')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Perpetuidad':'Perpetuity')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Retiro mensual':'Monthly withdrawal')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Edad sin dinero':'Age out of money')+'</th>'
+    +'<th style="'+TH+'">'+(isES?'Años de retiro':'Yrs of withdrawal')+'</th>'
+    +'</tr></thead><tbody>';
+  function fmtDepletion(sim,rAge){
+    if(!sim.depletes) return {age:isES?'Nunca':'Never',yrs:isES?'Indefinido':'Indefinite',col:'var(--accent)'};
+    var wYrs=sim.months/12, dAge=rAge+wYrs;
+    var col=dAge>=rAge+30?'var(--accent)':dAge>=rAge+20?'var(--blue)':dAge>=rAge+10?'var(--warn)':'var(--danger)';
+    return {age:Math.floor(dAge).toString(),yrs:wYrs.toFixed(1)+(isES?' años':' years'),col:col};
+  }
+  var mFmt=fmtDepletion(mainSim,retireAge);
+  h+='<tr>'
+    +'<td style="'+TD+'border-left:3px solid var(--blue);">rr = '+(rr_c*100).toFixed(2)+'%</td>'
+    +'<td style="'+TD+'color:var(--blue);">'+fmtUSD(endValReal)+'</td>'
+    +'<td style="'+TD+'color:var(--accent);">'+fmtMo(perpetuity)+'</td>'
+    +'<td style="'+TD+'">'+fmtMo(wMo)+'</td>'
+    +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.age+'</td>'
+    +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.yrs+'</td>'
+    +'</tr>';
+  if(altRR!==null){
+    var altRm=Math.pow(1+altRR,1/12)-1;
+    var altEndVal=projectFV(cVAL,moC,altRR,years);
+    var altPerp=altEndVal*altRm;
+    var altSim=simMonths(altEndVal,altRR,wMo);
+    var aFmt=fmtDepletion(altSim,retireAge);
+    h+='<tr>'
+      +'<td style="'+TF+'border-left:3px solid #fb923c;">alt = '+(altRR*100).toFixed(2)+'%</td>'
+      +'<td style="'+TF+'color:#fb923c;">'+fmtUSD(altEndVal)+'</td>'
+      +'<td style="'+TF+'color:var(--accent);">'+fmtMo(altPerp)+'</td>'
+      +'<td style="'+TF+'">'+fmtMo(wMo)+'</td>'
+      +'<td style="'+TF+'color:'+aFmt.col+';">'+aFmt.age+'</td>'
+      +'<td style="'+TF+'color:'+aFmt.col+';">'+aFmt.yrs+'</td>'
+      +'</tr>';
+  }
+  h+='</tbody></table></div>';
+  wrap.innerHTML=h;
+}
+
+function drawTimelineChart(){
+  var canvasEl=document.getElementById('timeline-chart');
+  if(!canvasEl||combinedR===null) return;
+  var currentAge=parseInt(document.getElementById('proj-age').value)||45;
+  var horizonYears=parseInt(document.getElementById('proj-years').value)||15;
+  var inf=getInf();
+  var rn_c=combinedR;
+  var rr=(1+rn_c)/(1+inf)-1;
+  var altRR=getAltRR();
+  var wMo=parseFloat(document.getElementById('proj-withdrawal').value)||0;
+  var monthly=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
+  var cVAL=getCombinedVAL();
+  var msPerYear=365.25*24*3600*1000;
+  var today=new Date(); today.setHours(0,0,0,0);
+
+  // ── Phase (a): History ─────────────────────────────────────────────────
+  var allDates=deposits.map(function(d){return new Date(d.date+'T00:00:00');});
+  var firstDate=new Date(Math.min.apply(null,allDates)); firstDate.setHours(0,0,0,0);
+  var histYears=(today-firstDate)/msPerYear;
+  var ageAtFirst=currentAge-histYears;
+  var firstIntAge=Math.ceil(ageAtFirst);
+  if(firstIntAge>currentAge) firstIntAge=currentAge;
+  var aLabels=[],aPortfolio=[],aDeposits=[];
+  for(var a=firstIntAge;a<=currentAge;a++){
+    var yrsSinceFirst=a-ageAtFirst;
+    var T=(a===currentAge)?today:new Date(firstDate.getTime()+yrsSinceFirst*msPerYear);
+    aLabels.push(String(a));
+    var pv=deposits.reduce(function(sum,d){
+      var dd=new Date(d.date+'T00:00:00');
+      if(dd>T) return sum;
+      return sum+d.amount*Math.pow(1+rn_c,(T-dd)/msPerYear);
+    },0);
+    aPortfolio.push(Math.max(0,Math.round(pv)));
+    var cumDep=deposits.reduce(function(sum,d){
+      return new Date(d.date+'T00:00:00')<=T?sum+d.amount:sum;
+    },0);
+    aDeposits.push(Math.max(0,Math.round(cumDep)));
+  }
+  aPortfolio[aPortfolio.length-1]=cVAL;
+
+  // ── Phase (b): Projection ───────────────────────────────────────────────
+  var totHistDep=deposits.reduce(function(s,d){return s+d.amount;},0);
+  var bLabels=[],bReal=[],bAlt=[],bDeposits=[];
+  for(var y=0;y<=horizonYears;y++){
+    bLabels.push(String(currentAge+y));
+    bReal.push(Math.round(projectFV(cVAL,monthly,rr,y)));
+    if(altRR!==null) bAlt.push(Math.round(projectFV(cVAL,monthly,altRR,y)));
+    bDeposits.push(Math.round(totHistDep+monthly*12*y));
+  }
+  var endValReal=bReal[bReal.length-1];
+  var altEndVal=altRR!==null?bAlt[bAlt.length-1]:null;
+  var retireAge=currentAge+horizonYears;
+
+  // ── Phase (c): Withdrawal ───────────────────────────────────────────────
+  function depletionYrs(startV,wRR,wm){
+    var rm=Math.pow(1+wRR,1/12)-1,perp=startV*rm;
+    if(wm<=perp||wm===0) return 100;
+    var bal=startV,m=0,MAX=100*12;
+    while(bal>0&&m<MAX){bal=bal*(1+rm)-wm;m++;}
+    return Math.min(Math.ceil(m/12),100);
+  }
+  function simYearly(startV,wRR,wm,maxYrs){
+    var rm=Math.pow(1+wRR,1/12)-1;
+    var out=[Math.max(0,Math.round(startV))];
+    var bal=startV;
+    for(var y=1;y<=maxYrs;y++){
+      if(bal<=0){out.push(0);continue;}
+      for(var m=0;m<12;m++){bal=bal*(1+rm)-wm;if(bal<0){bal=0;break;}}
+      out.push(Math.max(0,Math.round(bal)));
+    }
+    return out;
+  }
+  var mainDepYrs=depletionYrs(endValReal,rr,wMo);
+  var altDepYrs=altRR!==null?depletionYrs(altEndVal,altRR,wMo):0;
+  var maxCYrs=Math.max(mainDepYrs,altDepYrs,1);
+  var cLabels=[],cReal=[],cAlt=[];
+  var mainW=simYearly(endValReal,rr,wMo,maxCYrs);
+  var altW=altRR!==null?simYearly(altEndVal,altRR,wMo,maxCYrs):null;
+  for(var y=0;y<=maxCYrs;y++){
+    cLabels.push(String(retireAge+y));
+    cReal.push(mainW[y]);
+    if(altRR!==null) cAlt.push(altW[y]);
+  }
+
+  // ── Combine ─────────────────────────────────────────────────────────────
+  var aLen=aLabels.length, bLen=bLabels.length, cLen=cLabels.length;
+  var todayIdx=aLen-1, retireIdx=aLen+bLen-2;
+  var totalLen=aLen+bLen+cLen-2;
+  var allLabels=aLabels.concat(bLabels.slice(1)).concat(cLabels.slice(1));
+
+  // Continuous deposit line: phase(a) + phase(b), null during withdrawal
+  var dDep=aDeposits.concat(bDeposits.slice(1)).concat(new Array(cLen-1).fill(null));
+  // History portfolio line: only phase(a)
+  var dHist=aPortfolio.concat(new Array(totalLen-aLen).fill(null));
+  // Phase(b) real/alt: start at todayIdx
+  var dReal=new Array(todayIdx).fill(null).concat(bReal).concat(new Array(cLen-1).fill(null));
+  var dAlt=altRR!==null?new Array(todayIdx).fill(null).concat(bAlt).concat(new Array(cLen-1).fill(null)):null;
+  // Phase(c) real/alt: start at retireIdx
+  var dCReal=new Array(retireIdx).fill(null).concat(cReal);
+  var dCAlt=altRR!==null?new Array(retireIdx).fill(null).concat(cAlt):null;
+
+  var isES=lang==='es';
+  var datasets=[
+    {label:isES?'Historia':'History',data:dHist,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.06)',fill:true,borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false},
+    {label:isES?'Depósitos':'Deposits',data:dDep,borderColor:'#5f6368',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],pointRadius:0,spanGaps:false},
+    {label:isES?'Real (proy)':'Real (proj)',data:dReal,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.04)',fill:false,borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false}
+  ];
+  if(altRR!==null) datasets.push({label:isES?'Alt. Real (proy)':'Alt. Real (proj)',data:dAlt,borderColor:'#fb923c',backgroundColor:'transparent',fill:false,borderWidth:2,borderDash:[5,3],pointRadius:0,tension:0.3,spanGaps:false});
+  datasets.push({label:isES?'Real (retiro)':'Real (withdrawal)',data:dCReal,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.06)',fill:false,borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
+  if(altRR!==null) datasets.push({label:isES?'Alt. Real (retiro)':'Alt. Real (withdrawal)',data:dCAlt,borderColor:'#fdba74',backgroundColor:'transparent',fill:false,borderWidth:2,borderDash:[5,3],pointRadius:0,tension:0.3,spanGaps:false});
+
+  // Phase separator plugin
+  var phasePlugin={
+    id:'phaseLines',
+    afterDraw:function(chart){
+      var ctx2=chart.ctx, xSc=chart.scales.x, ySc=chart.scales.y;
+      if(!xSc||!ySc) return;
+      function vLine(idx,color,lbl){
+        var x=xSc.getPixelForValue(idx);
+        if(x==null||isNaN(x)) return;
+        ctx2.save();
+        ctx2.beginPath(); ctx2.strokeStyle=color; ctx2.setLineDash([4,4]); ctx2.lineWidth=1;
+        ctx2.moveTo(x,ySc.top); ctx2.lineTo(x,ySc.bottom); ctx2.stroke();
+        ctx2.setLineDash([]); ctx2.fillStyle=color; ctx2.font='9px monospace';
+        ctx2.textAlign='center'; ctx2.fillText(lbl,x,ySc.top+12); ctx2.restore();
+      }
+      vLine(todayIdx,'rgba(255,255,255,0.3)',isES?'Hoy':'Today');
+      vLine(retireIdx,'rgba(251,191,36,0.4)',isES?'Jubilación':'Retire');
+    }
+  };
+
+  var ctx2d=canvasEl.getContext('2d');
+  if(timelineChart) timelineChart.destroy();
+  timelineChart=new Chart(ctx2d,{
+    type:'line',
+    data:{labels:allLabels,datasets:datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:function(items){return (isES?'Edad ':'Age ')+items[0].label;},
+        label:function(c){return c.raw===null?'':' '+c.dataset.label+': '+fmtUSD(c.raw);}
+      }}},
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:9,family:"'DM Mono'"},color:'#5f6368',maxTicksLimit:20}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10,family:"'DM Mono'"},color:'#5f6368',callback:function(v){return fmtUSD(v);}}}
+      }
+    },
+    plugins:[phasePlugin]
+  });
+
+  // Legend
+  var legDiv=document.getElementById('s5-legend');
+  if(legDiv){
+    var lh='';
+    datasets.forEach(function(ds){
+      var ls=ds.borderDash
+        ?'width:10px;height:0;border-bottom:2px dashed '+ds.borderColor+';display:inline-block;'
+        :'width:10px;height:2px;background:'+ds.borderColor+';display:inline-block;border-radius:1px;';
+      lh+='<span style="display:flex;align-items:center;gap:4px;"><span style="'+ls+'"></span>'+ds.label+'</span>';
+    });
+    legDiv.innerHTML=lh;
+  }
 }
 </script>
 </body>
