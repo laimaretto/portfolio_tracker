@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.4] — 2026-05-02
+
+### Added
+- **Step 4 Sec A — inflation one-liner** — a small muted metadata bar above the Returns table now shows the inflation assumption used to compute real returns (e.g. `Inflation: 3.3%`), consistent with the one-liners above Sec B (Age today · Horizon) and Sec C (Age at horizon).
+
+---
+
 ## [v1.5.3] — 2026-05-02
 
 ### Added
