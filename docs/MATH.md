@@ -130,6 +130,12 @@ This isolates the compounding of your existing capital — what today's money be
 
 This is useful for understanding how much of your projected retirement portfolio is already "locked in" by past decisions vs. how much depends on continued saving.
 
+**Setting the horizon to $0$** skips the accumulation phase entirely. The formula evaluates at $n=0$:
+
+$$FV = \text{VAL} \cdot (1+r_m)^{0} + \text{PMT} \cdot \frac{(1+r_m)^{0} - 1}{r_m} = \text{VAL}$$
+
+The end value equals today's VAL — no growth, no new deposits. The sustainability simulation then runs directly from the current portfolio, answering the question: *if I retired today, how long would this portfolio last at my target withdrawal rate?* This is the correct setup for someone already at retirement age or for stress-testing the current portfolio with no assumed future accumulation.
+
 ---
 
 ## Sustainability simulation

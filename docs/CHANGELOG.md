@@ -4,6 +4,31 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.2] — 2026-05-02
+
+### Added
+- **Step 4 — context one-liners above Sec B and Sec C tables** — a small muted metadata bar above each table shows the inputs that produced the results. Sec B (Projection) shows: Age today · Horizon. Sec C (Withdrawal) shows: Age at horizon. The rates and withdrawal amount are omitted since they already appear as columns in the respective tables.
+
+### Fixed
+- **Step 4 — timeline chart print rendering** — the chart previously printed with a black background and invisible phase/age-reference lines. `drawTimelineChart()` now reads a `printMode` flag and selects a light-theme palette (white canvas, dark grid and phase lines) when printing. `beforeprint` / `afterprint` event listeners toggle the flag and redraw the chart, restoring the dark screen palette after printing.
+- **Step 4 — table crop in print** — cards with `overflow:hidden` clipped wide tables when printing. `@media print` now sets `overflow:visible` on Step 4 cards and reduces table cell font and padding so the Returns table (13 columns) fits on the page.
+- **Step 4 — timeline chart canvas overflowing card rounded corners** — the chart canvas, being a rectangular element, visually escaped the card's `border-radius` clip. Fixed by adding `overflow:hidden` to the chart card.
+
+---
+
+## [v1.5.1] — 2026-04-30
+
+### Changed
+- **Horizon can be zero** — the projection horizon input now accepts `0`. A zero horizon means the withdrawal simulation starts from today's combined VAL directly, covering two use cases: (1) the user has already reached their retirement date; (2) the user wants to see how their current portfolio depletes under a given withdrawal rate without any accumulation phase. The `getProjYears()` helper replaces the previous `||15` default pattern throughout, which silently treated `0` as "not set" and substituted 15 years.
+
+### Fixed
+- **Timeline chart — horizon=0 label collision** — when horizon is 0, the "Today" and "Retire" phase boundaries coincide at the same point. A single combined label "Today/Retire" is now drawn instead of two overlapping lines.
+
+### Added
+- **Timeline chart — age reference lines** — vertical dashed lines at ages 60, 70, 80, 90, and 100 are drawn on the Step 4 timeline chart whenever those ages fall within the chart's x-axis range. Styled more subtly than the phase separators so they serve as background reference without dominating the chart.
+
+---
+
 ## [v1.5.0] — 2026-04-30
 
 ### Added
