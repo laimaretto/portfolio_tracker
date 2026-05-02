@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.5.2</title>
+<title>Portfolio Tracker v1.5.3</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -178,7 +178,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.2</div>
+      <div class="logo-sub">v1.5.3</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -1449,6 +1449,70 @@ function drawHistoryChart(){
   });
   datasets.push({label:t('leg-dep'),data:dep_data,borderColor:'#5f6368',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],pointRadius:0,spanGaps:false});
 
+  // Tag annotations: deposits whose note starts with "tag:" (case-insensitive),
+  // filtered to the currently visible portfolios
+  function wrapTagText(str,max){
+    var words=str.split(/\s+/),lines=[],cur='';
+    words.forEach(function(w){
+      if(!cur){cur=w;}
+      else if((cur+' '+w).length<=max){cur+=' '+w;}
+      else{lines.push(cur);cur=w;}
+    });
+    if(cur) lines.push(cur);
+    return lines;
+  }
+  var tagDeps=deposits.filter(function(d){
+    return depPorts.indexOf(d.portfolio||'Main')!==-1
+      && d.note && d.note.trim().toLowerCase().startsWith('tag:');
+  });
+  var tagPlugin={
+    id:'tagLines',
+    afterDraw:function(chart){
+      var ctx2=chart.ctx,xSc=chart.scales.x,ySc=chart.scales.y;
+      if(!xSc||!ySc) return;
+      // Build render list with resolved pixel positions
+      var items=[];
+      tagDeps.forEach(function(d){
+        var dd=new Date(d.date+'T00:00:00');
+        var mo=dd.getMonth()+1;
+        var lbl=dd.getFullYear()+'-'+(mo<10?'0':'')+mo;
+        var idx=labels.indexOf(lbl);
+        if(idx<0) return;
+        var x=xSc.getPixelForValue(idx);
+        if(x==null||isNaN(x)) return;
+        var raw=d.note.trim();
+        var text=raw.slice(raw.toLowerCase().indexOf(':')+1).trim();
+        items.push({x:x,color:pColor(d.portfolio||'Main'),lines:wrapTagText(text,12),bottom:false});
+      });
+      // Sort by x, then assign top/bottom: flip when within threshold of previous
+      items.sort(function(a,b){return a.x-b.x;});
+      var THRESH=60;
+      items.forEach(function(it,i){
+        it.bottom=i>0&&(it.x-items[i-1].x)<THRESH?!items[i-1].bottom:false;
+      });
+      // Draw
+      items.forEach(function(it){
+        ctx2.save();
+        ctx2.beginPath();
+        ctx2.strokeStyle=it.color;
+        ctx2.setLineDash([3,4]);
+        ctx2.lineWidth=1;
+        ctx2.moveTo(it.x,ySc.top);
+        ctx2.lineTo(it.x,ySc.bottom);
+        ctx2.stroke();
+        ctx2.setLineDash([]);
+        ctx2.fillStyle=it.color;
+        ctx2.font='8px monospace';
+        ctx2.textAlign='center';
+        var startY=it.bottom
+          ? ySc.bottom-3-(it.lines.length-1)*10
+          : ySc.top+11;
+        it.lines.forEach(function(line,i){ctx2.fillText(line,it.x,startY+i*10);});
+        ctx2.restore();
+      });
+    }
+  };
+
   var ctx=document.getElementById('hist-chart').getContext('2d');
   if(histChart) histChart.destroy();
   histChart=new Chart(ctx,{
@@ -1464,7 +1528,8 @@ function drawHistoryChart(){
         x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10,family:"'DM Mono'"},color:'#5f6368',maxTicksLimit:10}},
         y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10,family:"'DM Mono'"},color:'#5f6368',callback:function(v){return fmtUSD(v);}}}
       }
-    }
+    },
+    plugins:[tagPlugin]
   });
 
   var legendDiv=document.getElementById('hist-legend');

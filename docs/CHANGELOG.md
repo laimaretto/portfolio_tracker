@@ -4,14 +4,25 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.3] — 2026-05-02
+
+### Added
+- **Step 2 — tag annotation lines on history chart** — deposit or withdrawal rows whose `note` field starts with `tag:` (case-insensitive) produce a vertical dashed line on the Step 2 historical growth chart at that row's date. The line is drawn in the portfolio's color. The text following `tag:` is word-wrapped at 12 characters and displayed as a small label above the line (or below it when two tags fall within 60 px on the x-axis, alternating top/bottom to prevent label overlap).
+
+---
+
 ## [v1.5.2] — 2026-05-02
 
 ### Added
 - **Step 4 — context one-liners above Sec B and Sec C tables** — a small muted metadata bar above each table shows the inputs that produced the results. Sec B (Projection) shows: Age today · Horizon. Sec C (Withdrawal) shows: Age at horizon. The rates and withdrawal amount are omitted since they already appear as columns in the respective tables.
 
+### Changed
+- **Step 3 — projection chart hidden when horizon = 0** — when the horizon input is set to 0, the growth chart in Step 3 Sec A is hidden (there is nothing to project). The sustainability simulation in Sec B still runs normally, starting directly from today's combined VAL.
+
 ### Fixed
-- **Step 4 — timeline chart print rendering** — the chart previously printed with a black background and invisible phase/age-reference lines. `drawTimelineChart()` now reads a `printMode` flag and selects a light-theme palette (white canvas, dark grid and phase lines) when printing. `beforeprint` / `afterprint` event listeners toggle the flag and redraw the chart, restoring the dark screen palette after printing.
-- **Step 4 — table crop in print** — cards with `overflow:hidden` clipped wide tables when printing. `@media print` now sets `overflow:visible` on Step 4 cards and reduces table cell font and padding so the Returns table (13 columns) fits on the page.
+- **Step 4 — timeline chart print rendering** — the chart previously printed with a black background and invisible phase/age-reference lines (Chromium) or not at all. Root causes: (1) canvas elements print unreliably across browsers; (2) `window.print()` returns immediately in Chrome before the print preview has painted, so any synchronous cleanup after the call clears the image before it renders; (3) Chrome loads data URLs on `<img>` asynchronously, so setting `img.src` and calling `window.print()` in the same tick shows a blank image. Fix: the Print button calls `printReport()`, which redraws the chart with a light palette (`printMode=true`, `animation:{duration:0}`), waits two `requestAnimationFrame` ticks for Chart.js to finish drawing, snapshots the canvas via `canvas.toDataURL()`, sets it as the `src` of a hidden `<img id="timeline-print-img">`, and only calls `window.print()` from `img.onload` — ensuring Chrome has decoded and painted the image before the print dialog opens. `@media print` hides the canvas and shows the image. An `afterprint` listener restores the dark-theme chart after the dialog is dismissed.
+- **Step 4 — table crop in print** — cards with `overflow:hidden` clipped wide tables when printing. `@media print` now sets `overflow:visible` on Step 4 cards, adds `@page{margin:0.8cm}` for portrait A4 with tighter margins, and reduces table cell font to `8px` / padding to `2px 3px` so the 13-column Returns table fits without truncation.
+- **Step 4 — timeline chart age reference lines colour** — the 60/70/80/90/100 age lines now use `clToday` (same colour as the "Today" phase separator) on both screen and print. The visual distinction from the phase separator is provided by the shorter dash pattern (`[3,5]`) and the numeric age labels.
 - **Step 4 — timeline chart canvas overflowing card rounded corners** — the chart canvas, being a rectangular element, visually escaped the card's `border-radius` clip. Fixed by adding `overflow:hidden` to the chart card.
 
 ---

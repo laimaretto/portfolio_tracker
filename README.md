@@ -38,6 +38,8 @@ Deposits are stored in `sessionStorage` — they exist only for the duration of 
 
 **The Excel file is source of truth #1.** You decide which cash flows are in scope. The tool does not validate financial reality — it only ensures the math is correct. What goes into the spreadsheet, and what stays out, is entirely your responsibility.
 
+**Tag annotations:** any row whose note begins with `tag:` (case-insensitive) is treated as a chart marker. In Step 2, a vertical dashed line is drawn on the historical growth chart at that date, in the portfolio's color, with the tag text as a label. Use this to annotate significant events — strategy changes, market events, capital injections — directly on the history chart.
+
 |![Loading Data](imgs/01_load_data.png)|
 |:--:|
 |Figure1: Loading of deposits and withdrawals|
@@ -65,7 +67,7 @@ Each row shows: nominal r, real r, quality badge, deposit count, total deposited
 
 A combined row appears at the bottom once all portfolio VALs are entered and shows aggregated metrics across all portfolios.
 
-Once at least one VAL is entered, a **historical growth chart** appears below the table. For each portfolio with a solved return, it plots the implied portfolio value from the first deposit date to today by compounding each deposit at $r_n$ from its deposit date — ending exactly at the entered VAL. A dashed reference line shows cumulative deposits over the same period. The combined line appears once all VALs are filled.
+Once at least one VAL is entered, a **historical growth chart** appears below the table. For each portfolio with a solved return, it plots the implied portfolio value from the first deposit date to today by compounding each deposit at $r_n$ from its deposit date — ending exactly at the entered VAL. A dashed reference line shows cumulative deposits over the same period. The combined line appears once all VALs are filled. Rows whose note starts with `tag:` appear as labeled vertical dashed lines on the chart, drawn in the portfolio's color, with the tag text as a word-wrapped label.
 
 |![Calculation of rates](imgs/02_mwrr.png)|
 |:--:|
