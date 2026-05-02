@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.5.0</title>
+<title>Portfolio Tracker v1.5.2</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -158,11 +158,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 @media(max-width:600px){.container{padding:14px}.metric-grid{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr}.header{padding:12px 16px}.step-label{display:none}}
 .tl-chart-wrap{position:relative;width:100%;height:360px;margin-top:14px}
 @media print{
+  @page{margin:0.8cm}
   .header,.step-nav,#panel-1,#panel-2,#panel-3,.toast,.overlay,.btn-print{display:none!important}
   #panel-4{display:block!important}
   body{background:#fff;color:#000;padding:0}
   .card{background:#fff;border:1px solid #ccc;border-radius:4px}
+  #panel-4 .card{overflow:visible!important}
   .tl-chart-wrap{height:280px}
+  #timeline-chart{display:none!important}
+  #timeline-print-img{display:block!important}
+  #s5-ret-wrap td,#s5-ret-wrap th,#s5-proj-wrap td,#s5-proj-wrap th,#s5-with-wrap td,#s5-with-wrap th{font-size:8px!important;padding:2px 3px!important}
 }
 </style>
 </head>
@@ -173,7 +178,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.0</div>
+      <div class="logo-sub">v1.5.2</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -313,7 +318,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="form-row" style="margin-bottom:0;grid-template-columns:1fr 1fr 1fr;">
         <div class="form-group">
           <label class="form-label" id="s4-yr-lbl">Horizon (years)</label>
-          <input class="form-input" type="number" id="proj-years" placeholder="15" value="15" min="1" max="40" step="1" oninput="updateProjection()">
+          <input class="form-input" type="number" id="proj-years" placeholder="15" value="15" min="0" max="40" step="1" oninput="updateProjection()">
         </div>
         <div class="form-group">
           <label class="form-label" id="s4-alt-rr-lbl">Alternate real return (%)</label>
@@ -328,7 +333,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <div id="proj-table-wrap" style="margin-top:10px;"></div>
 
-    <div class="chart-wrap"><canvas id="proj-chart"></canvas></div>
+    <div class="chart-wrap" id="proj-chart-wrap"><canvas id="proj-chart"></canvas></div>
     <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-family:var(--mono);color:var(--text3);">
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#4ade80;display:inline-block;border-radius:1px;"></span><span id="leg-nom">Nominal</span></span>
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#60a5fa;display:inline-block;border-radius:1px;"></span><span id="leg-real">Real</span></span>
@@ -365,7 +370,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <!-- ── STEP 4: SUMMARY ───────────────────────────────────────────────────── -->
   <div class="step-panel" id="panel-4">
     <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
-      <button class="btn btn-ghost btn-print" onclick="window.print()" id="s5-print-btn">&#9113; Print / PDF</button>
+      <button class="btn btn-ghost btn-print" onclick="printReport()" id="s5-print-btn">&#9113; Print / PDF</button>
     </div>
     <div class="sec-head"><div class="sec-num">A</div><div class="sec-title" id="s5-ret-lbl">Returns</div></div>
     <div class="card" style="padding:0;overflow:hidden;"><div id="s5-ret-wrap"></div></div>
@@ -374,10 +379,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="sec-head" style="margin-top:14px;"><div class="sec-num">C</div><div class="sec-title" id="s5-with-lbl">Withdrawal</div></div>
     <div class="card" style="padding:0;overflow:hidden;"><div id="s5-with-wrap"></div></div>
     <div class="sec-head" style="margin-top:14px;"><div class="sec-num">D</div><div class="sec-title" id="s5-tl-lbl">Full Timeline</div></div>
-    <div class="card" style="padding:14px 16px;">
+    <div class="card" style="padding:14px 16px;overflow:hidden;">
       <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;" id="s5-tl-note">History (left of Today) &middot; Projection (Today &rarr; Retire) &middot; Withdrawal (right of Retire)</div>
       <div id="s5-legend" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;font-family:var(--mono);color:var(--text3);"></div>
-      <div class="tl-chart-wrap"><canvas id="timeline-chart"></canvas></div>
+      <div class="tl-chart-wrap"><canvas id="timeline-chart"></canvas><img id="timeline-print-img" style="display:none;width:100%;height:100%;object-fit:fill;"></div>
     </div>
   </div>
 
@@ -459,6 +464,7 @@ var projChart = null;
 var sustainChart = null;
 var histChart = null;
 var timelineChart = null;
+var printMode = false;
 var lang = 'en';
 var currentStep = 1;
 var parsedRows = [];
@@ -690,6 +696,7 @@ function getPortfolios(){
 }
 function pColor(name){ var ps=getPortfolios(); return PCOLORS[ps.indexOf(name)%PCOLORS.length]||'#9aa0a8'; }
 function getInf(){ return parseFloat(document.getElementById('inp-inflation').value)/100||0.045; }
+function getProjYears(){ var v=parseInt(document.getElementById('proj-years').value); return (!isNaN(v)&&v>=0)?v:15; }
 function getCombinedVAL(){ return getPortfolios().reduce(function(s,p){return s+(valIsSet(p)?portfolioVALs[p]:0);},0); }
 function valIsSet(p){ var v=portfolioVALs[p]; return v!==undefined&&!isNaN(v)&&v>=0; }
 function updateCombinedValDisp(){ var el=document.getElementById('combined-val-disp'); if(el){ var v=getCombinedVAL(); el.textContent=v>0?fmtUSD(v):'--'; } }
@@ -1233,7 +1240,7 @@ function rrQualityColor(rr){
 }
 
 function updateProjection(){
-  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var years=getProjYears();
   var inf=getInf();
   var altRR=getAltRR();
   var ps=getPortfolios();
@@ -1304,15 +1311,16 @@ function updateProjection(){
   if(legAlt) legAlt.style.display=showAlt?'':'none';
 
   // Chart & withdrawal — driven by projPortfolio selector
+  var chartWrap=document.getElementById('proj-chart-wrap');
+  if(chartWrap) chartWrap.style.display=years===0?'none':'';
   var rn=getRforProj();
   if(rn===null||rn===undefined){ updateWithdrawal(); return; }
   var val=getVALforProj();
   var rr=(1+rn)/(1+inf)-1;
   var monthly=getMonthlyForProj();
   var totalDep=getTotalDepForProj();
-  var real=projectFV(val,monthly,rr,years);
   var age=parseInt(document.getElementById('proj-age').value)||45;
-  drawProjChart(val,monthly,rn,rr,years,altRR,age,totalDep);
+  if(years>0) drawProjChart(val,monthly,rn,rr,years,altRR,age,totalDep);
   updateWithdrawal();
 }
 
@@ -1621,6 +1629,39 @@ if(deposits.length>0 && (Object.keys(portfolioRs).length>0||combinedR!==null)){
   currentStep=2; goStep(2);
 }
 
+// ── PRINT ──────────────────────────────────────────────────────────────────
+// Redraws the timeline chart with a light palette, waits one rAF tick for
+// Chart.js to finish rendering, then opens the print dialog. Restores the
+// dark screen palette after the dialog is dismissed.
+// Preparation: redraw with light palette, snapshot canvas to <img>, then print.
+// window.print() returns immediately in Chrome (async print preview), so cleanup
+// must NOT happen synchronously after it — use the afterprint event instead.
+function printReport(){
+  printMode=true;
+  if(timelineChart){timelineChart.destroy();timelineChart=null;}
+  drawTimelineChart();
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      var canvas=document.getElementById('timeline-chart');
+      var img=document.getElementById('timeline-print-img');
+      if(canvas&&img){
+        img.onload=function(){ img.onload=null; window.print(); };
+        img.src=canvas.toDataURL('image/png');
+      } else {
+        window.print();
+      }
+    });
+  });
+}
+// Restoration: fires after the user dismisses the print dialog.
+window.addEventListener('afterprint',function(){
+  var img=document.getElementById('timeline-print-img');
+  if(img) img.src='';
+  printMode=false;
+  if(timelineChart){timelineChart.destroy();timelineChart=null;}
+  drawTimelineChart();
+});
+
 // ── WITHDRAWAL PHASE ───────────────────────────────────────────────────────
 function renderSustainTable(){
   var wrap=document.getElementById('sustain-table-wrap');
@@ -1670,7 +1711,7 @@ function updateWithdrawal(){
   var rr=(1+rn)/(1+inf)-1;
   var val=getVALforProj();
   var monthly=getMonthlyForProj();
-  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var years=getProjYears();
   var endValReal=projectFV(val,monthly,rr,years);
   var wMonthly=parseFloat(document.getElementById('proj-withdrawal').value)||1300;
   var age=parseInt(document.getElementById('proj-age').value)||45;
@@ -1955,13 +1996,17 @@ function renderStep4ProjTable(){
   if(!wrap) return;
   var ps=getPortfolios();
   var inf=getInf();
-  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var years=getProjYears();
   var altRR=getAltRR();
+  var age=parseInt(document.getElementById('proj-age').value)||45;
   var isES=lang==='es';
   var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
-  var h='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
+  var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
+  var metaParts=[(isES?'Edad hoy':'Age today')+': '+age,(isES?'Horizonte':'Horizon')+': '+years+(isES?' años':' yr')];
+  var h='<div style="'+META+'">'+metaParts.join(' · ')+'</div>'
+    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
     +'<th style="'+TH+'">'+(isES?'Cartera':'Portfolio')+'</th>'
     +'<th style="'+TH+'">rn · rr</th>'
     +'<th style="'+TH+'">'+(isES?'VAL hoy':'VAL today')+'</th>'
@@ -2021,7 +2066,7 @@ function renderStep4WithdrawTable(){
   var rn_c=combinedR, rr_c=(1+rn_c)/(1+inf)-1;
   var cVAL=getCombinedVAL();
   var moC=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
-  var years=parseInt(document.getElementById('proj-years').value)||15;
+  var years=getProjYears();
   var age=parseInt(document.getElementById('proj-age').value)||45;
   var wMo=parseFloat(document.getElementById('proj-withdrawal').value)||0;
   var altRR=getAltRR();
@@ -2042,7 +2087,9 @@ function renderStep4WithdrawTable(){
   var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
-  var h='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
+  var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
+  var h='<div style="'+META+'">'+(isES?'Edad al horizonte':'Age at horizon')+': '+retireAge+'</div>'
+    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
     +'<th style="'+TH+'">'+( isES?'Escenario':'Scenario')+'</th>'
     +'<th style="'+TH+'">'+(isES?'VAL real al horizonte':'Real VAL at horizon')+'</th>'
     +'<th style="'+TH+'">'+(isES?'Perpetuidad':'Perpetuity')+'</th>'
@@ -2088,7 +2135,7 @@ function drawTimelineChart(){
   var canvasEl=document.getElementById('timeline-chart');
   if(!canvasEl||combinedR===null) return;
   var currentAge=parseInt(document.getElementById('proj-age').value)||45;
-  var horizonYears=parseInt(document.getElementById('proj-years').value)||15;
+  var horizonYears=getProjYears();
   var inf=getInf();
   var rn_c=combinedR;
   var rr=(1+rn_c)/(1+inf)-1;
@@ -2186,6 +2233,16 @@ function drawTimelineChart(){
   var dCAlt=altRR!==null?new Array(retireIdx).fill(null).concat(cAlt):null;
 
   var isES=lang==='es';
+  // Colour palette switches between screen (dark) and print (light) modes
+  var isPrint=printMode;
+  var clBg      = isPrint?'#ffffff':'#15171a';
+  var clGrid    = isPrint?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.04)';
+  var clTick    = isPrint?'#333333':'#5f6368';
+  var clToday   = isPrint?'rgba(0,0,0,0.5)':'rgba(255,255,255,0.3)';
+  var clRetire  = isPrint?'rgba(140,90,0,0.85)':'rgba(251,191,36,0.4)';
+  var clBoth    = isPrint?'rgba(140,90,0,0.85)':'rgba(251,191,36,0.5)';
+  var clAgeRef  = clToday;
+
   var datasets=[
     {label:isES?'Historia':'History',data:dHist,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.06)',fill:true,borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false},
     {label:isES?'Depósitos':'Deposits',data:dDep,borderColor:'#5f6368',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],pointRadius:0,spanGaps:false},
@@ -2195,23 +2252,41 @@ function drawTimelineChart(){
   datasets.push({label:isES?'Real (retiro)':'Real (withdrawal)',data:dCReal,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.06)',fill:false,borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
   if(altRR!==null) datasets.push({label:isES?'Alt. Real (retiro)':'Alt. Real (withdrawal)',data:dCAlt,borderColor:'#fdba74',backgroundColor:'transparent',fill:false,borderWidth:2,borderDash:[5,3],pointRadius:0,tension:0.3,spanGaps:false});
 
-  // Phase separator plugin
+  // Fills the canvas before Chart.js renders — keeps lines visible on both
+  // dark screen and white print background
+  var bgPlugin={
+    id:'canvasBg',
+    beforeDraw:function(chart){
+      var ctx=chart.ctx;
+      ctx.save(); ctx.fillStyle=clBg; ctx.fillRect(0,0,chart.width,chart.height); ctx.restore();
+    }
+  };
+
+  // Phase separator and age reference line plugin
   var phasePlugin={
     id:'phaseLines',
     afterDraw:function(chart){
       var ctx2=chart.ctx, xSc=chart.scales.x, ySc=chart.scales.y;
       if(!xSc||!ySc) return;
-      function vLine(idx,color,lbl){
+      function vLine(idx,color,lbl,dash){
         var x=xSc.getPixelForValue(idx);
         if(x==null||isNaN(x)) return;
         ctx2.save();
-        ctx2.beginPath(); ctx2.strokeStyle=color; ctx2.setLineDash([4,4]); ctx2.lineWidth=1;
+        ctx2.beginPath(); ctx2.strokeStyle=color; ctx2.setLineDash(dash||[4,4]); ctx2.lineWidth=1;
         ctx2.moveTo(x,ySc.top); ctx2.lineTo(x,ySc.bottom); ctx2.stroke();
         ctx2.setLineDash([]); ctx2.fillStyle=color; ctx2.font='9px monospace';
         ctx2.textAlign='center'; ctx2.fillText(lbl,x,ySc.top+12); ctx2.restore();
       }
-      vLine(todayIdx,'rgba(255,255,255,0.3)',isES?'Hoy':'Today');
-      vLine(retireIdx,'rgba(251,191,36,0.4)',isES?'Jubilación':'Retire');
+      if(todayIdx===retireIdx){
+        vLine(todayIdx,clBoth,isES?'Hoy/Jubilación':'Today/Retire');
+      } else {
+        vLine(todayIdx,clToday,isES?'Hoy':'Today');
+        vLine(retireIdx,clRetire,isES?'Jubilación':'Retire');
+      }
+      [60,70,80,90,100].forEach(function(refAge){
+        var idx=allLabels.indexOf(String(refAge));
+        if(idx>=0) vLine(idx,clAgeRef,String(refAge),[3,5]);
+      });
     }
   };
 
@@ -2222,17 +2297,18 @@ function drawTimelineChart(){
     data:{labels:allLabels,datasets:datasets},
     options:{
       responsive:true,maintainAspectRatio:false,
+      animation:{duration:isPrint?0:400},
       plugins:{legend:{display:false},tooltip:{callbacks:{
         title:function(items){return (isES?'Edad ':'Age ')+items[0].label;},
         label:function(c){return c.raw===null?'':' '+c.dataset.label+': '+fmtUSD(c.raw);}
       }}},
       interaction:{mode:'index',intersect:false},
       scales:{
-        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:9,family:"'DM Mono'"},color:'#5f6368',maxTicksLimit:20}},
-        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10,family:"'DM Mono'"},color:'#5f6368',callback:function(v){return fmtUSD(v);}}}
+        x:{grid:{color:clGrid},ticks:{font:{size:9,family:"'DM Mono'"},color:clTick,maxTicksLimit:20}},
+        y:{grid:{color:clGrid},ticks:{font:{size:10,family:"'DM Mono'"},color:clTick,callback:function(v){return fmtUSD(v);}}}
       }
     },
-    plugins:[phasePlugin]
+    plugins:[bgPlugin,phasePlugin]
   });
 
   // Legend

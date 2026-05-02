@@ -101,8 +101,8 @@ Once a monthly withdrawal is set in Step 3, the Summary step unlocks. It produce
 
 Three read-only tables snapshot the current state:
 - **Returns** — same columns as Step 2: nominal r, real r, quality, deposits, gain, max life, weighted avg, status.
-- **Projection** — same columns as Step 3: rates, VAL today, monthly, total deposits, Nominal VAL, Real VAL, Alternate Real VAL.
-- **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios.
+- **Projection** — same columns as Step 3: rates, VAL today, monthly, total deposits, Nominal VAL, Real VAL, Alternate Real VAL. A one-liner above the table shows the age and horizon used.
+- **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios. A one-liner above the table shows the age at retirement.
 
 Below the tables, a **full timeline chart** connects all three phases on a single age axis:
 
@@ -110,7 +110,7 @@ Below the tables, a **full timeline chart** connects all three phases on a singl
 - **Projection** (today → retirement) — real VAL and alternate real VAL starting from today's combined VAL, with the deposits line continuing through planned monthly additions. Nominal curve is omitted: the real line is what matters for retirement planning.
 - **Withdrawal** (retirement → depletion) — real VAL and alternate real VAL drawn under the monthly withdrawal simulation. Vertical dashed lines mark the "Today" and "Retire" boundaries on the chart.
 
-A **Print / PDF** button triggers the browser's print dialog. A print stylesheet hides all navigation and interactive panels, leaving only the Step 4 content for clean output.
+A **Print / PDF** button triggers the browser's print dialog. A print stylesheet hides all navigation and interactive panels, leaving only the Step 4 content for clean output. The timeline chart is redrawn with a light-theme palette (white background, dark lines) before the print dialog opens, then restored to the dark screen theme afterwards.
 
 |![Withdrawal](imgs/04_summary.png)|
 |:--:|
