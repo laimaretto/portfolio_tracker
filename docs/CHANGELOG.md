@@ -4,6 +4,14 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.5] — 2026-05-03
+
+### Fixed
+- **Step 3 — monthly deposit disabled for completed portfolios** — portfolios with VAL = 0 (completed) are no longer active; their monthly deposit input is now disabled and grayed out (locked at $0). Previously the input was editable, which was incorrect since a completed investment accepts no new capital.
+- **Step 2 — tag label readability when overlapping curves** — tag annotation labels now have a dark semi-transparent background fill behind the text, ensuring they are readable regardless of where the portfolio value curves are on the chart (previously labels were invisible or hard to read when curves reached the top of the chart near the tag position).
+
+---
+
 ## [v1.5.4] — 2026-05-02
 
 ### Added
