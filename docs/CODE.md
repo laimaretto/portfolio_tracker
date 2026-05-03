@@ -23,8 +23,8 @@ At any point in time, the app holds six key pieces of state (variables that live
 | Variable | Type | What it holds |
 |---|---|---|
 | `deposits` | List | Every deposit/withdrawal row: date, amount, portfolio name, currency, note |
-| `portfolioVALs` | Dictionary | The current market value entered per portfolio: `{ 'Alpha': 82000, 'Beta': 24000 }` |
-| `portfolioRs` | Dictionary | The solved MWRR per portfolio: `{ 'Alpha': { rn: 0.2444 }, 'Beta': { rn: 0.1140 } }` |
+| `portfolioVALs` | Dictionary | The current market value entered per portfolio: `{ 'Alpha': 50000, 'Beta': 20000 }` |
+| `portfolioRs` | Dictionary | The solved MWRR per portfolio: `{ 'Alpha': { rn: 0.0857 }, 'Beta': { rn: 0.0691 } }` |
 | `combinedR` | Number | The single MWRR solved from all deposits pooled together |
 | `portfolioMonthly` | Dictionary | The planned monthly deposit per portfolio for the Step 3 projection |
 | `lang` | String | Current language: `'en'` or `'es'` |
