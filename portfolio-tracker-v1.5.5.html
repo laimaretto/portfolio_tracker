@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.5.4</title>
+<title>Portfolio Tracker v1.5.5</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -178,7 +178,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.4</div>
+      <div class="logo-sub">v1.5.5</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -1132,7 +1132,9 @@ function renderProjTable(){
     +'</tr></thead><tbody>';
   ps.forEach(function(p,idx){
     var c=pColor(p);
-    if(portfolioMonthly[p]===undefined) portfolioMonthly[p]=700;
+    var isCompleted=valIsSet(p)&&portfolioVALs[p]===0;
+    if(isCompleted){ portfolioMonthly[p]=0; }
+    else if(portfolioMonthly[p]===undefined){ portfolioMonthly[p]=700; }
     var v=portfolioMonthly[p];
     html+='<tr>'
       +'<td style="'+TD+'border-left:3px solid '+c+';">'
@@ -1140,8 +1142,8 @@ function renderProjTable(){
       +'<td style="'+TD+'" id="pt-rates-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--text2);" id="pt-val-'+idx+'">--</td>'
       +'<td style="'+TD+'"><input class="form-input" type="number" placeholder="0" value="'+v+'" min="0" step="50"'
-      +' style="width:80px;padding:3px 6px;font-size:12px;border-color:'+c+'44;"'
-      +' oninput="portfolioMonthly[\''+p+'\']=parseFloat(this.value)||0;saveAll();updateProjection();"></td>'
+      +' style="width:80px;padding:3px 6px;font-size:12px;border-color:'+c+'44;'+(isCompleted?'opacity:0.35;':'')+'"'
+      +' '+(isCompleted?'disabled':'')+' oninput="portfolioMonthly[\''+p+'\']=parseFloat(this.value)||0;saveAll();updateProjection();"></td>'
       +'<td style="'+TD+'color:var(--text2);" id="pt-new-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--accent);" id="pt-nom-'+idx+'">--</td>'
       +'<td style="'+TD+'color:var(--blue);" id="pt-real-'+idx+'">--</td>'
@@ -1501,12 +1503,17 @@ function drawHistoryChart(){
         ctx2.lineTo(it.x,ySc.bottom);
         ctx2.stroke();
         ctx2.setLineDash([]);
-        ctx2.fillStyle=it.color;
         ctx2.font='8px monospace';
         ctx2.textAlign='center';
         var startY=it.bottom
           ? ySc.bottom-3-(it.lines.length-1)*10
           : ySc.top+11;
+        var maxW=0;
+        it.lines.forEach(function(line){ var w=ctx2.measureText(line).width; if(w>maxW) maxW=w; });
+        var bgPad=3, bgH=(it.lines.length-1)*10+10+bgPad*2;
+        ctx2.fillStyle='rgba(21,23,26,0.78)';
+        ctx2.fillRect(it.x-maxW/2-bgPad, startY-8-bgPad, maxW+bgPad*2, bgH);
+        ctx2.fillStyle=it.color;
         it.lines.forEach(function(line,i){ctx2.fillText(line,it.x,startY+i*10);});
         ctx2.restore();
       });

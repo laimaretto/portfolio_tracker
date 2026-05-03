@@ -92,6 +92,8 @@ The dashed reference line shows cumulative deposits over the same period. The ga
 
 Use the pill selector above the chart to focus on one portfolio, the combined view, or all at once.
 
+**Tag annotations:** any deposit or withdrawal row whose note begins with `tag:` (case-insensitive) appears as a vertical dashed line on the chart at that date, in the portfolio's color, with the tag text as a label. Use this to mark significant events — strategy changes, broker transfers, large one-off deployments — directly on the history chart.
+
 ---
 
 ## How different investment types behave
@@ -247,6 +249,22 @@ If your withdrawal exceeds the perpetuity, the portfolio eventually depletes. Th
 | Red | Less than 10 years — review your withdrawal amount |
 
 All withdrawal calculations use the **real** end VAL and **real** monthly rate — everything is in today's purchasing power, so the monthly withdrawal amount you enter is interpreted as a constant real amount (it keeps pace with inflation).
+
+---
+
+## Step 4 — Summary and report
+
+Step 4 unlocks once all portfolio VALs are filled (combined r solved) and a monthly withdrawal is set in Step 3. It produces a self-contained, printable report with no interactive inputs.
+
+Three read-only tables snapshot the current state, each with a one-liner above showing the inputs that produced the results:
+
+- **Returns** — full returns table from Step 2, with the inflation assumption shown above.
+- **Projection** — full projection table from Step 3, with Age today and Horizon shown above.
+- **Withdrawal** — sustainability summary (real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios), with Age at horizon shown above.
+
+Below the tables, a **full timeline chart** connects all three phases on a single age axis: historical portfolio growth (first deposit → today), projection (today → retirement), and withdrawal depletion (retirement → portfolio exhaustion). Vertical dashed lines mark the "Today" and "Retire" boundaries.
+
+The **Print / PDF** button opens the browser's print dialog. The chart is first redrawn with a light-background palette suitable for printing, snapshotted to a static image, and only then does the print dialog open — ensuring the chart appears correctly in both Firefox and Chromium-based browsers.
 
 ---
 

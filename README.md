@@ -23,6 +23,7 @@ It then strips out inflation to give you a real return, and runs a simulation to
 > #### For a detailed guide on how to use and interpret the numbers, see [docs/GUIDE.md](docs/GUIDE.md)
 > #### To understand the math supporting this tool, see [docs/MATH.md](docs/MATH.md)
 > #### To see the changes along different versions of the tool, see [docs/CHANGELOG.md](docs/CHANGELOG.md)
+> #### For a map of the code structure and function descriptions, see [docs/CODE.md](docs/CODE.md)
 
 ---
 
@@ -102,7 +103,7 @@ Below the chart, a sustainability simulation asks: *after the horizon ends, how 
 Once a monthly withdrawal is set in Step 3, the Summary step unlocks. It produces a self-contained, printable report with no interactive inputs.
 
 Three read-only tables snapshot the current state:
-- **Returns** — same columns as Step 2: nominal r, real r, quality, deposits, gain, max life, weighted avg, status.
+- **Returns** — same columns as Step 2: nominal r, real r, quality, deposits, gain, max life, weighted avg, status. A one-liner above the table shows the inflation assumption used.
 - **Projection** — same columns as Step 3: rates, VAL today, monthly, total deposits, Nominal VAL, Real VAL, Alternate Real VAL. A one-liner above the table shows the age and horizon used.
 - **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios. A one-liner above the table shows the age at retirement.
 
