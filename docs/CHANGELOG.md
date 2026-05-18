@@ -4,6 +4,16 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.6] — 2026-05-18
+
+### Fixed
+- **Step 1 — total amount column alignment** — the total sum displayed in the table footer was misaligned, appearing under the Portfolio column instead of the Amount column.
+- **Step 2 — column wrapping** — data cells now use `white-space:nowrap`, preventing values such as `5yr 10mo` from breaking across two lines in narrow columns.
+- **Step 4 Sec B one-liner** — the metadata bar above the Projection table now includes the alternate real return (`Alt rr`) when one is set, alongside Age today and Horizon.
+- **Step 4 print — one-liner font size** — the metadata one-liners above each table were disproportionately large relative to the 8px table content; reduced to 7px in the print stylesheet.
+
+---
+
 ## [v1.5.5] — 2026-05-03
 
 ### Fixed

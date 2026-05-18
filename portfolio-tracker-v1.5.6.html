@@ -168,6 +168,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   #timeline-chart{display:none!important}
   #timeline-print-img{display:block!important}
   #s5-ret-wrap td,#s5-ret-wrap th,#s5-proj-wrap td,#s5-proj-wrap th,#s5-with-wrap td,#s5-with-wrap th{font-size:8px!important;padding:2px 3px!important}
+  .s4-meta{font-size:7px!important}
 }
 </style>
 </head>
@@ -178,7 +179,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.5</div>
+      <div class="logo-sub">v1.5.6</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -257,9 +258,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         </tr></thead>
         <tbody id="dep-tbody"></tbody>
         <tfoot><tr>
-          <td colspan="2" style="padding:8px 7px;font-size:10px;color:var(--text3);font-family:var(--mono);" id="th-total-lbl">Total:</td>
-          <td colspan="2" style="padding:8px 7px;font-size:11px;font-weight:500;color:var(--accent);font-family:var(--mono);" id="dep-total">$0</td>
-          <td colspan="2" style="padding:8px 7px;font-size:10px;color:var(--text3);font-family:var(--mono);" id="dep-count">0 deposits</td>
+          <td style="padding:8px 7px;font-size:10px;color:var(--text3);font-family:var(--mono);" id="th-total-lbl">Total:</td>
+          <td style="padding:8px 7px;font-size:11px;font-weight:500;color:var(--accent);font-family:var(--mono);" id="dep-total">$0</td>
+          <td colspan="4" style="padding:8px 7px;font-size:10px;color:var(--text3);font-family:var(--mono);" id="dep-count">0 deposits</td>
         </tr></tfoot>
       </table>
     </div>
@@ -912,7 +913,7 @@ function renderRCards(){
   var wrap=document.getElementById('r-cards');
   if(!ps.length){ wrap.innerHTML=''; return; }
   var TH='font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-family:var(--mono);padding:5px 7px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;';
-  var TD='padding:5px 7px;font-family:var(--mono);font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;';
+  var TD='padding:5px 7px;font-family:var(--mono);font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;white-space:nowrap;';
   var html='<div style="overflow-x:auto;">'
     +'<table style="width:100%;border-collapse:collapse;">'
     +'<thead><tr>'
@@ -955,7 +956,7 @@ function renderRCards(){
       +'<td style="'+TD+'color:var(--text2);" id="r-status-'+idx+'">--</td>'
       +'</tr>';
   });
-  var TC='padding:5px 7px;font-family:var(--mono);font-size:12px;border-top:2px solid rgba(255,255,255,0.1);vertical-align:middle;';
+  var TC='padding:5px 7px;font-family:var(--mono);font-size:12px;border-top:2px solid rgba(255,255,255,0.1);vertical-align:middle;white-space:nowrap;';
   html+='<tr id="combined-r-result" style="display:none;">'
     +'<td style="'+TC+'border-left:3px solid var(--accent);">'
     +'<span class="p-tag" style="border-color:var(--accent)33;color:var(--accent);background:var(--accent)14;font-size:11px;" id="s3-combined-tag">'+(lang==='es'?'Combinado':'Combined')+'</span>'
@@ -1992,7 +1993,8 @@ function renderStep4ReturnTable(){
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
   var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
-  var h='<div style="'+META+'">'+(isES?'Inflación':'Inflation')+': '+(inf*100).toFixed(1)+'%</div>'
+  var METADIV='<div class="s4-meta" style="'+META+'">';
+  var h=METADIV+(isES?'Inflación':'Inflation')+': '+(inf*100).toFixed(1)+'%</div>'
     +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
     +'<th style="'+TH+'">'+(isES?'Cartera':'Portfolio')+'</th>'
     +'<th style="'+TH+'">VAL</th>'
@@ -2078,8 +2080,10 @@ function renderStep4ProjTable(){
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
   var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
+  var METADIV='<div class="s4-meta" style="'+META+'">';
   var metaParts=[(isES?'Edad hoy':'Age today')+': '+age,(isES?'Horizonte':'Horizon')+': '+years+(isES?' años':' yr')];
-  var h='<div style="'+META+'">'+metaParts.join(' · ')+'</div>'
+  if(altRR!==null) metaParts.push((isES?'Alt rr':'Alt rr')+': '+(altRR*100).toFixed(1)+'%');
+  var h=METADIV+metaParts.join(' · ')+'</div>'
     +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
     +'<th style="'+TH+'">'+(isES?'Cartera':'Portfolio')+'</th>'
     +'<th style="'+TH+'">rn · rr</th>'
@@ -2162,7 +2166,8 @@ function renderStep4WithdrawTable(){
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
   var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
-  var h='<div style="'+META+'">'+(isES?'Edad al horizonte':'Age at horizon')+': '+retireAge+'</div>'
+  var METADIV='<div class="s4-meta" style="'+META+'">';
+  var h=METADIV+(isES?'Edad al horizonte':'Age at horizon')+': '+retireAge+'</div>'
     +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
     +'<th style="'+TH+'">'+( isES?'Escenario':'Scenario')+'</th>'
     +'<th style="'+TH+'">'+(isES?'VAL real al horizonte':'Real VAL at horizon')+'</th>'
