@@ -179,7 +179,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.6</div>
+      <div class="logo-sub">v1.5.7</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -1777,6 +1777,16 @@ function applyPerpetuitySustain(which){
   updateWithdrawal();
 }
 
+function wdrawCapYears(endVal, rr, wMo){
+  var rm=Math.pow(1+rr,1/12)-1;
+  var target=2*endVal, bal=endVal;
+  for(var m=0;m<360;m++){
+    bal=bal*(1+rm)-wMo;
+    if(bal>=target) return Math.max(5,Math.ceil((m+1)/12));
+  }
+  return 30;
+}
+
 function updateWithdrawal(){
   var rn=getRforProj();
   if(!rn) return;
@@ -1834,11 +1844,11 @@ function updateWithdrawal(){
     if(scenAlt) scenAlt.textContent='alt = '+(altRR*100).toFixed(2)+'%';
     if(valAlt)  valAlt.textContent=fmtUSD(altEndVal);
     if(perpAlt){ perpAlt.textContent=fmtMo(altPerp); perpAlt.dataset.perp=Math.round(altPerp); }
-    if(wMonthly<=altPerp){ altDepletes=false; altWMonths=50*12; }
+    if(wMonthly<=altPerp){ altDepletes=false; altWMonths=wdrawCapYears(altEndVal,altRR,wMonthly)*12; }
     else{
       altDepletes=true; var altBal=altEndVal; altWMonths=0;
       while(altBal>0&&altWMonths<MAX){ altBal=altBal*(1+altRm)-wMonthly; altWMonths++; }
-      if(altWMonths>=MAX){ altDepletes=false; altWMonths=50*12; }
+      if(altWMonths>=MAX){ altDepletes=false; altWMonths=wdrawCapYears(altEndVal,altRR,wMonthly)*12; }
     }
     if(!altDepletes){
       if(ageAlt){ ageAlt.textContent=lang==='es'?'Nunca':'Never'; ageAlt.style.color='var(--accent)'; }
@@ -1858,7 +1868,7 @@ function updateWithdrawal(){
   var e1=document.getElementById('leg-alt-accum-wrap'); if(e1) e1.style.display=altVisible;
   var e2=document.getElementById('leg-alt-wdraw-wrap'); if(e2) e2.style.display=altVisible;
 
-  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:50*12,altRR,altEndVal,altWMonths);
+  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:wdrawCapYears(endValReal,rr,wMonthly)*12,altRR,altEndVal,altWMonths);
   updateStepNav();
 }
 
@@ -2266,7 +2276,7 @@ function drawTimelineChart(){
   // ── Phase (c): Withdrawal ───────────────────────────────────────────────
   function depletionYrs(startV,wRR,wm){
     var rm=Math.pow(1+wRR,1/12)-1,perp=startV*rm;
-    if(wm<=perp||wm===0) return 100;
+    if(wm<=perp||wm===0) return wdrawCapYears(startV,wRR,wm);
     var bal=startV,m=0,MAX=100*12;
     while(bal>0&&m<MAX){bal=bal*(1+rm)-wm;m++;}
     return Math.min(Math.ceil(m/12),100);
