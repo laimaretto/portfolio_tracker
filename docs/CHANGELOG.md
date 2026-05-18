@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.7] — 2026-05-18
+
+### Fixed
+- **Step 3 & Step 4 — withdrawal chart x-axis when indefinite** — when monthly withdrawal is below the perpetuity threshold (portfolio never depletes), the withdrawal phase chart previously ran for a hardcoded 50 years, causing the balance curve to grow exponentially off-screen. The x-axis is now capped at `wdrawCapYears`: the number of years until the balance doubles (min 5yr, max 30yr). Fast growers get a shorter window; near-perpetuity portfolios get up to 30 years. Applied consistently to both the Step 3 sustainability chart and the Step 4 timeline chart.
+
+---
+
 ## [v1.5.6] — 2026-05-18
 
 ### Fixed
