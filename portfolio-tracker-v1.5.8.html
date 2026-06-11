@@ -168,7 +168,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   #timeline-chart{display:none!important}
   #timeline-print-img{display:block!important}
   #s5-ret-wrap td,#s5-ret-wrap th,#s5-proj-wrap td,#s5-proj-wrap th,#s5-with-wrap td,#s5-with-wrap th{font-size:8px!important;padding:2px 3px!important}
-  .s4-meta{font-size:7px!important}
+  .s4-meta{font-size:7px!important;padding-bottom:5px!important}
 }
 </style>
 </head>
@@ -179,7 +179,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.7</div>
+      <div class="logo-sub">v1.5.8</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -370,7 +370,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- ── STEP 4: SUMMARY ───────────────────────────────────────────────────── -->
   <div class="step-panel" id="panel-4">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px;">
+      <button class="btn btn-ghost" onclick="togglePrivacy()" id="s5-privacy-btn">&#128065; <span id="s5-privacy-lbl">Hide $</span></button>
       <button class="btn btn-ghost btn-print" onclick="printReport()" id="s5-print-btn">&#9113; Print / PDF</button>
     </div>
     <div class="sec-head"><div class="sec-num">A</div><div class="sec-title" id="s5-ret-lbl">Returns</div></div>
@@ -466,6 +467,7 @@ var sustainChart = null;
 var histChart = null;
 var timelineChart = null;
 var printMode = false;
+var privacyMode = false;
 var lang = 'en';
 var currentStep = 1;
 var parsedRows = [];
@@ -539,6 +541,7 @@ var TXT = {
     's5-tl-lbl':'Full Timeline',
     's5-tl-note':'History (left of Today) \u00b7 Projection (Today \u2192 Retire) \u00b7 Withdrawal (right of Retire)',
     's5-print-btn':'\u2711 Print / PDF',
+    's5-privacy-hide':'Hide $','s5-privacy-show':'Show $',
     'disclaimer-label':'DISCLAIMER \u00a0',
     'disclaimer-body':'This tool is provided for informational and educational purposes only. It is not financial advice. Past returns do not guarantee future results. The projections produced are mathematical illustrations based on inputs you provide \u2014 they are not predictions. Do not make investment decisions based solely on this tool. The author bears no responsibility for financial outcomes resulting from its use.'
   },
@@ -595,6 +598,7 @@ var TXT = {
     's5-tl-lbl':'L\u00ednea de tiempo',
     's5-tl-note':'Historia (izq. de Hoy) \u00b7 Proyecci\u00f3n (Hoy \u2192 Jubilaci\u00f3n) \u00b7 Retiro (der. de Jubilaci\u00f3n)',
     's5-print-btn':'\u2711 Imprimir / PDF',
+    's5-privacy-hide':'Ocultar $','s5-privacy-show':'Mostrar $',
     'disclaimer-label':'AVISO LEGAL \u00a0',
     'disclaimer-body':'Esta herramienta se proporciona \u00fanicamente con fines informativos y educativos. No constituye asesoramiento financiero. Los retornos pasados no garantizan resultados futuros. Las proyecciones son ilustraciones matem\u00e1ticas basadas en los datos ingresados \u2014 no son predicciones. No tome decisiones de inversi\u00f3n bas\u00e1ndose \u00fanicamente en esta herramienta. El autor no asume ninguna responsabilidad por los resultados financieros derivados de su uso.'
   }
@@ -648,6 +652,21 @@ function fmtUSD(v){
 }
 function fmtMo(v){
   return '$'+Math.round(v).toLocaleString()+'/mo';
+}
+function fmtP(v){ return privacyMode?'***':fmtUSD(v); }
+function fmtPMo(v){ return privacyMode?'***':fmtMo(v); }
+function togglePrivacy(){
+  privacyMode=!privacyMode;
+  var lbl=document.getElementById('s5-privacy-lbl');
+  if(lbl) lbl.textContent=t(privacyMode?'s5-privacy-show':'s5-privacy-hide');
+  renderStep4ReturnTable();
+  renderStep4ProjTable();
+  renderStep4WithdrawTable();
+  if(timelineChart){
+    timelineChart.options.scales.y.ticks.callback=function(v){ return privacyMode?'':fmtUSD(v); };
+    timelineChart.options.plugins.tooltip.callbacks.label=function(c){ return c.raw===null?'':' '+c.dataset.label+': '+(privacyMode?'***':fmtUSD(c.raw)); };
+    timelineChart.update();
+  }
 }
 // Infer whether a set of raw date values uses MM/DD or DD/MM.
 // Scans for unambiguous dates (a component > 12 forces one interpretation).
@@ -1986,6 +2005,8 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
 
 // ── STEP 4: SUMMARY ────────────────────────────────────────────────────────
 function goStep4(){
+  var lbl=document.getElementById('s5-privacy-lbl');
+  if(lbl) lbl.textContent=t(privacyMode?'s5-privacy-show':'s5-privacy-hide');
   renderStep4ReturnTable();
   renderStep4ProjTable();
   renderStep4WithdrawTable();
@@ -2002,7 +2023,7 @@ function renderStep4ReturnTable(){
   var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
-  var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
+  var META='padding:10px 14px 8px;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
   var METADIV='<div class="s4-meta" style="'+META+'">';
   var h=METADIV+(isES?'Inflación':'Inflation')+': '+(inf*100).toFixed(1)+'%</div>'
     +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
@@ -2036,13 +2057,13 @@ function renderStep4ReturnTable(){
     var statusCol=val>0?'var(--accent)':'var(--text3)';
     h+='<tr>'
       +'<td style="'+TD+'">'+p+'</td>'
-      +'<td style="'+TD+'">'+fmtUSD(val)+'</td>'
+      +'<td style="'+TD+'">'+fmtP(val)+'</td>'
       +'<td style="'+TD+'color:var(--text);">'+(rn*100).toFixed(2)+'%</td>'
       +'<td style="'+TD+'color:'+(rr>=0?'var(--accent)':'var(--danger)')+';">'+(rr*100).toFixed(2)+'%</td>'
       +'<td style="'+TD+'color:'+qc+';">'+ql+'</td>'
       +'<td style="'+TD+'">'+deps.length+'</td>'
-      +'<td style="'+TD+'">'+fmtUSD(totDep)+'</td>'
-      +'<td style="'+TD+'">'+fmtUSD(gain)+'</td>'
+      +'<td style="'+TD+'">'+fmtP(totDep)+'</td>'
+      +'<td style="'+TD+'">'+fmtP(gain)+'</td>'
       +'<td style="'+TD+'">'+(totDep>0?(gain/totDep*100).toFixed(1)+'%':'--')+'</td>'
       +'<td style="'+TD+'">'+(share*100).toFixed(1)+'%</td>'
       +'<td style="'+TD+'">'+fmtYrs(maxL)+'</td>'
@@ -2059,13 +2080,13 @@ function renderStep4ReturnTable(){
     var wtdAC=totDepC>0?deposits.reduce(function(s,d){return s+d.amount*yearsAgo(d.date);},0)/totDepC:null;
     h+='<tr>'
       +'<td style="'+TF+'">'+(isES?'Combinado':'Combined')+'</td>'
-      +'<td style="'+TF+'">'+fmtUSD(cVAL)+'</td>'
+      +'<td style="'+TF+'">'+fmtP(cVAL)+'</td>'
       +'<td style="'+TF+'color:var(--text);">'+(rn_c*100).toFixed(2)+'%</td>'
       +'<td style="'+TF+'color:'+(rr_c>=0?'var(--accent)':'var(--danger)')+';">'+(rr_c*100).toFixed(2)+'%</td>'
       +'<td style="'+TF+'">--</td>'
       +'<td style="'+TF+'">'+deposits.length+'</td>'
-      +'<td style="'+TF+'">'+fmtUSD(totDepC)+'</td>'
-      +'<td style="'+TF+'">'+fmtUSD(gainC)+'</td>'
+      +'<td style="'+TF+'">'+fmtP(totDepC)+'</td>'
+      +'<td style="'+TF+'">'+fmtP(gainC)+'</td>'
       +'<td style="'+TF+'">'+(totDepC>0?(gainC/totDepC*100).toFixed(1)+'%':'--')+'</td>'
       +'<td style="'+TF+'">100%</td>'
       +'<td style="'+TF+'">'+fmtYrs(maxLC)+'</td>'
@@ -2089,7 +2110,7 @@ function renderStep4ProjTable(){
   var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
-  var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
+  var META='padding:10px 14px 8px;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
   var METADIV='<div class="s4-meta" style="'+META+'">';
   var metaParts=[(isES?'Edad hoy':'Age today')+': '+age,(isES?'Horizonte':'Horizon')+': '+years+(isES?' años':' yr')];
   if(altRR!==null) metaParts.push((isES?'Alt rr':'Alt rr')+': '+(altRR*100).toFixed(1)+'%');
@@ -2117,12 +2138,12 @@ function renderStep4ProjTable(){
     h+='<tr>'
       +'<td style="'+TD+'">'+p+'</td>'
       +'<td style="'+TD+'color:var(--text3);">'+(rn*100).toFixed(2)+'% · <span style="color:'+(rr>=0?'var(--accent)':'var(--danger)')+';">'+(rr*100).toFixed(2)+'%</span></td>'
-      +'<td style="'+TD+'">'+fmtUSD(val)+'</td>'
-      +'<td style="'+TD+'">'+fmtMo(mo)+'</td>'
-      +'<td style="'+TD+'color:var(--text2);">'+fmtUSD(totDep)+'</td>'
-      +'<td style="'+TD+'color:var(--accent);">'+fmtUSD(nomVAL)+'</td>'
-      +'<td style="'+TD+'color:var(--blue);">'+fmtUSD(realVAL)+'</td>'
-      +(altRR!==null?'<td style="'+TD+'color:#fb923c;">'+fmtUSD(projectFV(val,mo,altRR,years))+'</td>':'')
+      +'<td style="'+TD+'">'+fmtP(val)+'</td>'
+      +'<td style="'+TD+'">'+fmtPMo(mo)+'</td>'
+      +'<td style="'+TD+'color:var(--text2);">'+fmtP(totDep)+'</td>'
+      +'<td style="'+TD+'color:var(--accent);">'+fmtP(nomVAL)+'</td>'
+      +'<td style="'+TD+'color:var(--blue);">'+fmtP(realVAL)+'</td>'
+      +(altRR!==null?'<td style="'+TD+'color:#fb923c;">'+fmtP(projectFV(val,mo,altRR,years))+'</td>':'')
       +'</tr>';
   });
   if(combinedR!==null){
@@ -2134,12 +2155,12 @@ function renderStep4ProjTable(){
     h+='<tr>'
       +'<td style="'+TF+'">'+(isES?'Combinado':'Combined')+'</td>'
       +'<td style="'+TF+'color:var(--text3);">'+(rn_c*100).toFixed(2)+'% · <span style="color:'+(rr_c>=0?'var(--accent)':'var(--danger)')+';">'+(rr_c*100).toFixed(2)+'%</span></td>'
-      +'<td style="'+TF+'">'+fmtUSD(cVAL)+'</td>'
-      +'<td style="'+TF+'">'+fmtMo(moC)+'</td>'
-      +'<td style="'+TF+'color:var(--text2);">'+fmtUSD(totDepC)+'</td>'
-      +'<td style="'+TF+'color:var(--accent);">'+fmtUSD(nomVALC)+'</td>'
-      +'<td style="'+TF+'color:var(--blue);">'+fmtUSD(realVALC)+'</td>'
-      +(altRR!==null?'<td style="'+TF+'color:#fb923c;">'+fmtUSD(projectFV(cVAL,moC,altRR,years))+'</td>':'')
+      +'<td style="'+TF+'">'+fmtP(cVAL)+'</td>'
+      +'<td style="'+TF+'">'+fmtPMo(moC)+'</td>'
+      +'<td style="'+TF+'color:var(--text2);">'+fmtP(totDepC)+'</td>'
+      +'<td style="'+TF+'color:var(--accent);">'+fmtP(nomVALC)+'</td>'
+      +'<td style="'+TF+'color:var(--blue);">'+fmtP(realVALC)+'</td>'
+      +(altRR!==null?'<td style="'+TF+'color:#fb923c;">'+fmtP(projectFV(cVAL,moC,altRR,years))+'</td>':'')
       +'</tr>';
   }
   h+='</tbody></table></div>';
@@ -2175,7 +2196,7 @@ function renderStep4WithdrawTable(){
   var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
   var TF='padding:5px 8px;font-family:var(--mono);font-size:11px;border-top:2px solid var(--border2);font-weight:500;';
-  var META='padding:10px 14px 0;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
+  var META='padding:10px 14px 8px;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.02em;';
   var METADIV='<div class="s4-meta" style="'+META+'">';
   var h=METADIV+(isES?'Edad al horizonte':'Age at horizon')+': '+retireAge+'</div>'
     +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr>'
@@ -2195,9 +2216,9 @@ function renderStep4WithdrawTable(){
   var mFmt=fmtDepletion(mainSim,retireAge);
   h+='<tr>'
     +'<td style="'+TD+'border-left:3px solid var(--blue);">rr = '+(rr_c*100).toFixed(2)+'%</td>'
-    +'<td style="'+TD+'color:var(--blue);">'+fmtUSD(endValReal)+'</td>'
-    +'<td style="'+TD+'color:var(--accent);">'+fmtMo(perpetuity)+'</td>'
-    +'<td style="'+TD+'">'+fmtMo(wMo)+'</td>'
+    +'<td style="'+TD+'color:var(--blue);">'+fmtP(endValReal)+'</td>'
+    +'<td style="'+TD+'color:var(--accent);">'+fmtPMo(perpetuity)+'</td>'
+    +'<td style="'+TD+'">'+fmtPMo(wMo)+'</td>'
     +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.age+'</td>'
     +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.yrs+'</td>'
     +'</tr>';
@@ -2209,9 +2230,9 @@ function renderStep4WithdrawTable(){
     var aFmt=fmtDepletion(altSim,retireAge);
     h+='<tr>'
       +'<td style="'+TF+'border-left:3px solid #fb923c;">alt = '+(altRR*100).toFixed(2)+'%</td>'
-      +'<td style="'+TF+'color:#fb923c;">'+fmtUSD(altEndVal)+'</td>'
-      +'<td style="'+TF+'color:var(--accent);">'+fmtMo(altPerp)+'</td>'
-      +'<td style="'+TF+'">'+fmtMo(wMo)+'</td>'
+      +'<td style="'+TF+'color:#fb923c;">'+fmtP(altEndVal)+'</td>'
+      +'<td style="'+TF+'color:var(--accent);">'+fmtPMo(altPerp)+'</td>'
+      +'<td style="'+TF+'">'+fmtPMo(wMo)+'</td>'
       +'<td style="'+TF+'color:'+aFmt.col+';">'+aFmt.age+'</td>'
       +'<td style="'+TF+'color:'+aFmt.col+';">'+aFmt.yrs+'</td>'
       +'</tr>';
@@ -2389,12 +2410,12 @@ function drawTimelineChart(){
       animation:{duration:isPrint?0:400},
       plugins:{legend:{display:false},tooltip:{callbacks:{
         title:function(items){return (isES?'Edad ':'Age ')+items[0].label;},
-        label:function(c){return c.raw===null?'':' '+c.dataset.label+': '+fmtUSD(c.raw);}
+        label:function(c){return c.raw===null?'':' '+c.dataset.label+': '+(privacyMode?'***':fmtUSD(c.raw));}
       }}},
       interaction:{mode:'index',intersect:false},
       scales:{
         x:{grid:{color:clGrid},ticks:{font:{size:9,family:"'DM Mono'"},color:clTick,maxTicksLimit:20}},
-        y:{grid:{color:clGrid},ticks:{font:{size:10,family:"'DM Mono'"},color:clTick,callback:function(v){return fmtUSD(v);}}}
+        y:{grid:{color:clGrid},ticks:{font:{size:10,family:"'DM Mono'"},color:clTick,callback:function(v){return privacyMode?'':fmtUSD(v);}}}
       }
     },
     plugins:[bgPlugin,phasePlugin]

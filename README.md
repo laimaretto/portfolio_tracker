@@ -107,6 +107,8 @@ Three read-only tables snapshot the current state:
 - **Projection** — same columns as Step 3: rates, VAL today, monthly, total deposits, Nominal VAL, Real VAL, Alternate Real VAL. A one-liner above the table shows the age and horizon used.
 - **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios. A one-liner above the table shows the age at retirement.
 
+A **Hide $** toggle button (top-right of the panel, next to Print) replaces all dollar and monthly amounts in the three tables with `***` and suppresses the timeline chart Y-axis values. Rates, percentages, and time values remain visible. This lets you share a screenshot or PDF of the summary without exposing absolute portfolio values. The setting persists within the session.
+
 Below the tables, a **full timeline chart** connects all three phases on a single age axis:
 
 - **History** (first deposit → today) — combined portfolio value compounded at the nominal MWRR, plus a cumulative deposits reference line.
