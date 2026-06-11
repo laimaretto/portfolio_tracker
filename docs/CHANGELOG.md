@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.9] — 2026-06-11
+
+### Fixed
+- **Number input spinners — Firefox parity** — spinner arrows on number inputs (`<input type="number">`) are now hidden by default and revealed on hover in all browsers, matching Chrome/Brave's behavior. Previously Firefox always showed them, creating a visual inconsistency.
+
+---
+
 ## [v1.5.8] — 2026-06-10
 
 ### Added
