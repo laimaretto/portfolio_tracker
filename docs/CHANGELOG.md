@@ -4,6 +4,16 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.8] — 2026-06-10
+
+### Added
+- **Step 4 — Privacy toggle ("Hide $")** — a button in the top-right of the Summary panel hides all dollar and monthly amounts in the three tables (Returns, Projection, Withdrawal), replacing them with `***`. Rates (rn, rr, Gain/dep %, Share) and time values (Max life, Wtd avg, depletion age/years) remain visible. The timeline chart Y-axis ticks and tooltips are also suppressed. Toggling again restores all values. State persists within the session and survives navigating between steps.
+
+### Fixed
+- **Step 4 — Privacy mode respected in Print / PDF** — the timeline chart is fully rebuilt on every print (destroy + redraw). The Y-axis tick callback and tooltip label callback in `drawTimelineChart` now read `privacyMode` at draw time, so the PDF correctly omits values when privacy mode is active.
+
+---
+
 ## [v1.5.7] — 2026-05-18
 
 ### Fixed
