@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.5.9</title>
+<title>Portfolio Tracker v1.5.10</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -186,7 +186,7 @@ input[type=number]:hover::-webkit-outer-spin-button{opacity:1}
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.9</div>
+      <div class="logo-sub">v1.5.10</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -353,9 +353,15 @@ input[type=number]:hover::-webkit-outer-spin-button{opacity:1}
 
     <div class="sec-head"><div class="sec-num">B</div><div class="sec-title" id="s4-wdraw-lbl">Withdrawal phase</div></div>
     <div class="card">
-      <div class="form-group">
-        <label class="form-label" id="s4-wamt-lbl">Monthly withdrawal (USD)</label>
-        <input class="form-input" type="number" id="proj-withdrawal" placeholder="1300" value="1300" min="0" step="100" oninput="updateWithdrawal()">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" id="s4-wamt-lbl">Monthly withdrawal (USD)</label>
+          <input class="form-input" type="number" id="proj-withdrawal" placeholder="1300" value="1300" min="0" step="100" oninput="updateWithdrawal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="s4-nrr-lbl">NewRealRate % (optional)</label>
+          <input class="form-input" type="number" id="proj-nrr" placeholder="" min="0" step="0.1" oninput="saveAll();updateWithdrawal();">
+        </div>
       </div>
     </div>
 
@@ -367,6 +373,7 @@ input[type=number]:hover::-webkit-outer-spin-button{opacity:1}
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#f87171;display:inline-block;border-radius:1px;"></span><span id="leg-wdraw">Withdrawal</span></span>
       <span id="leg-alt-accum-wrap" style="display:none;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#fb923c;display:inline-block;border-radius:1px;"></span><span id="leg-alt-accum">Alt. Accum.</span></span></span>
       <span id="leg-alt-wdraw-wrap" style="display:none;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#fdba74;display:inline-block;border-radius:1px;"></span><span id="leg-alt-wdraw">Alt. Withdrawal</span></span></span>
+      <span id="leg-nrr-wdraw-wrap" style="display:none;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#a78bfa;display:inline-block;border-radius:1px;"></span><span id="leg-nrr-wdraw">NRR Withdrawal</span></span></span>
       <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#5f6368;display:inline-block;border-radius:1px;"></span><span id="leg-zero">Zero line</span></span>
     </div>
     <div class="proceed-bar" id="s3-proceed" style="margin-top:20px;">
@@ -532,9 +539,11 @@ var TXT = {
     's4-alt-rr-lbl':'Alternate real return (%)','s4-alt-lbl':'Alt. Real VAL',
     's4-alt-age-lbl':'Alt. age out of money','s4-alt-age-sub':'at your withdrawal rate',
     's4-alt-yrs-lbl':'Alt. years of withdrawal','s4-alt-yrs-sub':'until portfolio reaches zero',
+    's4-nrr-lbl':'NewRealRate % (optional)',
     'leg-accum':'Accumulation',
     'leg-wdraw':'Withdrawal',
     'leg-alt':'Alt. Real','leg-alt-accum':'Alt. Accum.','leg-alt-wdraw':'Alt. Withdrawal',
+    'leg-nrr-wdraw':'NRR Withdrawal',
     'leg-zero':'Zero line',
     'pm-title':'Which portfolio?','pm-sub':'Every deposit must belong to a portfolio.',
     'pm-lbl':'Portfolio name','pm-ok':'Confirm','pm-cancel':'Cancel',
@@ -589,9 +598,11 @@ var TXT = {
     's4-alt-rr-lbl':'Retorno real alternativo (%)','s4-alt-lbl':'VAL Real Alt.',
     's4-alt-age-lbl':'Alt. edad sin dinero','s4-alt-age-sub':'con tu tasa de retiro',
     's4-alt-yrs-lbl':'Alt. a\u00f1os de retiro','s4-alt-yrs-sub':'hasta que la cartera llega a cero',
+    's4-nrr-lbl':'NewRealRate % (opcional)',
     'leg-accum':'Acumulaci\u00f3n',
     'leg-wdraw':'Retiro',
     'leg-alt':'Alt. Real','leg-alt-accum':'Alt. Acum.','leg-alt-wdraw':'Alt. Retiro',
+    'leg-nrr-wdraw':'Retiro NRR',
     'leg-zero':'L\u00ednea cero',
     'pm-title':'\u00bfA qu\u00e9 cartera pertenece?','pm-sub':'Cada dep\u00f3sito debe pertenecer a una cartera.',
     'pm-lbl':'Nombre de la cartera','pm-ok':'Confirmar','pm-cancel':'Cancelar',
@@ -834,7 +845,8 @@ function saveAll(){
       years:document.getElementById('proj-years').value,
       withdrawal:document.getElementById('proj-withdrawal').value,
       age:document.getElementById('proj-age').value,
-      altRR:document.getElementById('proj-alt-rr').value
+      altRR:document.getElementById('proj-alt-rr').value,
+      nrr:document.getElementById('proj-nrr').value
     }));
   }catch(e){}
 }
@@ -851,6 +863,7 @@ function loadAll(){
       if(pv.withdrawal) document.getElementById('proj-withdrawal').value=pv.withdrawal;
       if(pv.age)        document.getElementById('proj-age').value=pv.age;
       if(pv.altRR)      document.getElementById('proj-alt-rr').value=pv.altRR;
+      if(pv.nrr)        document.getElementById('proj-nrr').value=pv.nrr;
     }
   }catch(e){}
 }
@@ -1259,6 +1272,11 @@ function projectFV(pv,monthly,rate,years){
 function getAltRR(){
   var v=parseFloat(document.getElementById('proj-alt-rr').value);
   return (v>0)?v/100:null;
+}
+
+function getNRR(){
+  var v=parseFloat(document.getElementById('proj-nrr').value);
+  return (isNaN(v)||v===0)?null:v/100;
 }
 
 function rrQualityColor(rr){
@@ -1786,6 +1804,13 @@ function renderSustainTable(){
     +'<td style="'+TD+'" id="sw-age-main">--</td>'
     +'<td style="'+TD+'" id="sw-yrs-main">--</td>'
     +'</tr>'
+    +'<tr id="sw-row-nrr" style="display:none;">'
+    +'<td style="'+TC+'border-left:3px solid #a78bfa;" id="sw-scen-nrr">--</td>'
+    +'<td style="'+TC+'color:#a78bfa;" id="sw-val-nrr">--</td>'
+    +'<td style="'+TC+'color:var(--accent);cursor:pointer;" id="sw-perp-nrr" onclick="applyPerpetuitySustain(\'nrr\')" title="'+hint+'">--</td>'
+    +'<td style="'+TC+'" id="sw-age-nrr">--</td>'
+    +'<td style="'+TC+'" id="sw-yrs-nrr">--</td>'
+    +'</tr>'
     +'<tr id="sw-row-alt" style="display:none;">'
     +'<td style="'+TC+'border-left:3px solid #fb923c;" id="sw-scen-alt">--</td>'
     +'<td style="'+TC+'color:#fb923c;" id="sw-val-alt">--</td>'
@@ -1889,17 +1914,55 @@ function updateWithdrawal(){
     if(altRow) altRow.style.display='none';
   }
 
+  // ── NRR row ────────────────────────────────────────────────────────────────
+  var nRR=getNRR();
+  var nrrRow=document.getElementById('sw-row-nrr');
+  var nrrWMonths=0,nrrDepletes=false;
+  if(nRR!==null){
+    if(nrrRow) nrrRow.style.display='';
+    var nrrRm=Math.pow(1+nRR,1/12)-1;
+    var nrrPerp=endValReal*nrrRm;
+    var scenNrr=document.getElementById('sw-scen-nrr');
+    var valNrr=document.getElementById('sw-val-nrr');
+    var perpNrr=document.getElementById('sw-perp-nrr');
+    var ageNrr=document.getElementById('sw-age-nrr');
+    var yrsNrr=document.getElementById('sw-yrs-nrr');
+    if(scenNrr) scenNrr.textContent='nrr = '+(nRR*100).toFixed(2)+'%';
+    if(valNrr)  valNrr.textContent=fmtUSD(endValReal);
+    if(perpNrr){ perpNrr.textContent=fmtMo(nrrPerp); perpNrr.dataset.perp=Math.round(nrrPerp); }
+    var nrrBal=endValReal;
+    if(wMonthly<=nrrPerp){ nrrDepletes=false; nrrWMonths=wdrawCapYears(endValReal,nRR,wMonthly)*12; }
+    else{
+      nrrDepletes=true;
+      while(nrrBal>0&&nrrWMonths<MAX){ nrrBal=nrrBal*(1+nrrRm)-wMonthly; nrrWMonths++; }
+      if(nrrWMonths>=MAX){ nrrDepletes=false; nrrWMonths=wdrawCapYears(endValReal,nRR,wMonthly)*12; }
+    }
+    if(!nrrDepletes){
+      if(ageNrr){ ageNrr.textContent=lang==='es'?'Nunca':'Never'; ageNrr.style.color='var(--accent)'; }
+      if(yrsNrr){ yrsNrr.textContent=lang==='es'?'Indefinido':'Indefinite'; yrsNrr.style.color='var(--accent)'; }
+    } else {
+      var nrrWYears=nrrWMonths/12, nrrDepleteAge=retireAge+nrrWYears;
+      var nrrAc=nrrDepleteAge>=retireAge+30?'var(--accent)':nrrDepleteAge>=retireAge+20?'var(--blue)':nrrDepleteAge>=retireAge+10?'var(--warn)':'var(--danger)';
+      if(ageNrr){ ageNrr.textContent=Math.floor(nrrDepleteAge).toString(); ageNrr.style.color=nrrAc; }
+      if(yrsNrr){ yrsNrr.textContent=nrrWYears.toFixed(1)+(lang==='es'?' años':' years'); yrsNrr.style.color=nrrAc; }
+    }
+  } else {
+    if(nrrRow) nrrRow.style.display='none';
+  }
+
   // Show/hide alt sustain legend entries
   var altVisible=altRR!==null?'':'none';
   var e1=document.getElementById('leg-alt-accum-wrap'); if(e1) e1.style.display=altVisible;
   var e2=document.getElementById('leg-alt-wdraw-wrap'); if(e2) e2.style.display=altVisible;
+  var e3=document.getElementById('leg-nrr-wdraw-wrap'); if(e3) e3.style.display=nRR!==null?'':'none';
 
-  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:wdrawCapYears(endValReal,rr,wMonthly)*12,altRR,altEndVal,altWMonths);
+  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:wdrawCapYears(endValReal,rr,wMonthly)*12,altRR,altEndVal,altWMonths,nRR,nrrWMonths);
   updateStepNav();
 }
 
-function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths){
+function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths, nRR, nrrWMonths){
   var hasAlt = (altR !== null && altR !== undefined && altEndVal !== null);
+  var hasNRR = (nRR !== null && nRR !== undefined);
   var rm = Math.pow(1+rr,1/12)-1;
 
   // Accumulation labels (shared for both scenarios)
@@ -1908,10 +1971,11 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
     accumLabels.push((lang==='es'?'A':'Y')+y+' ('+(age+y)+')');
   }
 
-  // Withdrawal axis: extend to cover both scenarios
+  // Withdrawal axis: extend to cover all scenarios
   var mainMaxWYears = Math.min(Math.ceil(wMonths/12), 50);
   var altMaxWYears = hasAlt ? Math.min(Math.ceil(altWMonths/12), 50) : 0;
-  var maxWYears = Math.max(mainMaxWYears, altMaxWYears);
+  var nrrMaxWYears = hasNRR ? Math.min(Math.ceil((nrrWMonths||0)/12), 50) : 0;
+  var maxWYears = Math.max(mainMaxWYears, altMaxWYears, nrrMaxWYears);
 
   var wdrawLabels = [];
   for(var y=0; y<=maxWYears; y++){
@@ -1948,6 +2012,18 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
     }
   }
 
+  // Build NRR withdrawal data (same endVal as main, different rate)
+  var nrrWdrawData = null;
+  if(hasNRR){
+    var nrrRm2 = Math.pow(1+nRR,1/12)-1;
+    nrrWdrawData = [];
+    for(var y=0; y<=maxWYears; y++){
+      var b = endVal, m = y*12;
+      for(var k=0; k<m; k++){ b=b*(1+nrrRm2)-wMonthly; if(b<0){b=0;break;} }
+      nrrWdrawData.push(Math.max(0,Math.round(b)));
+    }
+  }
+
   var allLabels = accumLabels.concat(wdrawLabels.slice(1));
   var nullAccum = new Array(wdrawLabels.length - 1).fill(null);
   var nullWdraw = new Array(accumLabels.length - 1).fill(null);
@@ -1977,6 +2053,14 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
       label: t('leg-alt-wdraw'),
       data: nullWdraw.concat([altAccumData[altAccumData.length-1]]).concat(altWdrawData.slice(1)),
       borderColor: '#fdba74', backgroundColor: 'transparent',
+      fill: false, borderWidth: 2, borderDash: [5,3], pointRadius: 0, tension: 0.3, spanGaps: false
+    });
+  }
+  if(hasNRR){
+    datasets.push({
+      label: t('leg-nrr-wdraw'),
+      data: nullWdraw.concat([accumData[accumData.length-1]]).concat(nrrWdrawData.slice(1)),
+      borderColor: '#a78bfa', backgroundColor: 'transparent',
       fill: false, borderWidth: 2, borderDash: [5,3], pointRadius: 0, tension: 0.3, spanGaps: false
     });
   }
@@ -2199,6 +2283,7 @@ function renderStep4WithdrawTable(){
     while(bal>0&&m<MAX){bal=bal*(1+rm)-wm;m++;}
     return {depletes:m<MAX,months:m};
   }
+  var nRR=getNRR();
   var mainSim=simMonths(endValReal,rr_c,wMo);
   var TH='font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:var(--mono);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;';
   var TD='padding:5px 8px;font-family:var(--mono);font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04);';
@@ -2229,6 +2314,20 @@ function renderStep4WithdrawTable(){
     +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.age+'</td>'
     +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.yrs+'</td>'
     +'</tr>';
+  if(nRR!==null){
+    var nrrRm_c=Math.pow(1+nRR,1/12)-1;
+    var nrrPerp_c=endValReal*nrrRm_c;
+    var nrrSim=simMonths(endValReal,nRR,wMo);
+    var nFmt=fmtDepletion(nrrSim,retireAge);
+    h+='<tr>'
+      +'<td style="'+TF+'border-left:3px solid #a78bfa;">nrr = '+(nRR*100).toFixed(2)+'%</td>'
+      +'<td style="'+TF+'color:#a78bfa;">'+fmtP(endValReal)+'</td>'
+      +'<td style="'+TF+'color:var(--accent);">'+fmtPMo(nrrPerp_c)+'</td>'
+      +'<td style="'+TF+'">'+fmtPMo(wMo)+'</td>'
+      +'<td style="'+TF+'color:'+nFmt.col+';">'+nFmt.age+'</td>'
+      +'<td style="'+TF+'color:'+nFmt.col+';">'+nFmt.yrs+'</td>'
+      +'</tr>';
+  }
   if(altRR!==null){
     var altRm=Math.pow(1+altRR,1/12)-1;
     var altEndVal=projectFV(cVAL,moC,altRR,years);
@@ -2257,6 +2356,7 @@ function drawTimelineChart(){
   var rn_c=combinedR;
   var rr=(1+rn_c)/(1+inf)-1;
   var altRR=getAltRR();
+  var nRR=getNRR();
   var wMo=parseFloat(document.getElementById('proj-withdrawal').value)||0;
   var monthly=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
   var cVAL=getCombinedVAL();
@@ -2322,14 +2422,17 @@ function drawTimelineChart(){
   }
   var mainDepYrs=depletionYrs(endValReal,rr,wMo);
   var altDepYrs=altRR!==null?depletionYrs(altEndVal,altRR,wMo):0;
-  var maxCYrs=Math.max(mainDepYrs,altDepYrs,1);
-  var cLabels=[],cReal=[],cAlt=[];
+  var nrrDepYrs=nRR!==null?depletionYrs(endValReal,nRR,wMo):0;
+  var maxCYrs=Math.max(mainDepYrs,altDepYrs,nrrDepYrs,1);
+  var cLabels=[],cReal=[],cAlt=[],cNrr=[];
   var mainW=simYearly(endValReal,rr,wMo,maxCYrs);
   var altW=altRR!==null?simYearly(altEndVal,altRR,wMo,maxCYrs):null;
+  var nrrW=nRR!==null?simYearly(endValReal,nRR,wMo,maxCYrs):null;
   for(var y=0;y<=maxCYrs;y++){
     cLabels.push(String(retireAge+y));
     cReal.push(mainW[y]);
     if(altRR!==null) cAlt.push(altW[y]);
+    if(nRR!==null) cNrr.push(nrrW[y]);
   }
 
   // ── Combine ─────────────────────────────────────────────────────────────
@@ -2345,9 +2448,10 @@ function drawTimelineChart(){
   // Phase(b) real/alt: start at todayIdx
   var dReal=new Array(todayIdx).fill(null).concat(bReal).concat(new Array(cLen-1).fill(null));
   var dAlt=altRR!==null?new Array(todayIdx).fill(null).concat(bAlt).concat(new Array(cLen-1).fill(null)):null;
-  // Phase(c) real/alt: start at retireIdx
+  // Phase(c) real/alt/nrr: start at retireIdx
   var dCReal=new Array(retireIdx).fill(null).concat(cReal);
   var dCAlt=altRR!==null?new Array(retireIdx).fill(null).concat(cAlt):null;
+  var dCNrr=nRR!==null?new Array(retireIdx).fill(null).concat(cNrr):null;
 
   var isES=lang==='es';
   // Colour palette switches between screen (dark) and print (light) modes
@@ -2368,6 +2472,7 @@ function drawTimelineChart(){
   if(altRR!==null) datasets.push({label:isES?'Alt. Real (proy)':'Alt. Real (proj)',data:dAlt,borderColor:'#fb923c',backgroundColor:'transparent',fill:false,borderWidth:2,borderDash:[5,3],pointRadius:0,tension:0.3,spanGaps:false});
   datasets.push({label:isES?'Real (retiro)':'Real (withdrawal)',data:dCReal,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.06)',fill:false,borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false});
   if(altRR!==null) datasets.push({label:isES?'Alt. Real (retiro)':'Alt. Real (withdrawal)',data:dCAlt,borderColor:'#fdba74',backgroundColor:'transparent',fill:false,borderWidth:2,borderDash:[5,3],pointRadius:0,tension:0.3,spanGaps:false});
+  if(nRR!==null) datasets.push({label:isES?'NRR (retiro)':'NRR (withdrawal)',data:dCNrr,borderColor:'#a78bfa',backgroundColor:'transparent',fill:false,borderWidth:2,borderDash:[5,3],pointRadius:0,tension:0.3,spanGaps:false});
 
   // Fills the canvas before Chart.js renders — keeps lines visible on both
   // dark screen and white print background

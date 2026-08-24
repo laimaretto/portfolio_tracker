@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.10] — 2026-08-24
+
+### Added
+- **NewRealRate (nrr) — withdrawal-phase real return override** — an optional input in the Step 3 withdrawal card allows specifying a different real return rate that applies from the horizon date onward. Useful for modelling a conservative asset swap at retirement (e.g. AOR → AOK). When set, a new `nrr` row appears in the Step 3 sustainability table and a purple dashed withdrawal curve is added to both the Step 3 sustainability chart and the Step 4 timeline chart Phase (c). The `arr` (alternate real return) line is unaffected and continues its own independent trajectory. If nrr is left empty, behaviour is identical to v1.5.9.
+
+---
+
 ## [v1.5.9] — 2026-06-11
 
 ### Fixed

@@ -88,7 +88,9 @@ The app projects:
 
 A growth chart overlays all three curves over the chosen horizon, with the x-axis labelled by actual age.
 
-Below the chart, a sustainability simulation asks: *after the horizon ends, how much do you withdraw monthly?* It computes whether the portfolio survives indefinitely or depletes, and if so, at what age. Both the main scenario and the alternate scenario are shown together.
+Below the chart, a sustainability simulation asks: *after the horizon ends, how much do you withdraw monthly?* It computes whether the portfolio survives indefinitely or depletes, and if so, at what age.
+
+An optional **NewRealRate (nrr)** field lets you specify a different real return that applies only from the horizon date onward — modelling a conservative asset swap at retirement (e.g. a growth allocation during accumulation → a conservative allocation during withdrawal). The accumulation projection is unchanged; only the withdrawal simulation uses nrr. When set, a separate nrr row appears in the sustainability table and a purple dashed curve is added to the sustainability chart. The alternate real return (`arr`) line is unaffected.
 
 |![Projection](imgs/03_a_proj.png)|
 |:--:|
@@ -105,7 +107,7 @@ Once a monthly withdrawal is set in Step 3, the Summary step unlocks. It produce
 Three read-only tables snapshot the current state:
 - **Returns** — same columns as Step 2: nominal r, real r, quality, deposits, gain, max life, weighted avg, status. A one-liner above the table shows the inflation assumption used.
 - **Projection** — same columns as Step 3: rates, VAL today, monthly, total deposits, Nominal VAL, Real VAL, Alternate Real VAL. A one-liner above the table shows the age and horizon used.
-- **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main and alternate scenarios. A one-liner above the table shows the age at retirement.
+- **Withdrawal** — real VAL at horizon, perpetuity, monthly withdrawal, age out of money, years of withdrawal; main (`rr`), NewRealRate (`nrr`, if set), and alternate (`arr`, if set) scenarios. A one-liner above the table shows the age at retirement.
 
 A **Hide $** toggle button (top-right of the panel, next to Print) replaces all dollar and monthly amounts in the three tables with `***` and suppresses the timeline chart Y-axis values. Rates, percentages, and time values remain visible. This lets you share a screenshot or PDF of the summary without exposing absolute portfolio values. The setting persists within the session.
 
