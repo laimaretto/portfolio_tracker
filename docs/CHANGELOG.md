@@ -4,6 +4,13 @@ All notable changes to Portfolio Tracker are documented here.
 
 ---
 
+## [v1.5.11] — 2026-08-25
+
+### Added
+- **NRR delay — deferred glide-path switch** — a new "NRR delay (yr)" input in the withdrawal card lets you defer the NewRealRate switch by N years after the horizon. During the delay period the simulation runs at `rr`; after the delay it switches to `nrr`. Use case: staying in a growth allocation for a few extra years past retirement before moving to a conservative one. The scenario label in the sustainability table shows the delay (e.g. `nrr = 4.00% (+2yr)`). The perpetuity displayed is based on the balance at the moment nrr kicks in (after the delay phase), not on the horizon VAL. Delay = 0 is identical to v1.5.10 behavior.
+
+---
+
 ## [v1.5.10] — 2026-08-24
 
 ### Added
