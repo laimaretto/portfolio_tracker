@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Tracker v1.5.10</title>
+<title>Portfolio Tracker v1.5.11</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -186,7 +186,7 @@ input[type=number]:hover::-webkit-outer-spin-button{opacity:1}
     <div class="logo-icon">&#9672;</div>
     <div>
       <div class="logo-text" id="hd-title">Portfolio Tracker</div>
-      <div class="logo-sub">v1.5.10</div>
+      <div class="logo-sub">v1.5.11</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -353,7 +353,7 @@ input[type=number]:hover::-webkit-outer-spin-button{opacity:1}
 
     <div class="sec-head"><div class="sec-num">B</div><div class="sec-title" id="s4-wdraw-lbl">Withdrawal phase</div></div>
     <div class="card">
-      <div class="form-row">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
         <div class="form-group">
           <label class="form-label" id="s4-wamt-lbl">Monthly withdrawal (USD)</label>
           <input class="form-input" type="number" id="proj-withdrawal" placeholder="1300" value="1300" min="0" step="100" oninput="updateWithdrawal()">
@@ -361,6 +361,10 @@ input[type=number]:hover::-webkit-outer-spin-button{opacity:1}
         <div class="form-group">
           <label class="form-label" id="s4-nrr-lbl">NewRealRate % (optional)</label>
           <input class="form-input" type="number" id="proj-nrr" placeholder="" min="0" step="0.1" oninput="saveAll();updateWithdrawal();">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="s4-nrr-delay-lbl">NRR delay (yr)</label>
+          <input class="form-input" type="number" id="proj-nrr-delay" placeholder="0" min="0" step="1" oninput="saveAll();updateWithdrawal();">
         </div>
       </div>
     </div>
@@ -540,6 +544,7 @@ var TXT = {
     's4-alt-age-lbl':'Alt. age out of money','s4-alt-age-sub':'at your withdrawal rate',
     's4-alt-yrs-lbl':'Alt. years of withdrawal','s4-alt-yrs-sub':'until portfolio reaches zero',
     's4-nrr-lbl':'NewRealRate % (optional)',
+    's4-nrr-delay-lbl':'NRR delay (yr)',
     'leg-accum':'Accumulation',
     'leg-wdraw':'Withdrawal',
     'leg-alt':'Alt. Real','leg-alt-accum':'Alt. Accum.','leg-alt-wdraw':'Alt. Withdrawal',
@@ -599,6 +604,7 @@ var TXT = {
     's4-alt-age-lbl':'Alt. edad sin dinero','s4-alt-age-sub':'con tu tasa de retiro',
     's4-alt-yrs-lbl':'Alt. a\u00f1os de retiro','s4-alt-yrs-sub':'hasta que la cartera llega a cero',
     's4-nrr-lbl':'NewRealRate % (opcional)',
+    's4-nrr-delay-lbl':'Retraso NRR (a\u00f1os)',
     'leg-accum':'Acumulaci\u00f3n',
     'leg-wdraw':'Retiro',
     'leg-alt':'Alt. Real','leg-alt-accum':'Alt. Acum.','leg-alt-wdraw':'Alt. Retiro',
@@ -846,7 +852,8 @@ function saveAll(){
       withdrawal:document.getElementById('proj-withdrawal').value,
       age:document.getElementById('proj-age').value,
       altRR:document.getElementById('proj-alt-rr').value,
-      nrr:document.getElementById('proj-nrr').value
+      nrr:document.getElementById('proj-nrr').value,
+      nrrDelay:document.getElementById('proj-nrr-delay').value
     }));
   }catch(e){}
 }
@@ -864,6 +871,7 @@ function loadAll(){
       if(pv.age)        document.getElementById('proj-age').value=pv.age;
       if(pv.altRR)      document.getElementById('proj-alt-rr').value=pv.altRR;
       if(pv.nrr)        document.getElementById('proj-nrr').value=pv.nrr;
+      if(pv.nrrDelay)   document.getElementById('proj-nrr-delay').value=pv.nrrDelay;
     }
   }catch(e){}
 }
@@ -1277,6 +1285,11 @@ function getAltRR(){
 function getNRR(){
   var v=parseFloat(document.getElementById('proj-nrr').value);
   return (isNaN(v)||v===0)?null:v/100;
+}
+
+function getNRRDelay(){
+  var v=parseFloat(document.getElementById('proj-nrr-delay').value);
+  return (isNaN(v)||v<0)?0:v;
 }
 
 function rrQualityColor(rr){
@@ -1916,26 +1929,37 @@ function updateWithdrawal(){
 
   // ── NRR row ────────────────────────────────────────────────────────────────
   var nRR=getNRR();
+  var nrrDelay=getNRRDelay();
   var nrrRow=document.getElementById('sw-row-nrr');
   var nrrWMonths=0,nrrDepletes=false;
   if(nRR!==null){
     if(nrrRow) nrrRow.style.display='';
     var nrrRm=Math.pow(1+nRR,1/12)-1;
-    var nrrPerp=endValReal*nrrRm;
+    var delayMo=Math.round(nrrDelay*12);
     var scenNrr=document.getElementById('sw-scen-nrr');
     var valNrr=document.getElementById('sw-val-nrr');
     var perpNrr=document.getElementById('sw-perp-nrr');
     var ageNrr=document.getElementById('sw-age-nrr');
     var yrsNrr=document.getElementById('sw-yrs-nrr');
-    if(scenNrr) scenNrr.textContent='nrr = '+(nRR*100).toFixed(2)+'%';
+    var nrrLabel='nrr = '+(nRR*100).toFixed(2)+'%'+(nrrDelay>0?' (+'+nrrDelay+'yr)':'');
+    if(scenNrr) scenNrr.textContent=nrrLabel;
     if(valNrr)  valNrr.textContent=fmtUSD(endValReal);
-    if(perpNrr){ perpNrr.textContent=fmtMo(nrrPerp); perpNrr.dataset.perp=Math.round(nrrPerp); }
-    var nrrBal=endValReal;
-    if(wMonthly<=nrrPerp){ nrrDepletes=false; nrrWMonths=wdrawCapYears(endValReal,nRR,wMonthly)*12; }
-    else{
-      nrrDepletes=true;
-      while(nrrBal>0&&nrrWMonths<MAX){ nrrBal=nrrBal*(1+nrrRm)-wMonthly; nrrWMonths++; }
-      if(nrrWMonths>=MAX){ nrrDepletes=false; nrrWMonths=wdrawCapYears(endValReal,nRR,wMonthly)*12; }
+    // Phase 1: run delay period at rr to find balance when nrr kicks in
+    var nrrBal=endValReal, mDelay=0;
+    while(mDelay<delayMo&&nrrBal>0){ nrrBal=nrrBal*(1+rm)-wMonthly; mDelay++; }
+    var depletedInDelay=(nrrBal<=0);
+    var balAtSwitch=depletedInDelay?0:nrrBal;
+    var nrrPerp=depletedInDelay?0:balAtSwitch*nrrRm;
+    if(perpNrr){ if(depletedInDelay){ perpNrr.textContent='--'; delete perpNrr.dataset.perp; } else { perpNrr.textContent=fmtMo(nrrPerp); perpNrr.dataset.perp=Math.round(nrrPerp); } }
+    if(depletedInDelay){
+      nrrDepletes=true; nrrWMonths=mDelay;
+    } else if(wMonthly<=nrrPerp){
+      nrrDepletes=false; nrrWMonths=delayMo+wdrawCapYears(balAtSwitch,nRR,wMonthly)*12;
+    } else {
+      nrrDepletes=true; nrrWMonths=delayMo;
+      var nrrBal2=balAtSwitch;
+      while(nrrBal2>0&&nrrWMonths<MAX){ nrrBal2=nrrBal2*(1+nrrRm)-wMonthly; nrrWMonths++; }
+      if(nrrWMonths>=MAX){ nrrDepletes=false; nrrWMonths=delayMo+wdrawCapYears(balAtSwitch,nRR,wMonthly)*12; }
     }
     if(!nrrDepletes){
       if(ageNrr){ ageNrr.textContent=lang==='es'?'Nunca':'Never'; ageNrr.style.color='var(--accent)'; }
@@ -1956,11 +1980,11 @@ function updateWithdrawal(){
   var e2=document.getElementById('leg-alt-wdraw-wrap'); if(e2) e2.style.display=altVisible;
   var e3=document.getElementById('leg-nrr-wdraw-wrap'); if(e3) e3.style.display=nRR!==null?'':'none';
 
-  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:wdrawCapYears(endValReal,rr,wMonthly)*12,altRR,altEndVal,altWMonths,nRR,nrrWMonths);
+  drawSustainChart(val,monthly,rr,endValReal,wMonthly,years,age,depletes?months:wdrawCapYears(endValReal,rr,wMonthly)*12,altRR,altEndVal,altWMonths,nRR,nrrWMonths,nrrDelay);
   updateStepNav();
 }
 
-function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths, nRR, nrrWMonths){
+function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs, age, wMonths, altR, altEndVal, altWMonths, nRR, nrrWMonths, nrrDelay){
   var hasAlt = (altR !== null && altR !== undefined && altEndVal !== null);
   var hasNRR = (nRR !== null && nRR !== undefined);
   var rm = Math.pow(1+rr,1/12)-1;
@@ -2012,14 +2036,19 @@ function drawSustainChart(startVal, depMonthly, rr, endVal, wMonthly, horizonYrs
     }
   }
 
-  // Build NRR withdrawal data (same endVal as main, different rate)
+  // Build NRR withdrawal data — delay months at rr, then switch to nrr
   var nrrWdrawData = null;
   if(hasNRR){
-    var nrrRm2 = Math.pow(1+nRR,1/12)-1;
-    nrrWdrawData = [];
-    for(var y=0; y<=maxWYears; y++){
-      var b = endVal, m = y*12;
-      for(var k=0; k<m; k++){ b=b*(1+nrrRm2)-wMonthly; if(b<0){b=0;break;} }
+    var nrrRm2=Math.pow(1+nRR,1/12)-1;
+    var rrRm2=Math.pow(1+rr,1/12)-1;
+    var delayMo2=Math.round((nrrDelay||0)*12);
+    nrrWdrawData=[];
+    for(var y=0;y<=maxWYears;y++){
+      var b=endVal,totalMo=y*12;
+      for(var k=0;k<totalMo;k++){
+        b=b*(k<delayMo2?1+rrRm2:1+nrrRm2)-wMonthly;
+        if(b<0){b=0;break;}
+      }
       nrrWdrawData.push(Math.max(0,Math.round(b)));
     }
   }
@@ -2315,14 +2344,32 @@ function renderStep4WithdrawTable(){
     +'<td style="'+TD+'color:'+mFmt.col+';">'+mFmt.yrs+'</td>'
     +'</tr>';
   if(nRR!==null){
+    var nrrDelay_c=getNRRDelay();
     var nrrRm_c=Math.pow(1+nRR,1/12)-1;
-    var nrrPerp_c=endValReal*nrrRm_c;
-    var nrrSim=simMonths(endValReal,nRR,wMo);
+    var rrRm_c=Math.pow(1+rr_c,1/12)-1;
+    var delayMo_c=Math.round(nrrDelay_c*12);
+    // Simulate delay phase at rr to find balance when nrr kicks in
+    var nrrBal_c=endValReal, md=0;
+    while(md<delayMo_c&&nrrBal_c>0){ nrrBal_c=nrrBal_c*(1+rrRm_c)-wMo; md++; }
+    var balSwitch_c=Math.max(0,nrrBal_c);
+    var nrrPerp_c=balSwitch_c*nrrRm_c;
+    // Two-phase simMonths for nrr
+    function simMonthsNRR(startV,rrR,nrrR,delYrs,wm){
+      var rrm=Math.pow(1+rrR,1/12)-1,nrm=Math.pow(1+nrrR,1/12)-1;
+      var dMo=Math.round(delYrs*12),MX=100*12,bal=startV,m=0;
+      while(m<dMo&&bal>0&&m<MX){bal=bal*(1+rrm)-wm;m++;}
+      if(bal<=0) return {depletes:true,months:m};
+      if(wm<=bal*nrm) return {depletes:false,months:MX};
+      while(bal>0&&m<MX){bal=bal*(1+nrm)-wm;m++;}
+      return {depletes:m<MX,months:m};
+    }
+    var nrrSim=simMonthsNRR(endValReal,rr_c,nRR,nrrDelay_c,wMo);
     var nFmt=fmtDepletion(nrrSim,retireAge);
+    var nrrLbl_c='nrr = '+(nRR*100).toFixed(2)+'%'+(nrrDelay_c>0?' (+'+nrrDelay_c+'yr)':'');
     h+='<tr>'
-      +'<td style="'+TF+'border-left:3px solid #a78bfa;">nrr = '+(nRR*100).toFixed(2)+'%</td>'
+      +'<td style="'+TF+'border-left:3px solid #a78bfa;">'+nrrLbl_c+'</td>'
       +'<td style="'+TF+'color:#a78bfa;">'+fmtP(endValReal)+'</td>'
-      +'<td style="'+TF+'color:var(--accent);">'+fmtPMo(nrrPerp_c)+'</td>'
+      +'<td style="'+TF+'color:var(--accent);">'+(balSwitch_c>0?fmtPMo(nrrPerp_c):'--')+'</td>'
       +'<td style="'+TF+'">'+fmtPMo(wMo)+'</td>'
       +'<td style="'+TF+'color:'+nFmt.col+';">'+nFmt.age+'</td>'
       +'<td style="'+TF+'color:'+nFmt.col+';">'+nFmt.yrs+'</td>'
@@ -2357,6 +2404,7 @@ function drawTimelineChart(){
   var rr=(1+rn_c)/(1+inf)-1;
   var altRR=getAltRR();
   var nRR=getNRR();
+  var nrrDelay=getNRRDelay();
   var wMo=parseFloat(document.getElementById('proj-withdrawal').value)||0;
   var monthly=getPortfolios().reduce(function(s,p){return s+(portfolioMonthly[p]||0);},0);
   var cVAL=getCombinedVAL();
@@ -2420,14 +2468,38 @@ function drawTimelineChart(){
     }
     return out;
   }
+  function depletionYrsNRR(startV,rrR,nrrR,delYrs,wm){
+    var rrm=Math.pow(1+rrR,1/12)-1,nrm=Math.pow(1+nrrR,1/12)-1;
+    var dMo=Math.round(delYrs*12),MAX=100*12,bal=startV,m=0;
+    while(m<dMo&&bal>0){bal=bal*(1+rrm)-wm;m++;}
+    if(bal<=0) return Math.min(Math.ceil(m/12),100);
+    if(wm<=bal*nrm||wm===0) return delYrs+wdrawCapYears(bal,nrrR,wm);
+    while(bal>0&&m<MAX){bal=bal*(1+nrm)-wm;m++;}
+    return Math.min(Math.ceil(m/12),100);
+  }
+  function simYearlyNRR(startV,rrR,nrrR,delYrs,wm,maxYrs){
+    var rrm=Math.pow(1+rrR,1/12)-1,nrm=Math.pow(1+nrrR,1/12)-1;
+    var dMo=Math.round(delYrs*12);
+    var out=[Math.max(0,Math.round(startV))],bal=startV;
+    for(var y=1;y<=maxYrs;y++){
+      if(bal<=0){out.push(0);continue;}
+      for(var mo=0;mo<12;mo++){
+        var absM=(y-1)*12+mo;
+        bal=bal*(absM<dMo?1+rrm:1+nrm)-wm;
+        if(bal<0){bal=0;break;}
+      }
+      out.push(Math.max(0,Math.round(bal)));
+    }
+    return out;
+  }
   var mainDepYrs=depletionYrs(endValReal,rr,wMo);
   var altDepYrs=altRR!==null?depletionYrs(altEndVal,altRR,wMo):0;
-  var nrrDepYrs=nRR!==null?depletionYrs(endValReal,nRR,wMo):0;
+  var nrrDepYrs=nRR!==null?depletionYrsNRR(endValReal,rr,nRR,nrrDelay,wMo):0;
   var maxCYrs=Math.max(mainDepYrs,altDepYrs,nrrDepYrs,1);
   var cLabels=[],cReal=[],cAlt=[],cNrr=[];
   var mainW=simYearly(endValReal,rr,wMo,maxCYrs);
   var altW=altRR!==null?simYearly(altEndVal,altRR,wMo,maxCYrs):null;
-  var nrrW=nRR!==null?simYearly(endValReal,nRR,wMo,maxCYrs):null;
+  var nrrW=nRR!==null?simYearlyNRR(endValReal,rr,nRR,nrrDelay,wMo,maxCYrs):null;
   for(var y=0;y<=maxCYrs;y++){
     cLabels.push(String(retireAge+y));
     cReal.push(mainW[y]);

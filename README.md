@@ -92,6 +92,8 @@ Below the chart, a sustainability simulation asks: *after the horizon ends, how 
 
 An optional **NewRealRate (nrr)** field lets you specify a different real return that applies only from the horizon date onward — modelling a conservative asset swap at retirement (e.g. a growth allocation during accumulation → a conservative allocation during withdrawal). The accumulation projection is unchanged; only the withdrawal simulation uses nrr. When set, a separate nrr row appears in the sustainability table and a purple dashed curve is added to the sustainability chart. The alternate real return (`arr`) line is unaffected.
 
+An optional **NRR delay (yr)** field defers the switch by N years after the horizon. During the delay the simulation continues at `rr`; after the delay it switches to `nrr`. The perpetuity shown in the nrr row is based on the balance at the moment of the switch, not at the horizon. Delaying the switch allows extra years of compounding at the higher growth-phase return before locking into the conservative allocation — at the cost of additional sequence-of-returns risk.
+
 |![Projection](imgs/03_a_proj.png)|
 |:--:|
 |Figure3: Projection|
